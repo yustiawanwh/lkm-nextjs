@@ -1,2287 +1,1161 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta name="color-scheme" content="light dark" />
-    <title>Lembar Kerja PjBL</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    />
-    <style>
-      /* =========================================================
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Lembar Kerja PjBL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  /* =========================================================
      Token warna & tipografi
      ========================================================= */
-      :root {
-        --bg: #f2f4f9;
-        --surface: #ffffff;
-        --surface-2: #edf0f6;
-        --ink: #141a2e;
-        --ink-2: #434b68;
-        --muted: #6a7190;
-        --line: #e0e4ee;
-        --accent: #2747e6;
-        --accent-hover: #1e3ad0;
-        --accent-ink: #ffffff;
-        --accent-soft: #e6ebff;
-        --warn: #b86200;
-        --warn-soft: #fff1dc;
-        --danger: #d02b2b;
-        --danger-soft: #ffe6e6;
-        --ok: #0f8257;
-        --code-bg: #111733;
-        --code-ink: #e2e8ff;
-        --scrim: rgba(14, 18, 34, 0.55);
-        --shadow-sm: 0 1px 2px rgba(20, 26, 46, 0.06);
-        --shadow-lg:
-          0 1px 2px rgba(20, 26, 46, 0.05),
-          0 24px 48px -20px rgba(20, 26, 46, 0.28);
-        --sans:
-          "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto,
-          sans-serif;
-        --mono:
-          "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, Consolas,
-          monospace;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #0d1120;
-          --surface: #151a2d;
-          --surface-2: #1c2238;
-          --ink: #e9ecf6;
-          --ink-2: #b7bdd3;
-          --muted: #8990ab;
-          --line: #262d46;
-          --accent: #7d93ff;
-          --accent-hover: #97a8ff;
-          --accent-ink: #0d1120;
-          --accent-soft: #1e2852;
-          --warn: #f2a93b;
-          --warn-soft: #33260f;
-          --danger: #ff6b6b;
-          --danger-soft: #3a191d;
-          --ok: #3cd397;
-          --code-bg: #090d1b;
-          --scrim: rgba(4, 6, 14, 0.7);
-          --shadow-lg: 0 24px 48px -20px rgba(0, 0, 0, 0.6);
-        }
-      }
+  :root{
+    --bg:#F2F4F9;
+    --surface:#FFFFFF;
+    --surface-2:#EDF0F6;
+    --ink:#141A2E;
+    --ink-2:#434B68;
+    --muted:#6A7190;
+    --line:#E0E4EE;
+    --accent:#2747E6;
+    --accent-hover:#1E3AD0;
+    --accent-ink:#FFFFFF;
+    --accent-soft:#E6EBFF;
+    --warn:#B86200;
+    --warn-soft:#FFF1DC;
+    --danger:#D02B2B;
+    --danger-soft:#FFE6E6;
+    --ok:#0F8257;
+    --code-bg:#111733;
+    --code-ink:#E2E8FF;
+    --scrim:rgba(14,18,34,.55);
+    --shadow-sm:0 1px 2px rgba(20,26,46,.06);
+    --shadow-lg:0 1px 2px rgba(20,26,46,.05), 0 24px 48px -20px rgba(20,26,46,.28);
+    --sans:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0D1120;
+      --surface:#151A2D;
+      --surface-2:#1C2238;
+      --ink:#E9ECF6;
+      --ink-2:#B7BDD3;
+      --muted:#8990AB;
+      --line:#262D46;
+      --accent:#7D93FF;
+      --accent-hover:#97A8FF;
+      --accent-ink:#0D1120;
+      --accent-soft:#1E2852;
+      --warn:#F2A93B;
+      --warn-soft:#33260F;
+      --danger:#FF6B6B;
+      --danger-soft:#3A191D;
+      --ok:#3CD397;
+      --code-bg:#090D1B;
+      --scrim:rgba(4,6,14,.7);
+      --shadow-lg:0 24px 48px -20px rgba(0,0,0,.6);
+    }
+  }
 
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-      body {
-        font: 400 16px/1.6 var(--sans);
-        background: var(--bg);
-        color: var(--ink);
-        overflow: hidden;
-        -webkit-font-smoothing: antialiased;
-      }
-      button,
-      input,
-      textarea {
-        font: inherit;
-        color: inherit;
-      }
-      button {
-        cursor: pointer;
-      }
-      :focus-visible {
-        outline: 3px solid var(--accent);
-        outline-offset: 2px;
-        border-radius: 6px;
-      }
-      [hidden] {
-        display: none !important;
-      }
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-      }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0}
+  body{
+    font:400 16px/1.6 var(--sans);
+    background:var(--bg); color:var(--ink);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  button,input,textarea{font:inherit; color:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:6px}
+  [hidden]{display:none !important}
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
-      .screen {
-        position: fixed;
-        inset: 0;
-        display: none;
-      }
-      .screen.active {
-        display: flex;
-      }
+  .screen{position:fixed; inset:0; display:none}
+  .screen.active{display:flex}
 
-      /* =========================================================
+  /* =========================================================
      Tombol
      ========================================================= */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-height: 48px;
-        padding: 0 22px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        font-weight: 700;
-        font-size: 15px;
-        letter-spacing: -0.005em;
-        transition:
-          background-color 0.15s,
-          border-color 0.15s,
-          transform 0.1s;
-      }
-      .btn:active {
-        transform: translateY(1px);
-      }
-      .btn:disabled {
-        opacity: 0.55;
-        cursor: default;
-        transform: none;
-      }
-      .btn-primary {
-        background: var(--accent);
-        color: var(--accent-ink);
-      }
-      .btn-primary:hover:not(:disabled) {
-        background: var(--accent-hover);
-      }
-      .btn-ghost {
-        background: transparent;
-        border-color: var(--line);
-        color: var(--ink);
-      }
-      .btn-ghost:hover {
-        background: var(--surface-2);
-      }
-      .btn svg {
-        width: 18px;
-        height: 18px;
-        flex: none;
-      }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:48px; padding:0 22px; border-radius:12px; border:1px solid transparent;
+    font-weight:700; font-size:15px; letter-spacing:-.005em;
+    transition:background-color .15s, border-color .15s, transform .1s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.55; cursor:default; transform:none}
+  .btn-primary{background:var(--accent); color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+  .btn-ghost{background:transparent; border-color:var(--line); color:var(--ink)}
+  .btn-ghost:hover{background:var(--surface-2)}
+  .btn svg{width:18px; height:18px; flex:none}
 
-      .spinner {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        border: 2.5px solid currentColor;
-        border-right-color: transparent;
-        animation: spin 0.7s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
+  .spinner{
+    width:18px; height:18px; border-radius:50%;
+    border:2.5px solid currentColor; border-right-color:transparent;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-      /* =========================================================
+  /* =========================================================
      LOGIN
      ========================================================= */
-      #login {
-        overflow: auto;
-      }
-      .login-wrap {
-        margin: auto;
-        width: min(980px, 100%);
-        padding: 24px 16px;
-        display: grid;
-        grid-template-columns: 1fr 1.05fr;
-        gap: 0;
-      }
-      .login-intro {
-        background: var(--accent);
-        color: #fff;
-        border-radius: 24px 0 0 24px;
-        padding: 44px 40px;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        overflow: hidden;
-      }
-      @media (prefers-color-scheme: dark) {
-        .login-intro {
-          background: #1f35b8;
-        }
-      }
-      .login-intro::after {
-        /* pola grid halus: kertas kerja */
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background-image:
-          linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-        background-size: 28px 28px;
-        mask-image: linear-gradient(180deg, transparent 0%, #000 55%);
-      }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 15px;
-        opacity: 0.92;
-      }
-      .brand-mark {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.16);
-        display: grid;
-        place-items: center;
-      }
-      .brand-mark svg {
-        width: 20px;
-        height: 20px;
-      }
-      .login-intro h1 {
-        font-size: clamp(30px, 3.6vw, 40px);
-        line-height: 1.1;
-        letter-spacing: -0.03em;
-        font-weight: 800;
-        margin: auto 0 22px;
-        max-width: 13ch;
-        position: relative;
-        z-index: 1;
-      }
-      .rules {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 14px;
-        position: relative;
-        z-index: 1;
-        counter-reset: r;
-      }
-      .rules li {
-        display: grid;
-        grid-template-columns: 28px 1fr;
-        gap: 12px;
-        align-items: start;
-        font-size: 14.5px;
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.88);
-        counter-increment: r;
-      }
-      .rules li::before {
-        content: counter(r);
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.16);
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        font-size: 13px;
-        color: #fff;
-      }
+  #login{overflow:auto}
+  .login-wrap{
+    margin:auto; width:min(980px, 100%); padding:24px 16px;
+    display:grid; grid-template-columns:1fr 1.05fr; gap:0;
+  }
+  .login-intro{
+    background:var(--accent); color:#fff;
+    border-radius:24px 0 0 24px; padding:44px 40px;
+    display:flex; flex-direction:column;
+    position:relative; overflow:hidden;
+  }
+  @media (prefers-color-scheme: dark){ .login-intro{background:#1F35B8} }
+  .login-intro::after{
+    /* pola grid halus: kertas kerja */
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size:28px 28px;
+    mask-image:linear-gradient(180deg, transparent 0%, #000 55%);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px; opacity:.92}
+  .brand-mark{
+    width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.16);
+    display:grid; place-items:center;
+  }
+  .brand-mark svg{width:20px; height:20px}
+  .login-intro h1{
+    font-size:clamp(30px, 3.6vw, 40px); line-height:1.1; letter-spacing:-.03em;
+    font-weight:800; margin:auto 0 22px; max-width:13ch; position:relative; z-index:1;
+  }
+  .rules{list-style:none; margin:0; padding:0; display:grid; gap:14px; position:relative; z-index:1; counter-reset:r}
+  .rules li{
+    display:grid; grid-template-columns:28px 1fr; gap:12px; align-items:start;
+    font-size:14.5px; line-height:1.5; color:rgba(255,255,255,.88); counter-increment:r;
+  }
+  .rules li::before{
+    content:counter(r); width:28px; height:28px; border-radius:50%;
+    background:rgba(255,255,255,.16); display:grid; place-items:center;
+    font-weight:700; font-size:13px; color:#fff;
+  }
 
-      .login-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-left: 0;
-        border-radius: 0 24px 24px 0;
-        padding: 44px 40px;
-        box-shadow: var(--shadow-lg);
-      }
-      .login-card h2 {
-        font-size: 24px;
-        letter-spacing: -0.02em;
-        margin: 0 0 6px;
-        font-weight: 800;
-      }
-      .login-card .lead {
-        margin: 0 0 28px;
-        color: var(--muted);
-        font-size: 15px;
-      }
+  .login-card{
+    background:var(--surface); border:1px solid var(--line); border-left:0;
+    border-radius:0 24px 24px 0; padding:44px 40px; box-shadow:var(--shadow-lg);
+  }
+  .login-card h2{font-size:24px; letter-spacing:-.02em; margin:0 0 6px; font-weight:800}
+  .login-card .lead{margin:0 0 28px; color:var(--muted); font-size:15px}
 
-      .field {
-        margin-bottom: 18px;
-      }
-      .field label {
-        display: block;
-        font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 7px;
-      }
-      .field .help {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 6px;
-      }
-      .row-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
+  .field{margin-bottom:18px}
+  .field label{display:block; font-weight:600; font-size:14px; margin-bottom:7px}
+  .field .help{font-size:13px; color:var(--muted); margin-top:6px}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
 
-      .input {
-        width: 100%;
-        height: 50px;
-        padding: 0 14px;
-        border-radius: 12px;
-        border: 1.5px solid var(--line);
-        background: var(--surface);
-        color: var(--ink);
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
-      }
-      .input::placeholder {
-        color: var(--muted);
-        opacity: 0.75;
-      }
-      .input:hover {
-        border-color: color-mix(in srgb, var(--line) 50%, var(--muted));
-      }
-      .input:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 4px var(--accent-soft);
-      }
-      .input-wrap {
-        position: relative;
-      }
-      .input-wrap .input {
-        padding-right: 96px;
-      }
-      .peek {
-        position: absolute;
-        right: 6px;
-        top: 6px;
-        height: 38px;
-        padding: 0 12px;
-        border: 0;
-        border-radius: 9px;
-        background: var(--surface-2);
-        color: var(--ink-2);
-        font-size: 13px;
-        font-weight: 600;
-      }
-      #fCode {
-        font-family: var(--mono);
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: 0.32em;
-        text-transform: uppercase;
-        height: 58px;
-        text-align: center;
-        padding: 0 10px;
-      }
-      #fCode::placeholder {
-        letter-spacing: 0.32em;
-        font-weight: 400;
-      }
+  .input{
+    width:100%; height:50px; padding:0 14px; border-radius:12px;
+    border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .input::placeholder{color:var(--muted); opacity:.75}
+  .input:hover{border-color:color-mix(in srgb, var(--line) 50%, var(--muted))}
+  .input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  .input-wrap{position:relative}
+  .input-wrap .input{padding-right:96px}
+  .peek{
+    position:absolute; right:6px; top:6px; height:38px; padding:0 12px;
+    border:0; border-radius:9px; background:var(--surface-2); color:var(--ink-2);
+    font-size:13px; font-weight:600;
+  }
+  #fCode{
+    font-family:var(--mono); font-size:22px; font-weight:600; letter-spacing:.32em;
+    text-transform:uppercase; height:58px; text-align:center; padding:0 10px;
+  }
+  #fCode::placeholder{letter-spacing:.32em; font-weight:400}
 
-      .alert {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        padding: 12px 14px;
-        border-radius: 12px;
-        background: var(--danger-soft);
-        color: var(--danger);
-        font-size: 14px;
-        font-weight: 500;
-        margin: 4px 0 16px;
-      }
-      .alert svg {
-        width: 18px;
-        height: 18px;
-        flex: none;
-        margin-top: 2px;
-      }
-      .login-card .btn {
-        width: 100%;
-      }
-      .fineprint {
-        font-size: 13px;
-        color: var(--muted);
-        margin: 14px 0 0;
-        text-align: center;
-      }
+  .alert{
+    display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:12px;
+    background:var(--danger-soft); color:var(--danger); font-size:14px; font-weight:500;
+    margin:4px 0 16px;
+  }
+  .alert svg{width:18px; height:18px; flex:none; margin-top:2px}
+  .login-card .btn{width:100%}
+  .fineprint{font-size:13px; color:var(--muted); margin:14px 0 0; text-align:center}
 
-      @media (max-width: 820px) {
-        .login-wrap {
-          grid-template-columns: 1fr;
-          padding: 16px;
-        }
-        .login-intro {
-          border-radius: 20px 20px 0 0;
-          padding: 26px 22px;
-        }
-        .login-intro h1 {
-          margin: 22px 0 16px;
-          font-size: 26px;
-          max-width: none;
-        }
-        .rules {
-          gap: 10px;
-        }
-        .login-card {
-          border-left: 1px solid var(--line);
-          border-top: 0;
-          border-radius: 0 0 20px 20px;
-          padding: 26px 22px;
-        }
-      }
-      @media (max-width: 420px) {
-        .row-2 {
-          grid-template-columns: 1fr;
-        }
-      }
+  @media (max-width:820px){
+    .login-wrap{grid-template-columns:1fr; padding:16px}
+    .login-intro{border-radius:20px 20px 0 0; padding:26px 22px}
+    .login-intro h1{margin:22px 0 16px; font-size:26px; max-width:none}
+    .rules{gap:10px}
+    .login-card{border-left:1px solid var(--line); border-top:0; border-radius:0 0 20px 20px; padding:26px 22px}
+  }
+  @media (max-width:420px){ .row-2{grid-template-columns:1fr} }
 
-      /* =========================================================
+  /* =========================================================
      SLIDE
      ========================================================= */
-      #slide {
-        flex-direction: column;
-      }
+  #slide{flex-direction:column}
 
-      .top {
-        position: relative;
-        z-index: 3;
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 24px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--line);
-      }
-      .who {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 0;
-      }
-      .avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        flex: none;
-        background: var(--accent-soft);
-        color: var(--accent);
-        display: grid;
-        place-items: center;
-        font-weight: 800;
-        font-size: 13px;
-      }
-      .who-text {
-        min-width: 0;
-        line-height: 1.25;
-      }
-      .who-text strong {
-        display: block;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .who-text span {
-        font-size: 12.5px;
-        color: var(--muted);
-      }
+  .top{
+    position:relative; z-index:3;
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px;
+    padding:12px 24px; background:var(--surface); border-bottom:1px solid var(--line);
+  }
+  .who{display:flex; align-items:center; gap:10px; min-width:0}
+  .avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    background:var(--accent-soft); color:var(--accent);
+    display:grid; place-items:center; font-weight:800; font-size:13px;
+  }
+  .who-text{min-width:0; line-height:1.25}
+  .who-text strong{display:block; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .who-text span{font-size:12.5px; color:var(--muted)}
 
-      .progress {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-      }
-      .segs {
-        display: flex;
-        gap: 5px;
-      }
-      .seg {
-        width: 28px;
-        height: 6px;
-        border-radius: 99px;
-        background: var(--line);
-        transition: background-color 0.3s;
-      }
-      .seg.done {
-        background: color-mix(in srgb, var(--accent) 45%, var(--line));
-      }
-      .seg.now {
-        background: var(--accent);
-        width: 44px;
-      }
-      .progress-label {
-        font-size: 12.5px;
-        color: var(--muted);
-        font-weight: 600;
-      }
+  .progress{display:flex; flex-direction:column; align-items:center; gap:6px}
+  .segs{display:flex; gap:5px}
+  .seg{width:28px; height:6px; border-radius:99px; background:var(--line); transition:background-color .3s}
+  .seg.done{background:color-mix(in srgb, var(--accent) 45%, var(--line))}
+  .seg.now{background:var(--accent); width:44px}
+  .progress-label{font-size:12.5px; color:var(--muted); font-weight:600}
 
-      .clock {
-        justify-self: end;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 6px 16px 6px 12px;
-        border-radius: 99px;
-        background: var(--surface-2);
-        color: var(--ink);
-        transition:
-          background-color 0.3s,
-          color 0.3s;
-      }
-      .clock svg {
-        width: 20px;
-        height: 20px;
-        flex: none;
-        color: var(--accent);
-        transition: color 0.3s;
-      }
-      .clock-time {
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        font-variant-numeric: tabular-nums;
-        line-height: 1;
-      }
-      .clock[data-state="warn"] {
-        background: var(--warn-soft);
-        color: var(--warn);
-      }
-      .clock[data-state="warn"] svg {
-        color: var(--warn);
-      }
-      .clock[data-state="danger"] {
-        background: var(--danger);
-        color: #fff;
-      }
-      .clock[data-state="danger"] svg {
-        color: #fff;
-      }
-      .clock[data-state="danger"].pulse {
-        animation: pulse 1s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        50% {
-          transform: scale(1.045);
-        }
-      }
+  .clock{
+    justify-self:end; display:inline-flex; align-items:center; gap:10px;
+    padding:6px 16px 6px 12px; border-radius:99px;
+    background:var(--surface-2); color:var(--ink);
+    transition:background-color .3s, color .3s;
+  }
+  .clock svg{width:20px; height:20px; flex:none; color:var(--accent); transition:color .3s}
+  .clock-time{font-size:26px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1}
+  .clock[data-state="warn"]{background:var(--warn-soft); color:var(--warn)}
+  .clock[data-state="warn"] svg{color:var(--warn)}
+  .clock[data-state="danger"]{background:var(--danger); color:#fff}
+  .clock[data-state="danger"] svg{color:#fff}
+  .clock[data-state="danger"].pulse{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.045)}}
 
-      /* sumbu waktu: menipis dari kanan ke kiri */
-      .fuse {
-        height: 4px;
-        background: var(--line);
-        position: relative;
-        z-index: 2;
-      }
-      .fuse-fill {
-        height: 100%;
-        background: var(--accent);
-        transform-origin: left center;
-        transition:
-          transform 0.25s linear,
-          background-color 0.3s;
-      }
-      .fuse-fill[data-state="warn"] {
-        background: var(--warn);
-      }
-      .fuse-fill[data-state="danger"] {
-        background: var(--danger);
-      }
+  /* sumbu waktu: menipis dari kanan ke kiri */
+  .fuse{height:4px; background:var(--line); position:relative; z-index:2}
+  .fuse-fill{
+    height:100%; background:var(--accent); transform-origin:left center;
+    transition:transform .25s linear, background-color .3s;
+  }
+  .fuse-fill[data-state="warn"]{background:var(--warn)}
+  .fuse-fill[data-state="danger"]{background:var(--danger)}
 
-      #content {
-        flex: 1;
-        overflow: auto;
-        scroll-behavior: smooth;
-      }
-      .page {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 40px 24px 56px;
-        display: grid;
-        gap: 36px;
-        align-items: start;
-      }
-      .col-media {
-        display: grid;
-        gap: 16px;
-      }
-      .page.has-media .col-text {
-        grid-area: intro;
-      }
-      .page.has-media .col-media {
-        grid-area: media;
-      }
-      .page.has-media .answer {
-        grid-area: answer;
-      }
-      .page.has-media {
-        max-width: 1320px;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-        grid-template-areas: "intro media" "answer media";
-        grid-template-rows: auto 1fr;
-        row-gap: 32px;
-      }
-      .page.has-media .col-media {
-        position: sticky;
-        top: 24px;
-      }
+  #content{flex:1; overflow:auto; scroll-behavior:smooth}
+  .page{
+    max-width:760px; margin:0 auto; padding:40px 24px 56px;
+    display:grid; gap:36px; align-items:start;
+  }
+  .col-media{display:grid; gap:16px}
+  .page.has-media .col-text{grid-area:intro}
+  .page.has-media .col-media{grid-area:media}
+  .page.has-media .answer{grid-area:answer}
+  .page.has-media{
+    max-width:1320px; grid-template-columns:minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-areas:"intro media" "answer media"; grid-template-rows:auto 1fr; row-gap:32px;
+  }
+  .page.has-media .col-media{position:sticky; top:24px}
 
-      .step-num {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0 0 12px;
-        font-size: 13.5px;
-        font-weight: 700;
-        color: var(--accent);
-      }
-      .page h1 {
-        font-size: clamp(26px, 2.6vw, 34px);
-        line-height: 1.15;
-        letter-spacing: -0.025em;
-        font-weight: 800;
-        margin: 0 0 18px;
-        text-wrap: balance;
-      }
+  .step-num{
+    display:inline-flex; align-items:center; gap:8px; margin:0 0 12px;
+    font-size:13.5px; font-weight:700; color:var(--accent);
+  }
+  .page h1{
+    font-size:clamp(26px, 2.6vw, 34px); line-height:1.15; letter-spacing:-.025em;
+    font-weight:800; margin:0 0 18px; text-wrap:balance;
+  }
 
-      /* isi instruksi */
-      .prose {
-        font-size: 17px;
-        line-height: 1.7;
-        color: var(--ink-2);
-        max-width: 68ch;
-      }
-      .prose > * {
-        margin: 0 0 14px;
-      }
-      .prose > :last-child {
-        margin-bottom: 0;
-      }
-      .prose strong {
-        color: var(--ink);
-        font-weight: 700;
-      }
-      .prose ol,
-      .prose ul {
-        padding-left: 0;
-        list-style: none;
-        display: grid;
-        gap: 8px;
-      }
-      .prose ol {
-        counter-reset: li var(--start, 0);
-      }
-      .prose ol li {
-        counter-increment: li;
-        display: grid;
-        grid-template-columns: 30px 1fr;
-        gap: 10px;
-      }
-      .prose ol li::before {
-        content: counter(li);
-        width: 26px;
-        height: 26px;
-        margin-top: 2px;
-        border-radius: 8px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-weight: 700;
-        font-size: 13.5px;
-        display: grid;
-        place-items: center;
-      }
-      .prose ul li {
-        display: grid;
-        grid-template-columns: 30px 1fr;
-        gap: 10px;
-      }
-      .prose ul li::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--accent);
-        margin: 11px 0 0 9px;
-      }
-      .prose code {
-        font-family: var(--mono);
-        font-size: 0.86em;
-        font-weight: 500;
-        background: var(--surface-2);
-        color: var(--ink);
-        border: 1px solid var(--line);
-        padding: 1px 6px;
-        border-radius: 6px;
-      }
-      .prose pre {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        border-radius: 14px;
-        padding: 16px 18px;
-        overflow: auto;
-        font-size: 14px;
-        line-height: 1.6;
-      }
-      @media (prefers-color-scheme: dark) {
-        .prose pre {
-          border: 1px solid var(--line);
-        }
-      }
-      .prose pre code {
-        background: none;
-        border: 0;
-        padding: 0;
-        color: inherit;
-        font-size: inherit;
-      }
+  /* isi instruksi */
+  .prose{font-size:17px; line-height:1.7; color:var(--ink-2); max-width:68ch}
+  .prose > *{margin:0 0 14px}
+  .prose > :last-child{margin-bottom:0}
+  .prose strong{color:var(--ink); font-weight:700}
+  .prose ol,.prose ul{padding-left:0; list-style:none; display:grid; gap:8px}
+  .prose ol{counter-reset:li var(--start, 0)}
+  .prose ol li{counter-increment:li; display:grid; grid-template-columns:30px 1fr; gap:10px}
+  .prose ol li::before{
+    content:counter(li); width:26px; height:26px; margin-top:2px; border-radius:8px;
+    background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:13.5px;
+    display:grid; place-items:center;
+  }
+  .prose ul li{display:grid; grid-template-columns:30px 1fr; gap:10px}
+  .prose ul li::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--accent); margin:11px 0 0 9px}
+  .prose code{
+    font-family:var(--mono); font-size:.86em; font-weight:500;
+    background:var(--surface-2); color:var(--ink); border:1px solid var(--line);
+    padding:1px 6px; border-radius:6px;
+  }
+  .prose pre{
+    background:var(--code-bg); color:var(--code-ink); border-radius:14px;
+    padding:16px 18px; overflow:auto; font-size:14px; line-height:1.6;
+  }
+  @media (prefers-color-scheme: dark){ .prose pre{border:1px solid var(--line)} }
+  .prose pre code{background:none; border:0; padding:0; color:inherit; font-size:inherit}
 
-      /* gambar */
-      .shot {
-        margin: 0;
-        border-radius: 16px;
-        overflow: hidden;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        box-shadow: var(--shadow-sm);
-      }
-      .shot button {
-        display: block;
-        width: 100%;
-        padding: 0;
-        border: 0;
-        background: none;
-        cursor: zoom-in;
-        position: relative;
-      }
-      .shot img {
-        display: block;
-        width: 100%;
-        height: auto;
-        min-height: 80px;
-        background: var(--surface-2);
-      }
-      .shot .zoom-chip {
-        position: absolute;
-        right: 12px;
-        bottom: 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border-radius: 99px;
-        background: rgba(14, 18, 34, 0.72);
-        color: #fff;
-        font-size: 12.5px;
-        font-weight: 600;
-        backdrop-filter: blur(6px);
-      }
-      .shot .zoom-chip svg {
-        width: 14px;
-        height: 14px;
-      }
-      .shot figcaption {
-        padding: 10px 14px;
-        font-size: 13px;
-        color: var(--muted);
-        border-top: 1px solid var(--line);
-      }
-      .shot.broken figcaption {
-        color: var(--danger);
-      }
+  /* gambar */
+  .shot{
+    margin:0; border-radius:16px; overflow:hidden; background:var(--surface);
+    border:1px solid var(--line); box-shadow:var(--shadow-sm);
+  }
+  .shot button{display:block; width:100%; padding:0; border:0; background:none; cursor:zoom-in; position:relative}
+  .shot img{display:block; width:100%; height:auto; min-height:80px; background:var(--surface-2)}
+  .shot .zoom-chip{
+    position:absolute; right:12px; bottom:12px; display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; border-radius:99px; background:rgba(14,18,34,.72); color:#fff;
+    font-size:12.5px; font-weight:600; backdrop-filter:blur(6px);
+  }
+  .shot .zoom-chip svg{width:14px; height:14px}
+  .shot figcaption{padding:10px 14px; font-size:13px; color:var(--muted); border-top:1px solid var(--line)}
+  .shot.broken figcaption{color:var(--danger)}
 
-      /* jawaban */
-      .answer-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 8px;
-      }
-      .answer-head label {
-        font-weight: 700;
-        font-size: 15px;
-      }
-      .save-state {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 12.5px;
-        color: var(--muted);
-        font-weight: 500;
-      }
-      .save-state::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--line);
-      }
-      .save-state:empty {
-        display: none;
-      }
-      .save-state[data-s="saved"]::before {
-        background: var(--ok);
-      }
-      .save-state[data-s="saving"]::before {
-        background: var(--warn);
-      }
-      .save-state[data-s="dirty"]::before {
-        background: var(--muted);
-      }
-      .save-state[data-s="error"] {
-        color: var(--danger);
-      }
-      .save-state[data-s="error"]::before {
-        background: var(--danger);
-      }
-      textarea {
-        width: 100%;
-        min-height: 200px;
-        padding: 16px;
-        resize: vertical;
-        display: block;
-        border: 1.5px solid var(--line);
-        border-radius: 14px;
-        background: var(--surface);
-        color: var(--ink);
-        font: 14.5px/1.6 var(--mono);
-        tab-size: 2;
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
-      }
-      textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 4px var(--accent-soft);
-      }
+  /* jawaban */
+  .answer-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px}
+  .answer-head label{font-weight:700; font-size:15px}
+  .save-state{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--muted); font-weight:500}
+  .save-state::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--line)}
+  .save-state:empty{display:none}
+  .save-state[data-s="saved"]::before{background:var(--ok)}
+  .save-state[data-s="saving"]::before{background:var(--warn)}
+  .save-state[data-s="dirty"]::before{background:var(--muted)}
+  .save-state[data-s="error"]{color:var(--danger)}
+  .save-state[data-s="error"]::before{background:var(--danger)}
+  textarea{
+    width:100%; min-height:200px; padding:16px; resize:vertical; display:block;
+    border:1.5px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink);
+    font:14.5px/1.6 var(--mono); tab-size:2;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus,#repo:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  #repo{
+    width:100%; height:52px; padding:0 16px; display:block; border:1.5px solid var(--line); border-radius:14px;
+    background:var(--surface); color:var(--ink); font:15px var(--mono);
+  }
+  .repo-help{font-size:13px; color:var(--muted); margin-top:8px}
+  .repo-help.bad{color:var(--danger)}
 
-      .bottom {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
-        background: var(--surface);
-        border-top: 1px solid var(--line);
-      }
-      .bottom-note {
-        font-size: 13.5px;
-        color: var(--muted);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .bottom-note svg {
-        width: 16px;
-        height: 16px;
-        flex: none;
-      }
-      .bottom .btn {
-        margin-left: auto;
-        min-width: 240px;
-      }
+  .bottom{
+    display:flex; align-items:center; gap:16px;
+    padding:14px 24px calc(14px + env(safe-area-inset-bottom));
+    background:var(--surface); border-top:1px solid var(--line);
+  }
+  .bottom-note{font-size:13.5px; color:var(--muted); display:flex; align-items:center; gap:8px}
+  .bottom-note svg{width:16px; height:16px; flex:none}
+  .bottom .btn{margin-left:auto; min-width:240px}
 
-      @media (max-width: 1000px) {
-        .page.has-media {
-          grid-template-columns: 1fr;
-          max-width: 760px;
-          grid-template-areas: "intro" "media" "answer";
-          grid-template-rows: none;
-        }
-        .page.has-media .col-media {
-          position: static;
-        }
-      }
-      @media (max-width: 680px) {
-        .top {
-          grid-template-columns: 1fr auto;
-          padding: 10px 14px;
-        }
-        .who {
-          display: none;
-        }
-        .progress {
-          align-items: flex-start;
-        }
-        .seg {
-          width: 18px;
-        }
-        .seg.now {
-          width: 30px;
-        }
-        .clock-time {
-          font-size: 22px;
-        }
-        .page {
-          padding: 24px 16px 40px;
-          gap: 24px;
-        }
-        .prose {
-          font-size: 16px;
-        }
-        .bottom {
-          padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-        }
-        .bottom-note {
-          display: none;
-        }
-        .bottom .btn {
-          flex: 1;
-          min-width: 0;
-        }
-      }
+  @media (max-width:1000px){
+    .page.has-media{grid-template-columns:1fr; max-width:760px; grid-template-areas:"intro" "media" "answer"; grid-template-rows:none}
+    .page.has-media .col-media{position:static}
+  }
+  @media (max-width:680px){
+    .top{grid-template-columns:1fr auto; padding:10px 14px}
+    .who{display:none}
+    .progress{align-items:flex-start}
+    .seg{width:18px} .seg.now{width:30px}
+    .clock-time{font-size:22px}
+    .page{padding:24px 16px 40px; gap:24px}
+    .prose{font-size:16px}
+    .bottom{padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+    .bottom-note{display:none}
+    .bottom .btn{flex:1; min-width:0}
+  }
 
-      /* =========================================================
+  /* =========================================================
      SELESAI
      ========================================================= */
-      #done {
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-        overflow: auto;
-      }
-      .done-card {
-        width: min(460px, 100%);
-        text-align: center;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: 44px 32px;
-        box-shadow: var(--shadow-lg);
-      }
-      .done-icon {
-        width: 72px;
-        height: 72px;
-        margin: 0 auto 22px;
-        border-radius: 50%;
-        background: color-mix(in srgb, var(--ok) 14%, transparent);
-        color: var(--ok);
-        display: grid;
-        place-items: center;
-      }
-      .done-icon svg {
-        width: 36px;
-        height: 36px;
-      }
-      .done-icon path {
-        stroke-dasharray: 40;
-        stroke-dashoffset: 40;
-        animation: draw 0.5s 0.15s ease-out forwards;
-      }
-      @keyframes draw {
-        to {
-          stroke-dashoffset: 0;
-        }
-      }
-      .done-card h1 {
-        font-size: 26px;
-        letter-spacing: -0.02em;
-        margin: 0 0 8px;
-        font-weight: 800;
-      }
-      .done-card p {
-        margin: 0;
-        color: var(--muted);
-      }
-      .done-who {
-        margin-top: 24px !important;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: var(--surface-2);
-        color: var(--ink-2) !important;
-        font-size: 14px;
-        font-weight: 600;
-      }
+  #done,#closed{align-items:center; justify-content:center; padding:16px; overflow:auto}
+  .closed-icon{background:var(--warn-soft) !important; color:var(--warn) !important}
+  .done-card{
+    width:min(460px, 100%); text-align:center; background:var(--surface);
+    border:1px solid var(--line); border-radius:24px; padding:44px 32px; box-shadow:var(--shadow-lg);
+  }
+  .done-icon{
+    width:72px; height:72px; margin:0 auto 22px; border-radius:50%;
+    background:color-mix(in srgb, var(--ok) 14%, transparent); color:var(--ok);
+    display:grid; place-items:center;
+  }
+  .done-icon svg{width:36px; height:36px}
+  .done-icon path{stroke-dasharray:40; stroke-dashoffset:40; animation:draw .5s .15s ease-out forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .done-card h1{font-size:26px; letter-spacing:-.02em; margin:0 0 8px; font-weight:800}
+  .done-card p{margin:0; color:var(--muted)}
+  .done-who{
+    margin-top:24px !important; padding:12px 16px; border-radius:12px; background:var(--surface-2);
+    color:var(--ink-2) !important; font-size:14px; font-weight:600;
+  }
 
-      /* =========================================================
+  /* =========================================================
      OVERLAY: waktu habis, konfirmasi, zoom, toast
      ========================================================= */
-      .overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 40;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-        background: var(--scrim);
-        backdrop-filter: blur(4px);
-      }
-      .overlay.on {
-        display: flex;
-      }
-      .sheet {
-        width: min(440px, 100%);
-        background: var(--surface);
-        border-radius: 22px;
-        padding: 28px;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--line);
-        animation: rise 0.2s ease-out;
-      }
-      @keyframes rise {
-        from {
-          opacity: 0;
-          transform: translateY(10px) scale(0.98);
-        }
-      }
-      .sheet h2 {
-        font-size: 21px;
-        letter-spacing: -0.02em;
-        margin: 0 0 8px;
-        font-weight: 800;
-      }
-      .sheet p {
-        margin: 0;
-        color: var(--ink-2);
-        font-size: 15px;
-      }
-      .sheet .warn-line {
-        display: flex;
-        gap: 10px;
-        margin-top: 16px;
-        padding: 12px 14px;
-        border-radius: 12px;
-        background: var(--warn-soft);
-        color: var(--warn);
-        font-size: 14px;
-        font-weight: 600;
-      }
-      .sheet .warn-line svg {
-        width: 18px;
-        height: 18px;
-        flex: none;
-        margin-top: 1px;
-      }
-      .sheet-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 24px;
-      }
-      .sheet-actions .btn {
-        flex: 1;
-      }
+  .overlay{
+    position:fixed; inset:0; z-index:40; display:none; align-items:center; justify-content:center;
+    padding:16px; background:var(--scrim); backdrop-filter:blur(4px);
+  }
+  .overlay.on{display:flex}
+  .sheet{
+    width:min(440px, 100%); background:var(--surface); border-radius:22px;
+    padding:28px; box-shadow:var(--shadow-lg); border:1px solid var(--line);
+    animation:rise .2s ease-out;
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(10px) scale(.98)}}
+  .sheet h2{font-size:21px; letter-spacing:-.02em; margin:0 0 8px; font-weight:800}
+  .sheet p{margin:0; color:var(--ink-2); font-size:15px}
+  .sheet .warn-line{
+    display:flex; gap:10px; margin-top:16px; padding:12px 14px; border-radius:12px;
+    background:var(--warn-soft); color:var(--warn); font-size:14px; font-weight:600;
+  }
+  .sheet .warn-line svg{width:18px; height:18px; flex:none; margin-top:1px}
+  .sheet-actions{display:flex; gap:10px; margin-top:24px}
+  .sheet-actions .btn{flex:1}
 
-      .lock-sheet {
-        text-align: center;
-      }
-      .lock-sheet .lock-icon {
-        width: 56px;
-        height: 56px;
-        margin: 0 auto 16px;
-        border-radius: 50%;
-        background: var(--accent-soft);
-        color: var(--accent);
-        display: grid;
-        place-items: center;
-      }
-      .lock-sheet .lock-icon .spinner {
-        width: 24px;
-        height: 24px;
-        border-width: 3px;
-      }
+  .lock-sheet{text-align:center}
+  .lock-sheet .lock-icon{
+    width:56px; height:56px; margin:0 auto 16px; border-radius:50%;
+    background:var(--accent-soft); color:var(--accent); display:grid; place-items:center;
+  }
+  .lock-sheet .lock-icon .spinner{width:24px; height:24px; border-width:3px}
 
-      #zoom {
-        position: fixed;
-        inset: 0;
-        z-index: 50;
-        display: none;
-        overflow: auto;
-        background: rgba(8, 10, 20, 0.94);
-        padding: 64px 16px 24px;
-      }
-      #zoom.on {
-        display: block;
-      }
-      #zoomImg {
-        display: block;
-        margin: 0 auto;
-        max-width: 100%;
-        height: auto;
-        border-radius: 10px;
-        cursor: zoom-in;
-        background: #fff;
-      }
-      #zoomImg.full {
-        max-width: none;
-        cursor: zoom-out;
-        border-radius: 0;
-      }
-      .zoom-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 51;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        background: linear-gradient(rgba(8, 10, 20, 0.9), rgba(8, 10, 20, 0));
-      }
-      .zoom-bar span {
-        color: #c3c9de;
-        font-size: 13.5px;
-      }
-      .zoom-bar button {
-        margin-left: auto;
-        height: 40px;
-        padding: 0 16px;
-        border-radius: 10px;
-        border: 0;
-        background: #fff;
-        color: #141a2e;
-        font-weight: 700;
-        font-size: 14px;
-      }
+  #zoom{
+    position:fixed; inset:0; z-index:50; display:none; overflow:auto;
+    background:rgba(8,10,20,.94); padding:64px 16px 24px;
+  }
+  #zoom.on{display:block}
+  #zoomImg{display:block; margin:0 auto; max-width:100%; height:auto; border-radius:10px; cursor:zoom-in; background:#fff}
+  #zoomImg.full{max-width:none; cursor:zoom-out; border-radius:0}
+  .zoom-bar{
+    position:fixed; top:0; left:0; right:0; z-index:51; display:flex; align-items:center; gap:12px;
+    padding:12px 16px; background:linear-gradient(rgba(8,10,20,.9), rgba(8,10,20,0));
+  }
+  .zoom-bar span{color:#C3C9DE; font-size:13.5px}
+  .zoom-bar button{
+    margin-left:auto; height:40px; padding:0 16px; border-radius:10px; border:0;
+    background:#fff; color:#141A2E; font-weight:700; font-size:14px;
+  }
 
-      .toast-zone {
-        position: fixed;
-        left: 50%;
-        bottom: 96px;
-        z-index: 45;
-        transform: translateX(-50%);
-        display: grid;
-        gap: 8px;
-        pointer-events: none;
-        width: max-content;
-        max-width: calc(100% - 32px);
-      }
-      .toast {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 11px 16px;
-        border-radius: 12px;
-        background: var(--ink);
-        color: var(--bg);
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: var(--shadow-lg);
-        animation: rise 0.2s ease-out;
-      }
-      .toast.warn {
-        background: var(--warn);
-        color: #fff;
-      }
-      .toast.danger {
-        background: var(--danger);
-        color: #fff;
-      }
-      .toast svg {
-        width: 18px;
-        height: 18px;
-        flex: none;
-      }
+  .toast-zone{
+    position:fixed; left:50%; bottom:96px; z-index:45; transform:translateX(-50%);
+    display:grid; gap:8px; pointer-events:none; width:max-content; max-width:calc(100% - 32px);
+  }
+  .toast{
+    display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:12px;
+    background:var(--ink); color:var(--bg); font-size:14px; font-weight:600;
+    box-shadow:var(--shadow-lg); animation:rise .2s ease-out;
+  }
+  .toast.warn{background:var(--warn); color:#fff}
+  .toast.danger{background:var(--danger); color:#fff}
+  .toast svg{width:18px; height:18px; flex:none}
 
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-        .spinner {
-          animation: spin 1.2s linear infinite !important;
-        }
-        .done-icon path {
-          stroke-dashoffset: 0;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ikon -->
-    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
-      <symbol
-        id="i-clock"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle cx="12" cy="13" r="8" />
-        <path d="M12 9v4l2.5 2.5M10 2h4" />
-      </symbol>
-      <symbol
-        id="i-alert"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 8v5M12 16.5v.01" />
-      </symbol>
-      <symbol
-        id="i-arrow"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M5 12h14M13 6l6 6-6 6" />
-      </symbol>
-      <symbol
-        id="i-flag"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
-      </symbol>
-      <symbol
-        id="i-zoom"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle cx="11" cy="11" r="6.5" />
-        <path d="M16 16l4.5 4.5M11 8.5v5M8.5 11h5" />
-      </symbol>
-      <symbol
-        id="i-lock"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <rect x="5" y="11" width="14" height="9" rx="2" />
-        <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-      </symbol>
-      <symbol
-        id="i-wifi"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path
-          d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2-1.5M12 20h.01"
-        />
-      </symbol>
-    </svg>
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+    .spinner{animation:spin 1.2s linear infinite !important}
+    .done-icon path{stroke-dashoffset:0}
+  }
+</style>
+</head>
+<body>
 
-    <!-- ================= LOGIN ================= -->
-    <section id="login" class="screen active">
-      <div class="login-wrap">
-        <aside class="login-intro">
-          <div class="brand">
-            <span class="brand-mark"
-              ><svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" /></svg
-            ></span>
-            Lembar Kerja PjBL
-          </div>
-          <h1>Kerjakan langkah demi langkah.</h1>
-          <ol class="rules">
-            <li>Masuk dengan kode kelas yang dibagikan guru.</li>
-            <li>
-              Setiap langkah punya waktu sendiri. Timer mulai saat kamu masuk
-              dan tidak bisa dijeda.
-            </li>
-            <li>
-              Langkah yang sudah lewat tidak bisa dibuka lagi. Jawabanmu
-              tersimpan otomatis.
-            </li>
-          </ol>
-        </aside>
+<!-- ikon -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M10 2h4"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5M11 8.5v5M8.5 11h5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2-1.5M12 20h.01"/></symbol>
+</svg>
 
-        <form id="loginForm" class="login-card" autocomplete="off" novalidate>
-          <h2>Masuk</h2>
-          <p class="lead">Isi data dirimu sesuai yang terdaftar di guru.</p>
-
-          <div class="field">
-            <label for="fName">Nama lengkap</label>
-            <input
-              id="fName"
-              class="input"
-              type="text"
-              required
-              autocomplete="off"
-              placeholder="Budi Santoso"
-            />
-          </div>
-
-          <div class="row-2">
-            <div class="field">
-              <label for="fClass">Kelas</label>
-              <input
-                id="fClass"
-                class="input"
-                type="text"
-                required
-                autocomplete="off"
-                placeholder="XI RPL 1"
-              />
-            </div>
-            <div class="field">
-              <label for="fPass">Tanggal lahir</label>
-              <div class="input-wrap">
-                <input
-                  id="fPass"
-                  class="input"
-                  type="password"
-                  required
-                  autocomplete="off"
-                  inputmode="numeric"
-                  maxlength="10"
-                  placeholder="ddmmyyyy"
-                />
-                <button
-                  type="button"
-                  class="peek"
-                  id="peek"
-                  aria-controls="fPass"
-                  aria-pressed="false"
-                >
-                  Lihat
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="fCode">Kode kelas</label>
-            <input
-              id="fCode"
-              class="input"
-              type="text"
-              required
-              autocomplete="off"
-              autocapitalize="characters"
-              spellcheck="false"
-              maxlength="8"
-              placeholder="······"
-              aria-describedby="codeHelp"
-            />
-            <div class="help" id="codeHelp">
-              Guru membagikan kode ini di awal pelajaran. Kode hanya berlaku
-              beberapa menit.
-            </div>
-          </div>
-
-          <div id="loginMsg" class="alert" role="alert" hidden>
-            <svg><use href="#i-alert" /></svg><span></span>
-          </div>
-
-          <button id="loginBtn" class="btn btn-primary" type="submit">
-            Masuk dan mulai
-          </button>
-          <p class="fineprint">
-            Timer langkah pertama berjalan begitu kamu masuk.
-          </p>
-        </form>
+<!-- ================= LOGIN ================= -->
+<section id="login" class="screen active">
+  <div class="login-wrap">
+    <aside class="login-intro">
+      <div class="brand">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span>
+        Lembar Kerja PjBL
       </div>
-    </section>
+      <h1>Kerjakan langkah demi langkah.</h1>
+      <ol class="rules">
+        <li>Masuk dengan kode kelas yang dibagikan guru.</li>
+        <li>Setiap langkah punya waktu sendiri. Timer mulai saat kamu masuk dan tidak bisa dijeda.</li>
+        <li>Langkah yang sudah lewat tidak bisa dibuka lagi. Jawabanmu tersimpan otomatis.</li>
+      </ol>
+    </aside>
 
-    <!-- ================= SLIDE ================= -->
-    <section id="slide" class="screen" aria-label="Lembar kerja">
-      <header class="top">
-        <div class="who">
-          <span class="avatar" id="avatar" aria-hidden="true"></span>
-          <div class="who-text">
-            <strong id="whoName"></strong><span id="whoClass"></span>
-          </div>
-        </div>
-        <div class="progress">
-          <div class="segs" id="segs" aria-hidden="true"></div>
-          <div class="progress-label" id="stepNo"></div>
-        </div>
-        <div
-          class="clock"
-          id="clock"
-          role="timer"
-          aria-label="Sisa waktu langkah ini"
-        >
-          <svg><use href="#i-clock" /></svg>
-          <span class="clock-time" id="timer">--:--</span>
-        </div>
-      </header>
-      <div class="fuse" aria-hidden="true">
-        <div class="fuse-fill" id="fuse"></div>
+    <form id="loginForm" class="login-card" autocomplete="off" novalidate>
+      <h2>Masuk</h2>
+      <p class="lead">Isi data dirimu sesuai yang terdaftar di guru.</p>
+
+      <div class="field">
+        <label for="fName">Nama lengkap</label>
+        <input id="fName" class="input" type="text" required autocomplete="off" placeholder="Budi Santoso">
       </div>
 
-      <main id="content">
-        <article class="page" id="page">
-          <div class="col-text">
-            <p class="step-num" id="stepKicker"></p>
-            <h1 id="title"></h1>
-            <div id="instruction" class="prose"></div>
+      <div class="row-2">
+        <div class="field">
+          <label for="fClass">Kelas</label>
+          <input id="fClass" class="input" type="text" required autocomplete="off" placeholder="XI RPL 1">
+        </div>
+        <div class="field">
+          <label for="fPass">Tanggal lahir</label>
+          <div class="input-wrap">
+            <input id="fPass" class="input" type="password" required autocomplete="off" inputmode="numeric" maxlength="10" placeholder="ddmmyyyy">
+            <button type="button" class="peek" id="peek" aria-controls="fPass" aria-pressed="false">Lihat</button>
           </div>
-          <div class="col-media" id="images"></div>
-          <section class="answer" id="answerWrap" hidden>
-            <div class="answer-head">
-              <label for="answer">Jawabanmu</label>
-              <span class="save-state" id="saveState" aria-live="polite"></span>
-            </div>
-            <textarea
-              id="answer"
-              spellcheck="false"
-              placeholder="Tulis jawaban atau catatanmu di sini…"
-            ></textarea>
-          </section>
-        </article>
-      </main>
-
-      <footer class="bottom">
-        <div class="bottom-note" id="bottomNote">
-          <svg><use href="#i-lock" /></svg
-          ><span>Setelah lanjut, langkah ini tertutup.</span>
-        </div>
-        <button id="nextBtn" class="btn btn-primary" type="button">
-          <span id="nextLabel">Lanjut</span
-          ><svg id="nextIcon"><use href="#i-arrow" /></svg>
-        </button>
-      </footer>
-    </section>
-
-    <!-- ================= SELESAI ================= -->
-    <section id="done" class="screen">
-      <div class="done-card">
-        <div class="done-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12.5l4.5 4.5L19 7.5" />
-          </svg>
-        </div>
-        <h1>Lembar kerja selesai</h1>
-        <p>Semua jawabanmu sudah tersimpan. Kamu boleh menutup halaman ini.</p>
-        <p class="done-who" id="doneWho"></p>
-      </div>
-    </section>
-
-    <!-- konfirmasi lanjut -->
-    <div
-      class="overlay"
-      id="confirm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="cTitle"
-      aria-describedby="cBody"
-    >
-      <div class="sheet">
-        <h2 id="cTitle">Lanjut ke langkah berikutnya?</h2>
-        <p id="cBody">Kamu tidak bisa kembali ke langkah ini setelah lanjut.</p>
-        <div class="warn-line" id="cEmpty" hidden>
-          <svg><use href="#i-alert" /></svg
-          ><span>Kolom jawabanmu masih kosong.</span>
-        </div>
-        <div class="sheet-actions">
-          <button class="btn btn-ghost" type="button" id="cNo">
-            Tetap di sini
-          </button>
-          <button class="btn btn-primary" type="button" id="cYes">
-            Ya, lanjut
-          </button>
         </div>
       </div>
+
+      <div class="field">
+        <label for="fCode">Kode kelas</label>
+        <input id="fCode" class="input" type="text" required autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" placeholder="······" aria-describedby="codeHelp">
+        <div class="help" id="codeHelp">Guru membagikan kode ini di awal pelajaran. Kode hanya berlaku beberapa menit.</div>
+      </div>
+
+      <div id="loginMsg" class="alert" role="alert" hidden><svg><use href="#i-alert"/></svg><span></span></div>
+
+      <button id="loginBtn" class="btn btn-primary" type="submit">Masuk dan mulai</button>
+      <p class="fineprint">Timer langkah pertama berjalan begitu kamu masuk.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ================= SLIDE ================= -->
+<section id="slide" class="screen" aria-label="Lembar kerja">
+  <header class="top">
+    <div class="who">
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <div class="who-text"><strong id="whoName"></strong><span id="whoClass"></span></div>
     </div>
-
-    <!-- waktu habis -->
-    <div
-      class="overlay"
-      id="lock"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="lTitle"
-    >
-      <div class="sheet lock-sheet">
-        <div class="lock-icon"><span class="spinner"></span></div>
-        <h2 id="lTitle">Waktu langkah ini habis</h2>
-        <p id="lBody">Membuka langkah berikutnya…</p>
-      </div>
+    <div class="progress">
+      <div class="segs" id="segs" aria-hidden="true"></div>
+      <div class="progress-label" id="stepNo"></div>
     </div>
-
-    <!-- zoom gambar -->
-    <div
-      id="zoom"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Gambar diperbesar"
-    >
-      <div class="zoom-bar">
-        <span>Klik gambar untuk ukuran asli</span>
-        <button id="zoomClose" type="button">Tutup</button>
-      </div>
-      <img id="zoomImg" alt="" />
+    <div class="clock" id="clock" role="timer" aria-label="Sisa waktu langkah ini">
+      <svg><use href="#i-clock"/></svg>
+      <span class="clock-time" id="timer">--:--</span>
     </div>
+  </header>
+  <div class="fuse" aria-hidden="true"><div class="fuse-fill" id="fuse"></div></div>
 
-    <div class="toast-zone" id="toasts" aria-live="assertive"></div>
+  <main id="content">
+    <article class="page" id="page">
+      <div class="col-text">
+        <p class="step-num" id="stepKicker"></p>
+        <h1 id="title"></h1>
+        <div id="instruction" class="prose"></div>
+      </div>
+      <div class="col-media" id="images"></div>
+      <section class="answer" id="answerWrap" hidden>
+          <div class="answer-head">
+            <label for="answer">Jawabanmu</label>
+            <span class="save-state" id="saveState" aria-live="polite"></span>
+          </div>
+          <textarea id="answer" spellcheck="false" placeholder="Tulis jawaban atau catatanmu di sini…"></textarea>
+          <input id="repo" type="url" spellcheck="false" autocomplete="off" placeholder="https://github.com/namamu/nama-repository" hidden>
+          <div class="repo-help" id="repoHelp" hidden>Tempel alamat repository GitHub proyekmu. Pastikan repository-nya bisa dibuka guru.</div>
+      </section>
+    </article>
+  </main>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"
-      integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o"
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      (() => {
-        "use strict";
+  <footer class="bottom">
+    <div class="bottom-note" id="bottomNote"><svg><use href="#i-lock"/></svg><span>Setelah lanjut, langkah ini tertutup.</span></div>
+    <button id="nextBtn" class="btn btn-primary" type="button"><span id="nextLabel">Lanjut</span><svg id="nextIcon"><use href="#i-arrow"/></svg></button>
+  </footer>
+</section>
 
-        /* ====== ISI DUA BARIS INI (Supabase > Project Settings > API) ====== */
-        const SUPABASE_URL = "https://ncjaitinksbxdklyemoc.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_IzGu0GKi3q8DdQoQMCCfjQ_7SFNsB94";
-        /* =================================================================== */
+<!-- ================= DITUTUP GURU ================= -->
+<section id="closed" class="screen">
+  <div class="done-card">
+    <div class="done-icon closed-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+    <h1>Lembar kerja ditutup guru</h1>
+    <p>Kamu tidak bisa mengerjakan untuk sementara. Jawaban yang sudah tersimpan tetap aman. Halaman ini lanjut sendiri bila guru membukanya lagi.</p>
+    <p class="done-who" id="closedWho"></p>
+  </div>
+</section>
 
-        const AUTOSAVE_MS = 5000; // simpan otomatis tiap 5 detik jika ada perubahan
-        const FLUSH_BEFORE_MS = 3000; // 3 detik terakhir: simpan tiap detik
-        const WARN_S = 60; // timer kuning
-        const DANGER_S = 15; // timer merah
+<!-- ================= SELESAI ================= -->
+<section id="done" class="screen">
+  <div class="done-card">
+    <div class="done-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h1>Lembar kerja selesai</h1>
+    <p>Semua jawabanmu sudah tersimpan. Kamu boleh menutup halaman ini.</p>
+    <p class="done-who" id="doneWho"></p>
+  </div>
+</section>
 
-        const $ = (id) => document.getElementById(id);
-        const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+<!-- konfirmasi lanjut -->
+<div class="overlay" id="confirm" role="dialog" aria-modal="true" aria-labelledby="cTitle" aria-describedby="cBody">
+  <div class="sheet">
+    <h2 id="cTitle">Lanjut ke langkah berikutnya?</h2>
+    <p id="cBody">Kamu tidak bisa kembali ke langkah ini setelah lanjut.</p>
+    <div class="warn-line" id="cEmpty" hidden><svg><use href="#i-alert"/></svg><span>Kolom jawabanmu masih kosong.</span></div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" type="button" id="cNo">Tetap di sini</button>
+      <button class="btn btn-primary" type="button" id="cYes">Ya, lanjut</button>
+    </div>
+  </div>
+</div>
 
-        const LOGIN_ERR = {
-          invalid_credentials:
-            "Nama, kelas, atau tanggal lahir tidak cocok. Periksa ejaan namamu.",
-          invalid_code: "Kode kelas salah. Periksa lagi kode dari guru.",
-          class_closed:
-            "Kelas belum dibuka guru, atau kodenya sudah kedaluwarsa. Minta kode baru ke guru.",
-          locked:
-            "Terlalu banyak percobaan salah. Tunggu 5 menit lalu coba lagi.",
-          no_active_worksheet: "Belum ada lembar kerja yang dibuka guru.",
-          no_steps: "Lembar kerja ini belum punya langkah. Beri tahu guru.",
-        };
-        const SESSION_GONE =
-          "Sesimu berakhir karena akun ini masuk dari perangkat lain. Masuk lagi untuk melanjutkan.";
+<!-- waktu habis -->
+<div class="overlay" id="lock" role="alertdialog" aria-modal="true" aria-labelledby="lTitle">
+  <div class="sheet lock-sheet">
+    <div class="lock-icon"><span class="spinner"></span></div>
+    <h2 id="lTitle">Waktu langkah ini habis</h2>
+    <p id="lBody">Membuka langkah berikutnya…</p>
+  </div>
+</div>
 
-        function setLoginMsg(t) {
-          const box = $("loginMsg");
-          box.querySelector("span").textContent = t || "";
-          box.hidden = !t;
-        }
+<!-- zoom gambar -->
+<div id="zoom" role="dialog" aria-modal="true" aria-label="Gambar diperbesar">
+  <div class="zoom-bar">
+    <span>Klik gambar untuk ukuran asli</span>
+    <button id="zoomClose" type="button">Tutup</button>
+  </div>
+  <img id="zoomImg" alt="">
+</div>
 
-        if (!window.supabase) {
-          setLoginMsg(
-            "Halaman gagal dimuat. Periksa internet lalu muat ulang halaman.",
-          );
-          $("loginBtn").disabled = true;
-          return;
-        }
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false,
-          },
-        });
+<div class="toast-zone" id="toasts" aria-live="assertive"></div>
 
-        const store = {
-          get(k) {
-            try {
-              return sessionStorage.getItem(k);
-            } catch {
-              return null;
-            }
-          },
-          set(k, v) {
-            try {
-              sessionStorage.setItem(k, v);
-            } catch {}
-          },
-          clear() {
-            try {
-              sessionStorage.clear();
-            } catch {}
-          },
-        };
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
+<script>
+(() => {
+  'use strict';
 
-        let token = store.get("lk_token");
-        let who = safeJSON(store.get("lk_who")) || { name: "", cls: "" };
-        let cur = null; // langkah berjalan (dari server)
-        let endAt = 0; // performance.now() saat langkah berakhir (hanya untuk tampilan)
-        let lastSaved = "";
-        let lastFlushAt = 0;
-        let syncing = false;
-        let busy = false;
-        let saving = false;
-        let saveAgain = false;
-        let warned = {}; // peringatan waktu yang sudah ditampilkan untuk langkah ini
+  // pengaturan dibaca dari config.js (satu file untuk index.html dan guru.html)
+  const CFG = window.LKM_CONFIG || {};
+  const SUPABASE_URL = String(CFG.SUPABASE_URL || '').trim();
+  const SUPABASE_KEY = String(CFG.SUPABASE_KEY || '').trim();
+  const CONFIG_OK = /^https?:\/\/\S+$/.test(SUPABASE_URL) && SUPABASE_KEY && !/GANTI/.test(SUPABASE_URL + SUPABASE_KEY);
 
-        function safeJSON(s) {
-          try {
-            return JSON.parse(s);
-          } catch {
-            return null;
-          }
-        }
+  const AUTOSAVE_MS = 5000;       // simpan otomatis tiap 5 detik jika ada perubahan
+  const FLUSH_BEFORE_MS = 3000;   // 3 detik terakhir: simpan tiap detik
+  const WARN_S = 60;              // timer kuning
+  const DANGER_S = 15;            // timer merah
 
-        /* ---------- util ---------- */
-        async function rpc(name, args) {
-          const { data, error } = await sb.rpc(name, args);
-          if (error) throw error;
-          return data;
-        }
-        const isInvalidSession = (e) =>
-          !!e &&
-          (e.code === "28000" || /invalid_session/.test(e.message || ""));
+  const $ = (id) => document.getElementById(id);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-        function show(id) {
-          for (const s of document.querySelectorAll(".screen"))
-            s.classList.toggle("active", s.id === id);
-        }
+  const LOGIN_ERR = {
+    invalid_credentials: 'Nama, kelas, atau tanggal lahir tidak cocok. Periksa ejaan namamu.',
+    invalid_code: 'Kode kelas salah. Periksa lagi kode dari guru.',
+    class_closed: 'Kelas belum dibuka guru, atau kodenya sudah kedaluwarsa. Minta kode baru ke guru.',
+    locked: 'Terlalu banyak percobaan salah. Tunggu 5 menit lalu coba lagi.',
+    no_active_worksheet: 'Belum ada lembar kerja yang dibuka guru.',
+    no_steps: 'Lembar kerja ini belum punya langkah. Beri tahu guru.',
+    disabled: 'Akunmu dinonaktifkan guru. Hubungi gurumu.',
+    worksheet_closed: 'Lembar kerja untuk kode ini sedang ditutup guru.',
+  };
+  const SESSION_GONE = 'Sesimu berakhir karena akun ini masuk dari perangkat lain. Masuk lagi untuk melanjutkan.';
+  const sessMsg = (e) => (/account_disabled/.test((e && e.message) || '') ? 'Akunmu dinonaktifkan guru. Hubungi gurumu.' : SESSION_GONE);
+  const HEARTBEAT_MS = 15000;     // cek status ke server: lembar kerja ditutup, akun dinonaktifkan, sisa waktu
 
-        let netToast = null;
-        function setNet(ok) {
-          if (ok) {
-            if (netToast) {
-              netToast.remove();
-              netToast = null;
-            }
-            return;
-          }
-          if (!netToast)
-            netToast = toast(
-              "Koneksi terputus. Mencoba lagi…",
-              "warn",
-              "#i-wifi",
-              0,
-            );
-        }
+  function setLoginMsg(t) {
+    const box = $('loginMsg');
+    box.querySelector('span').textContent = t || '';
+    box.hidden = !t;
+  }
 
-        function toast(text, kind, icon, ms = 3500) {
-          const t = document.createElement("div");
-          t.className = "toast" + (kind ? " " + kind : "");
-          t.innerHTML =
-            '<svg><use href="' +
-            (icon || "#i-clock") +
-            '"/></svg><span></span>';
-          t.querySelector("span").textContent = text;
-          $("toasts").appendChild(t);
-          if (ms) setTimeout(() => t.remove(), ms);
-          return t;
-        }
+  if (!window.LKM_CONFIG || !CONFIG_OK) {
+    setLoginMsg(!window.LKM_CONFIG ? 'File config.js tidak ditemukan. Beri tahu guru.' : 'Pengaturan di config.js belum diisi. Beri tahu guru.');
+    $('loginBtn').disabled = true;
+    return;
+  }
+  if (!window.supabase) {
+    setLoginMsg('Halaman gagal dimuat. Periksa internet lalu muat ulang halaman.');
+    $('loginBtn').disabled = true;
+    return;
+  }
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
 
-        function clearToasts() {
-          for (const t of [...$("toasts").children])
-            if (t !== netToast) t.remove();
-        }
+  const store = {
+    get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { sessionStorage.setItem(k, v); } catch {} },
+    clear() { try { sessionStorage.clear(); } catch {} },
+  };
 
-        function initials(name) {
-          return (name || "?")
-            .trim()
-            .split(/\s+/)
-            .slice(0, 2)
-            .map((w) => w[0])
-            .join("")
-            .toUpperCase();
-        }
+  let token = store.get('lk_token');
+  let who = safeJSON(store.get('lk_who')) || { name: '', cls: '' };
+  let cur = null;          // langkah berjalan (dari server)
+  let endAt = 0;           // performance.now() saat langkah berakhir (hanya untuk tampilan)
+  let lastSaved = '';
+  let lastFlushAt = 0;
+  let syncing = false;
+  let busy = false;
+  let saving = false;
+  let saveAgain = false;
+  let warned = {};         // peringatan waktu yang sudah ditampilkan untuk langkah ini
 
-        /* ---------- format instruksi (aman: di-escape dulu) ----------
+  function safeJSON(s) { try { return JSON.parse(s); } catch { return null; } }
+
+  /* ---------- util ---------- */
+  async function rpc(name, args) {
+    const { data, error } = await sb.rpc(name, args);
+    if (error) throw error;
+    return data;
+  }
+  const isInvalidSession = (e) => !!e && (e.code === '28000' || /invalid_session/.test(e.message || ''));
+
+  function show(id) {
+    for (const s of document.querySelectorAll('.screen')) s.classList.toggle('active', s.id === id);
+  }
+
+  let netToast = null;
+  function setNet(ok) {
+    if (ok) { if (netToast) { netToast.remove(); netToast = null; } return; }
+    if (!netToast) netToast = toast('Koneksi terputus. Mencoba lagi…', 'warn', '#i-wifi', 0);
+  }
+
+  function toast(text, kind, icon, ms = 3500) {
+    const t = document.createElement('div');
+    t.className = 'toast' + (kind ? ' ' + kind : '');
+    t.innerHTML = '<svg><use href="' + (icon || '#i-clock') + '"/></svg><span></span>';
+    t.querySelector('span').textContent = text;
+    $('toasts').appendChild(t);
+    if (ms) setTimeout(() => t.remove(), ms);
+    return t;
+  }
+
+  function clearToasts() {
+    for (const t of [...$('toasts').children]) if (t !== netToast) t.remove();
+  }
+
+  function initials(name) {
+    return (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  }
+
+  /* ---------- format instruksi (aman: di-escape dulu) ----------
      Mendukung: ```blok kode```, `kode`, **tebal**, daftar "1. ..." dan "- ...",
      paragraf dipisah baris kosong. */
-        function esc(s) {
-          return s.replace(
-            /[&<>"]/g,
-            (c) =>
-              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
-          );
+  function esc(s) {
+    return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+  function inline(t) {
+    return t.replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  }
+  function blocks(text) {
+    let out = '';
+    for (const chunk of text.split(/\n\s*\n/)) {
+      const lines = chunk.split('\n').map((l) => l.trim()).filter(Boolean);
+      let i = 0;
+      while (i < lines.length) {
+        const kind = (l) => (/^\d+[.)]\s+/.test(l) ? 'ol' : /^[-*•]\s+/.test(l) ? 'ul' : 'p');
+        const k = kind(lines[i]);
+        const group = [];
+        while (i < lines.length && kind(lines[i]) === k) group.push(lines[i++]);
+        if (k === 'p') {
+          out += '<p>' + group.map(inline).join('<br>') + '</p>';
+        } else if (k === 'ol') {
+          const start = parseInt(group[0], 10) || 1;
+          out += '<ol style="--start:' + (start - 1) + '">' +
+            group.map((l) => '<li><span>' + inline(l.replace(/^\d+[.)]\s+/, '')) + '</span></li>').join('') + '</ol>';
+        } else {
+          out += '<ul>' + group.map((l) => '<li><span>' + inline(l.replace(/^[-*•]\s+/, '')) + '</span></li>').join('') + '</ul>';
         }
-        function inline(t) {
-          return t
-            .replace(/`([^`\n]+)`/g, "<code>$1</code>")
-            .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
-        }
-        function blocks(text) {
-          let out = "";
-          for (const chunk of text.split(/\n\s*\n/)) {
-            const lines = chunk
-              .split("\n")
-              .map((l) => l.trim())
-              .filter(Boolean);
-            let i = 0;
-            while (i < lines.length) {
-              const kind = (l) =>
-                /^\d+[.)]\s+/.test(l) ? "ol" : /^[-*•]\s+/.test(l) ? "ul" : "p";
-              const k = kind(lines[i]);
-              const group = [];
-              while (i < lines.length && kind(lines[i]) === k)
-                group.push(lines[i++]);
-              if (k === "p") {
-                out += "<p>" + group.map(inline).join("<br>") + "</p>";
-              } else if (k === "ol") {
-                const start = parseInt(group[0], 10) || 1;
-                out +=
-                  '<ol style="--start:' +
-                  (start - 1) +
-                  '">' +
-                  group
-                    .map(
-                      (l) =>
-                        "<li><span>" +
-                        inline(l.replace(/^\d+[.)]\s+/, "")) +
-                        "</span></li>",
-                    )
-                    .join("") +
-                  "</ol>";
-              } else {
-                out +=
-                  "<ul>" +
-                  group
-                    .map(
-                      (l) =>
-                        "<li><span>" +
-                        inline(l.replace(/^[-*•]\s+/, "")) +
-                        "</span></li>",
-                    )
-                    .join("") +
-                  "</ul>";
-              }
-            }
+      }
+    }
+    return out;
+  }
+  function fmt(text) {
+    const parts = esc(text || '').split('```');
+    return parts.map((p, i) => {
+      if (i % 2) {
+        const code = p.replace(/^[A-Za-z0-9+#-]*\n/, '').replace(/\n$/, '');
+        return '<pre><code>' + code + '</code></pre>';
+      }
+      return blocks(p);
+    }).join('');
+  }
+
+  function logout(msg) {
+    store.clear();
+    token = null; cur = null; busy = false; syncing = false;
+    closeConfirm();
+    $('lock').classList.remove('on');
+    setNet(true);
+    setLoginMsg(msg || '');
+    show('login');
+  }
+
+  /* ---------- login ---------- */
+  $('peek').addEventListener('click', () => {
+    const p = $('fPass');
+    const showIt = p.type === 'password';
+    p.type = showIt ? 'text' : 'password';
+    $('peek').textContent = showIt ? 'Tutup' : 'Lihat';
+    $('peek').setAttribute('aria-pressed', String(showIt));
+  });
+
+  $('loginForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const name = $('fName').value.trim(), cls = $('fClass').value.trim();
+    const pass = $('fPass').value.trim(), code = $('fCode').value.trim();
+    if (!name || !cls || !pass || !code) {
+      setLoginMsg('Lengkapi nama, kelas, tanggal lahir, dan kode kelas.');
+      ($('fName').value.trim() ? (!cls ? $('fClass') : !pass ? $('fPass') : $('fCode')) : $('fName')).focus();
+      return;
+    }
+    const btn = $('loginBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Memeriksa…';
+    setLoginMsg('');
+    try {
+      const r = await rpc('login', { p_name: name, p_class: cls, p_password: pass, p_code: code });
+      if (r.error) {
+        setLoginMsg(LOGIN_ERR[r.error] || 'Gagal masuk. Coba lagi.');
+        if (r.error === 'invalid_code' || r.error === 'class_closed') $('fCode').select();
+        return;
+      }
+      token = r.token; who = { name: r.name, cls: r.class, ws: r.worksheet || '' };
+      store.set('lk_token', token);
+      store.set('lk_who', JSON.stringify(who));
+      $('fPass').value = ''; $('fCode').value = '';
+      await loadState();
+    } catch (e) {
+      setLoginMsg('Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Masuk dan mulai';
+    }
+  });
+
+  /* ---------- memuat & menampilkan keadaan dari server ---------- */
+  async function loadState() {
+    try {
+      apply(await rpc('get_state', { p_token: token }));
+    } catch (e) {
+      if (isInvalidSession(e)) { logout(sessMsg(e)); return; }
+      throw e;
+    }
+  }
+
+  function apply(s) {
+    busy = false;
+    $('nextBtn').disabled = false;
+    if (s.status === 'closed') {
+      cur = null;
+      closeConfirm();
+      $('lock').classList.remove('on');
+      setNet(true);
+      $('closedWho').textContent = (who.name ? who.name + ', ' + who.cls : '') + (s.worksheet ? '. ' + s.worksheet : '');
+      show('closed');
+      return;
+    }
+    if (s.status === 'finished') {
+      cur = null;
+      closeConfirm();
+      $('lock').classList.remove('on');
+      setNet(true);
+      $('doneWho').textContent = (who.name ? who.name + ', ' + who.cls : '') + (s.worksheet ? '. ' + s.worksheet : '');
+      show('done');
+      return;
+    }
+    const isNew = !cur || cur.step_id !== s.step_id;
+    cur = s;
+    endAt = performance.now() + s.remaining_ms;   // tampilan saja; server yang menentukan
+    if (isNew) render(s);
+    show('slide');
+    $('lock').classList.remove('on');
+    setNet(true);
+    tick();
+  }
+
+  function render(s) {
+    $('avatar').textContent = initials(who.name);
+    $('whoName').textContent = who.name;
+    $('whoClass').textContent = who.cls + (s.worksheet ? ', ' + s.worksheet : '');
+
+    const segs = $('segs');
+    segs.replaceChildren();
+    for (let i = 1; i <= s.total; i++) {
+      const d = document.createElement('span');
+      d.className = 'seg' + (i < s.step_index ? ' done' : i === s.step_index ? ' now' : '');
+      segs.appendChild(d);
+    }
+    $('stepNo').textContent = 'Langkah ' + s.step_index + ' dari ' + s.total;
+    $('stepKicker').textContent = 'Langkah ' + s.step_index;
+
+    $('title').textContent = s.title;
+    $('instruction').innerHTML = fmt(s.instruction);
+
+    const box = $('images');
+    box.replaceChildren();
+    const imgs = s.images || [];
+    imgs.forEach((u, i) => {
+      const fig = document.createElement('figure');
+      fig.className = 'shot';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Perbesar gambar ' + (i + 1));
+      const im = new Image();
+      im.src = u; im.alt = 'Gambar instruksi ' + (i + 1); im.decoding = 'async';
+      im.addEventListener('error', () => {
+        fig.classList.add('broken');
+        cap.textContent = 'Gambar tidak bisa dimuat. Beri tahu guru.';
+        b.disabled = true;
+      });
+      const chip = document.createElement('span');
+      chip.className = 'zoom-chip';
+      chip.innerHTML = '<svg><use href="#i-zoom"/></svg>Perbesar';
+      b.append(im, chip);
+      b.addEventListener('click', () => openZoom(u, im.alt));
+      const cap = document.createElement('figcaption');
+      cap.textContent = imgs.length > 1 ? 'Gambar ' + (i + 1) + ' dari ' + imgs.length : 'Klik gambar untuk memperbesar';
+      fig.append(b, cap);
+      box.appendChild(fig);
+    });
+    box.hidden = imgs.length === 0;
+    $('page').classList.toggle('has-media', imgs.length > 0);
+
+    $('answerWrap').hidden = !s.needs_answer;
+    const gh = s.answer_kind === 'github';
+    $('answer').hidden = gh; $('repo').hidden = !gh; $('repoHelp').hidden = !gh;
+    document.querySelector('.answer-head label').textContent = gh ? 'Link repository GitHub' : 'Jawabanmu';
+    document.querySelector('.answer-head label').htmlFor = gh ? 'repo' : 'answer';
+    $('answer').value = gh ? '' : (s.answer || '');
+    $('repo').value = gh ? (s.answer || '') : '';
+    checkRepo();
+    lastSaved = s.answer || '';
+    setSave(s.answer ? 'saved-prev' : '');
+    lastFlushAt = 0;
+    warned = {};
+    clearToasts();
+
+    $('nextLabel').textContent = s.is_last ? 'Selesaikan lembar kerja' : 'Lanjut ke langkah ' + (s.step_index + 1);
+    $('nextIcon').innerHTML = '<use href="' + (s.is_last ? '#i-flag' : '#i-arrow') + '"/>';
+    $('content').scrollTop = 0;
+    closeConfirm();
+  }
+
+  /* ---------- timer (tampilan saja) ---------- */
+  function tick() {
+    if (!cur) return;
+    const remain = Math.max(0, endAt - performance.now());
+    const secs = Math.ceil(remain / 1000);
+    const state = secs <= DANGER_S ? 'danger' : secs <= WARN_S ? 'warn' : 'calm';
+
+    $('timer').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
+    const clock = $('clock');
+    if (clock.dataset.state !== state) clock.dataset.state = state;
+    clock.classList.toggle('pulse', secs <= 10 && secs > 0);
+    clock.setAttribute('aria-label', 'Sisa waktu ' + Math.floor(secs / 60) + ' menit ' + (secs % 60) + ' detik');
+
+    const fuse = $('fuse');
+    fuse.dataset.state = state;
+    fuse.style.transform = 'scaleX(' + (cur.duration_ms ? Math.min(1, remain / cur.duration_ms) : 0) + ')';
+
+    // peringatan sekali per langkah (hanya jika durasi langkah lebih panjang dari ambangnya)
+    if (secs <= WARN_S && secs > DANGER_S && !warned.w && cur.duration_ms > WARN_S * 1000 + 5000) {
+      warned.w = true; toast('Sisa 1 menit untuk langkah ini.', 'warn');
+    }
+    if (secs <= DANGER_S && secs > 0 && !warned.d && cur.duration_ms > DANGER_S * 1000 + 5000) {
+      warned.d = true; toast('Sisa ' + DANGER_S + ' detik. Jawabanmu akan disimpan otomatis.', 'danger');
+    }
+
+    if (cur.needs_answer && remain <= FLUSH_BEFORE_MS && remain > 0 && Date.now() - lastFlushAt > 1000) {
+      lastFlushAt = Date.now();
+      save();
+    }
+    if (remain <= 0 && !syncing && !busy) syncAfterTimeout();
+  }
+  setInterval(tick, 250);
+
+  // Waktu habis di layar -> tanya server langkah mana yang berlaku sekarang.
+  async function syncAfterTimeout() {
+    syncing = true;
+    closeConfirm();
+    clearToasts();
+    $('lTitle').textContent = 'Waktu langkah ini habis';
+    $('lBody').textContent = cur && cur.is_last ? 'Menyimpan lembar kerjamu…' : 'Membuka langkah berikutnya…';
+    $('lock').classList.add('on');
+    try {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const s = await rpc('get_state', { p_token: token });
+          // jam perangkat sedikit lebih cepat dari server: tunggu sebentar lalu tanya lagi
+          if (s.status === 'running' && cur && s.step_id === cur.step_id && s.remaining_ms < 1500 && attempt < 10) {
+            await sleep(Math.max(400, s.remaining_ms + 200));
+            continue;
           }
-          return out;
+          apply(s);
+          break;
+        } catch (e) {
+          if (isInvalidSession(e)) { logout(sessMsg(e)); break; }
+          setNet(false);
+          await sleep(2000);
         }
-        function fmt(text) {
-          const parts = esc(text || "").split("```");
-          return parts
-            .map((p, i) => {
-              if (i % 2) {
-                const code = p
-                  .replace(/^[A-Za-z0-9+#-]*\n/, "")
-                  .replace(/\n$/, "");
-                return "<pre><code>" + code + "</code></pre>";
-              }
-              return blocks(p);
-            })
-            .join("");
+      }
+    } finally {
+      syncing = false;
+    }
+  }
+
+  /* ---------- simpan jawaban ---------- */
+  function setSave(s) {
+    const el = $('saveState');
+    const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const map = {
+      '': '', 'saved-prev': 'Tersimpan',
+      dirty: 'Belum tersimpan', saving: 'Menyimpan…', saved: 'Tersimpan ' + t, error: 'Gagal menyimpan, mencoba lagi',
+    };
+    el.dataset.s = s === 'saved-prev' ? 'saved' : s;
+    el.textContent = map[s] ?? '';
+  }
+  // kolom jawaban yang sedang dipakai: teks biasa atau link repository
+  const field = () => (cur && cur.answer_kind === 'github' ? $('repo') : $('answer'));
+  const REPO_RE = /^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+\/?(\.git)?$/;
+  function checkRepo() {
+    const v = $('repo').value.trim(), h = $('repoHelp');
+    const bad = v && !REPO_RE.test(v);
+    h.classList.toggle('bad', !!bad);
+    h.textContent = bad ? 'Format belum benar. Contoh: https://github.com/namamu/nama-repository'
+      : 'Tempel alamat repository GitHub proyekmu. Pastikan repository-nya bisa dibuka guru.';
+  }
+  ['answer', 'repo'].forEach((id) => $(id).addEventListener('input', () => {
+    if (id === 'repo') checkRepo();
+    if (field().value !== lastSaved) setSave('dirty');
+  }));
+
+  async function save() {
+    if (!cur || !cur.needs_answer) return;
+    if (saving) { saveAgain = true; return; }
+    const stepId = cur.step_id;
+    const content = field().value;
+    if (content === lastSaved) return;
+    saving = true;
+    setSave('saving');
+    try {
+      const r = await rpc('save_answer', { p_token: token, p_step_id: stepId, p_content: content });
+      setNet(true);
+      if (cur && cur.step_id === stepId) {
+        if (r.ok) {
+          lastSaved = content;
+          setSave(field().value === content ? 'saved' : 'dirty');
+        } else if (!syncing) {
+          loadState().catch(() => {});
         }
+      }
+    } catch (e) {
+      if (isInvalidSession(e)) logout(sessMsg(e));
+      else { setNet(false); if (cur && cur.step_id === stepId) setSave('error'); }
+    } finally {
+      saving = false;
+      if (saveAgain) { saveAgain = false; save(); }
+    }
+  }
+  setInterval(() => { if (!syncing && !busy) save(); }, AUTOSAVE_MS);
 
-        function logout(msg) {
-          store.clear();
-          token = null;
-          cur = null;
-          busy = false;
-          syncing = false;
-          closeConfirm();
-          $("lock").classList.remove("on");
-          setNet(true);
-          setLoginMsg(msg || "");
-          show("login");
-        }
+  /* ---------- tombol Lanjut + konfirmasi (tanpa tombol kembali) ---------- */
+  let lastFocus = null;
+  function openConfirm() {
+    if (!cur) return;
+    $('cTitle').textContent = cur.is_last ? 'Selesaikan lembar kerja?' : 'Lanjut ke langkah ' + (cur.step_index + 1) + '?';
+    $('cBody').textContent = cur.is_last
+      ? 'Jawabanmu akan dikirim dan lembar kerja ditutup. Kamu tidak bisa mengubahnya lagi.'
+      : 'Kamu tidak bisa kembali ke langkah ini setelah lanjut.';
+    $('cYes').textContent = cur.is_last ? 'Ya, selesaikan' : 'Ya, lanjut';
+    $('cEmpty').hidden = !(cur.needs_answer && !field().value.trim());
+    lastFocus = document.activeElement;
+    $('confirm').classList.add('on');
+    $('cNo').focus();   // fokus ke "Tetap di sini" agar Enter tidak langsung melanjutkan
+  }
+  function closeConfirm() {
+    if (!$('confirm').classList.contains('on')) return;
+    $('confirm').classList.remove('on');
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  }
+  $('nextBtn').addEventListener('click', () => {
+    if (busy || !cur || syncing) return;
+    openConfirm();
+  });
+  $('cNo').addEventListener('click', closeConfirm);
+  $('confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') closeConfirm(); });
+  $('cYes').addEventListener('click', () => { closeConfirm(); doNext(); });
 
-        /* ---------- login ---------- */
-        $("peek").addEventListener("click", () => {
-          const p = $("fPass");
-          const showIt = p.type === "password";
-          p.type = showIt ? "text" : "password";
-          $("peek").textContent = showIt ? "Tutup" : "Lihat";
-          $("peek").setAttribute("aria-pressed", String(showIt));
-        });
+  async function doNext() {
+    if (busy || !cur || syncing) return;
+    busy = true;
+    const btn = $('nextBtn');
+    btn.disabled = true;
+    $('nextLabel').textContent = 'Menyimpan…';
+    try {
+      apply(await rpc('next_step', {
+        p_token: token,
+        p_step_id: cur.step_id,
+        p_content: cur.needs_answer ? field().value : null,
+      }));
+    } catch (e) {
+      if (isInvalidSession(e)) { logout(sessMsg(e)); return; }
+      setNet(false);
+      busy = false; btn.disabled = false;
+      if (cur) $('nextLabel').textContent = cur.is_last ? 'Selesaikan lembar kerja' : 'Lanjut ke langkah ' + (cur.step_index + 1);
+    }
+  }
 
-        $("loginForm").addEventListener("submit", async (ev) => {
-          ev.preventDefault();
-          const name = $("fName").value.trim(),
-            cls = $("fClass").value.trim();
-          const pass = $("fPass").value.trim(),
-            code = $("fCode").value.trim();
-          if (!name || !cls || !pass || !code) {
-            setLoginMsg("Lengkapi nama, kelas, tanggal lahir, dan kode kelas.");
-            ($("fName").value.trim()
-              ? !cls
-                ? $("fClass")
-                : !pass
-                  ? $("fPass")
-                  : $("fCode")
-              : $("fName")
-            ).focus();
-            return;
-          }
-          const btn = $("loginBtn");
-          btn.disabled = true;
-          btn.innerHTML = '<span class="spinner"></span>Memeriksa…';
-          setLoginMsg("");
-          try {
-            const r = await rpc("login", {
-              p_name: name,
-              p_class: cls,
-              p_password: pass,
-              p_code: code,
-            });
-            if (r.error) {
-              setLoginMsg(LOGIN_ERR[r.error] || "Gagal masuk. Coba lagi.");
-              if (r.error === "invalid_code" || r.error === "class_closed")
-                $("fCode").select();
-              return;
-            }
-            token = r.token;
-            who = { name: r.name, cls: r.class };
-            store.set("lk_token", token);
-            store.set("lk_who", JSON.stringify(who));
-            $("fPass").value = "";
-            $("fCode").value = "";
-            await loadState();
-          } catch (e) {
-            setLoginMsg(
-              "Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.",
-            );
-          } finally {
-            btn.disabled = false;
-            btn.textContent = "Masuk dan mulai";
-          }
-        });
+  /* ---------- zoom gambar ---------- */
+  function openZoom(u, alt) {
+    const z = $('zoomImg');
+    z.src = u; z.alt = alt || '';
+    z.classList.remove('full');
+    $('zoom').classList.add('on');
+    $('zoomClose').focus();
+  }
+  function closeZoom() { $('zoom').classList.remove('on'); }
+  $('zoom').addEventListener('click', (e) => {
+    if (e.target.id === 'zoomImg') e.target.classList.toggle('full');
+    else if (e.target.id === 'zoom' || e.target.id === 'zoomClose') closeZoom();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if ($('zoom').classList.contains('on')) closeZoom();
+    else closeConfirm();
+  });
 
-        /* ---------- memuat & menampilkan keadaan dari server ---------- */
-        async function loadState() {
-          try {
-            apply(await rpc("get_state", { p_token: token }));
-          } catch (e) {
-            if (isInvalidSession(e)) {
-              logout(SESSION_GONE);
-              return;
-            }
-            throw e;
-          }
-        }
+  /* ---------- catat aktivitas (hanya dicatat, tidak dilarang) ---------- */
+  function logEv(type) {
+    if (!token || !cur) return;
+    sb.rpc('log_event', { p_token: token, p_type: type }).then(() => {}, () => {});
+  }
+  document.addEventListener('visibilitychange', () => {
+    logEv(document.hidden ? 'hidden' : 'visible');
+    if (!document.hidden && cur && !syncing && !busy) loadState().catch(() => {});
+  });
+  window.addEventListener('blur', () => logEv('blur'));
+  $('answer').addEventListener('paste', () => logEv('paste'));
 
-        function apply(s) {
-          busy = false;
-          $("nextBtn").disabled = false;
-          if (s.status === "finished") {
-            cur = null;
-            closeConfirm();
-            $("lock").classList.remove("on");
-            setNet(true);
-            $("doneWho").textContent = who.name
-              ? who.name + ", " + who.cls
-              : "";
-            show("done");
-            return;
-          }
-          const isNew = !cur || cur.step_id !== s.step_id;
-          cur = s;
-          endAt = performance.now() + s.remaining_ms; // tampilan saja; server yang menentukan
-          if (isNew) render(s);
-          show("slide");
-          $("lock").classList.remove("on");
-          setNet(true);
-          tick();
-        }
+  // Tab di kolom jawaban menyisipkan 2 spasi (berguna untuk menulis kode)
+  $('answer').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault();
+    const t = e.target, a = t.selectionStart, b = t.selectionEnd;
+    t.setRangeText('  ', a, b, 'end');
+    t.dispatchEvent(new Event('input'));
+  });
 
-        function render(s) {
-          $("avatar").textContent = initials(who.name);
-          $("whoName").textContent = who.name;
-          $("whoClass").textContent = who.cls;
+  /* ---------- cek status berkala ---------- */
+  setInterval(() => {
+    if (!token || syncing || busy || document.hidden) return;
+    if (!($('slide').classList.contains('active') || $('closed').classList.contains('active'))) return;
+    loadState().catch(() => setNet(false));
+  }, HEARTBEAT_MS);
 
-          const segs = $("segs");
-          segs.replaceChildren();
-          for (let i = 1; i <= s.total; i++) {
-            const d = document.createElement("span");
-            d.className =
-              "seg" +
-              (i < s.step_index ? " done" : i === s.step_index ? " now" : "");
-            segs.appendChild(d);
-          }
-          $("stepNo").textContent =
-            "Langkah " + s.step_index + " dari " + s.total;
-          $("stepKicker").textContent = "Langkah " + s.step_index;
+  /* ---------- tombol Back browser dinonaktifkan ---------- */
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
-          $("title").textContent = s.title;
-          $("instruction").innerHTML = fmt(s.instruction);
-
-          const box = $("images");
-          box.replaceChildren();
-          const imgs = s.images || [];
-          imgs.forEach((u, i) => {
-            const fig = document.createElement("figure");
-            fig.className = "shot";
-            const b = document.createElement("button");
-            b.type = "button";
-            b.setAttribute("aria-label", "Perbesar gambar " + (i + 1));
-            const im = new Image();
-            im.src = u;
-            im.alt = "Gambar instruksi " + (i + 1);
-            im.decoding = "async";
-            im.addEventListener("error", () => {
-              fig.classList.add("broken");
-              cap.textContent = "Gambar tidak bisa dimuat. Beri tahu guru.";
-              b.disabled = true;
-            });
-            const chip = document.createElement("span");
-            chip.className = "zoom-chip";
-            chip.innerHTML = '<svg><use href="#i-zoom"/></svg>Perbesar';
-            b.append(im, chip);
-            b.addEventListener("click", () => openZoom(u, im.alt));
-            const cap = document.createElement("figcaption");
-            cap.textContent =
-              imgs.length > 1
-                ? "Gambar " + (i + 1) + " dari " + imgs.length
-                : "Klik gambar untuk memperbesar";
-            fig.append(b, cap);
-            box.appendChild(fig);
-          });
-          box.hidden = imgs.length === 0;
-          $("page").classList.toggle("has-media", imgs.length > 0);
-
-          $("answerWrap").hidden = !s.needs_answer;
-          $("answer").value = s.answer || "";
-          lastSaved = s.answer || "";
-          setSave(s.answer ? "saved-prev" : "");
-          lastFlushAt = 0;
-          warned = {};
-          clearToasts();
-
-          $("nextLabel").textContent = s.is_last
-            ? "Selesaikan lembar kerja"
-            : "Lanjut ke langkah " + (s.step_index + 1);
-          $("nextIcon").innerHTML =
-            '<use href="' + (s.is_last ? "#i-flag" : "#i-arrow") + '"/>';
-          $("content").scrollTop = 0;
-          closeConfirm();
-        }
-
-        /* ---------- timer (tampilan saja) ---------- */
-        function tick() {
-          if (!cur) return;
-          const remain = Math.max(0, endAt - performance.now());
-          const secs = Math.ceil(remain / 1000);
-          const state =
-            secs <= DANGER_S ? "danger" : secs <= WARN_S ? "warn" : "calm";
-
-          $("timer").textContent =
-            String(Math.floor(secs / 60)).padStart(2, "0") +
-            ":" +
-            String(secs % 60).padStart(2, "0");
-          const clock = $("clock");
-          if (clock.dataset.state !== state) clock.dataset.state = state;
-          clock.classList.toggle("pulse", secs <= 10 && secs > 0);
-          clock.setAttribute(
-            "aria-label",
-            "Sisa waktu " +
-              Math.floor(secs / 60) +
-              " menit " +
-              (secs % 60) +
-              " detik",
-          );
-
-          const fuse = $("fuse");
-          fuse.dataset.state = state;
-          fuse.style.transform =
-            "scaleX(" +
-            (cur.duration_ms ? Math.min(1, remain / cur.duration_ms) : 0) +
-            ")";
-
-          // peringatan sekali per langkah (hanya jika durasi langkah lebih panjang dari ambangnya)
-          if (
-            secs <= WARN_S &&
-            secs > DANGER_S &&
-            !warned.w &&
-            cur.duration_ms > WARN_S * 1000 + 5000
-          ) {
-            warned.w = true;
-            toast("Sisa 1 menit untuk langkah ini.", "warn");
-          }
-          if (
-            secs <= DANGER_S &&
-            secs > 0 &&
-            !warned.d &&
-            cur.duration_ms > DANGER_S * 1000 + 5000
-          ) {
-            warned.d = true;
-            toast(
-              "Sisa " + DANGER_S + " detik. Jawabanmu akan disimpan otomatis.",
-              "danger",
-            );
-          }
-
-          if (
-            cur.needs_answer &&
-            remain <= FLUSH_BEFORE_MS &&
-            remain > 0 &&
-            Date.now() - lastFlushAt > 1000
-          ) {
-            lastFlushAt = Date.now();
-            save();
-          }
-          if (remain <= 0 && !syncing && !busy) syncAfterTimeout();
-        }
-        setInterval(tick, 250);
-
-        // Waktu habis di layar -> tanya server langkah mana yang berlaku sekarang.
-        async function syncAfterTimeout() {
-          syncing = true;
-          closeConfirm();
-          clearToasts();
-          $("lTitle").textContent = "Waktu langkah ini habis";
-          $("lBody").textContent =
-            cur && cur.is_last
-              ? "Menyimpan lembar kerjamu…"
-              : "Membuka langkah berikutnya…";
-          $("lock").classList.add("on");
-          try {
-            for (let attempt = 0; ; attempt++) {
-              try {
-                const s = await rpc("get_state", { p_token: token });
-                // jam perangkat sedikit lebih cepat dari server: tunggu sebentar lalu tanya lagi
-                if (
-                  s.status === "running" &&
-                  cur &&
-                  s.step_id === cur.step_id &&
-                  s.remaining_ms < 1500 &&
-                  attempt < 10
-                ) {
-                  await sleep(Math.max(400, s.remaining_ms + 200));
-                  continue;
-                }
-                apply(s);
-                break;
-              } catch (e) {
-                if (isInvalidSession(e)) {
-                  logout(SESSION_GONE);
-                  break;
-                }
-                setNet(false);
-                await sleep(2000);
-              }
-            }
-          } finally {
-            syncing = false;
-          }
-        }
-
-        /* ---------- simpan jawaban ---------- */
-        function setSave(s) {
-          const el = $("saveState");
-          const t = new Date().toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const map = {
-            "": "",
-            "saved-prev": "Tersimpan",
-            dirty: "Belum tersimpan",
-            saving: "Menyimpan…",
-            saved: "Tersimpan " + t,
-            error: "Gagal menyimpan, mencoba lagi",
-          };
-          el.dataset.s = s === "saved-prev" ? "saved" : s;
-          el.textContent = map[s] ?? "";
-        }
-        $("answer").addEventListener("input", () => {
-          if ($("answer").value !== lastSaved) setSave("dirty");
-        });
-
-        async function save() {
-          if (!cur || !cur.needs_answer) return;
-          if (saving) {
-            saveAgain = true;
-            return;
-          }
-          const stepId = cur.step_id;
-          const content = $("answer").value;
-          if (content === lastSaved) return;
-          saving = true;
-          setSave("saving");
-          try {
-            const r = await rpc("save_answer", {
-              p_token: token,
-              p_step_id: stepId,
-              p_content: content,
-            });
-            setNet(true);
-            if (cur && cur.step_id === stepId) {
-              if (r.ok) {
-                lastSaved = content;
-                setSave($("answer").value === content ? "saved" : "dirty");
-              } else if (!syncing) {
-                loadState().catch(() => {});
-              }
-            }
-          } catch (e) {
-            if (isInvalidSession(e)) logout(SESSION_GONE);
-            else {
-              setNet(false);
-              if (cur && cur.step_id === stepId) setSave("error");
-            }
-          } finally {
-            saving = false;
-            if (saveAgain) {
-              saveAgain = false;
-              save();
-            }
-          }
-        }
-        setInterval(() => {
-          if (!syncing && !busy) save();
-        }, AUTOSAVE_MS);
-
-        /* ---------- tombol Lanjut + konfirmasi (tanpa tombol kembali) ---------- */
-        let lastFocus = null;
-        function openConfirm() {
-          if (!cur) return;
-          $("cTitle").textContent = cur.is_last
-            ? "Selesaikan lembar kerja?"
-            : "Lanjut ke langkah " + (cur.step_index + 1) + "?";
-          $("cBody").textContent = cur.is_last
-            ? "Jawabanmu akan dikirim dan lembar kerja ditutup. Kamu tidak bisa mengubahnya lagi."
-            : "Kamu tidak bisa kembali ke langkah ini setelah lanjut.";
-          $("cYes").textContent = cur.is_last ? "Ya, selesaikan" : "Ya, lanjut";
-          $("cEmpty").hidden = !(cur.needs_answer && !$("answer").value.trim());
-          lastFocus = document.activeElement;
-          $("confirm").classList.add("on");
-          $("cNo").focus(); // fokus ke "Tetap di sini" agar Enter tidak langsung melanjutkan
-        }
-        function closeConfirm() {
-          if (!$("confirm").classList.contains("on")) return;
-          $("confirm").classList.remove("on");
-          if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
-        }
-        $("nextBtn").addEventListener("click", () => {
-          if (busy || !cur || syncing) return;
-          openConfirm();
-        });
-        $("cNo").addEventListener("click", closeConfirm);
-        $("confirm").addEventListener("click", (e) => {
-          if (e.target.id === "confirm") closeConfirm();
-        });
-        $("cYes").addEventListener("click", () => {
-          closeConfirm();
-          doNext();
-        });
-
-        async function doNext() {
-          if (busy || !cur || syncing) return;
-          busy = true;
-          const btn = $("nextBtn");
-          btn.disabled = true;
-          $("nextLabel").textContent = "Menyimpan…";
-          try {
-            apply(
-              await rpc("next_step", {
-                p_token: token,
-                p_step_id: cur.step_id,
-                p_content: cur.needs_answer ? $("answer").value : null,
-              }),
-            );
-          } catch (e) {
-            if (isInvalidSession(e)) {
-              logout(SESSION_GONE);
-              return;
-            }
-            setNet(false);
-            busy = false;
-            btn.disabled = false;
-            if (cur)
-              $("nextLabel").textContent = cur.is_last
-                ? "Selesaikan lembar kerja"
-                : "Lanjut ke langkah " + (cur.step_index + 1);
-          }
-        }
-
-        /* ---------- zoom gambar ---------- */
-        function openZoom(u, alt) {
-          const z = $("zoomImg");
-          z.src = u;
-          z.alt = alt || "";
-          z.classList.remove("full");
-          $("zoom").classList.add("on");
-          $("zoomClose").focus();
-        }
-        function closeZoom() {
-          $("zoom").classList.remove("on");
-        }
-        $("zoom").addEventListener("click", (e) => {
-          if (e.target.id === "zoomImg") e.target.classList.toggle("full");
-          else if (e.target.id === "zoom" || e.target.id === "zoomClose")
-            closeZoom();
-        });
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Escape") return;
-          if ($("zoom").classList.contains("on")) closeZoom();
-          else closeConfirm();
-        });
-
-        /* ---------- catat aktivitas (hanya dicatat, tidak dilarang) ---------- */
-        function logEv(type) {
-          if (!token || !cur) return;
-          sb.rpc("log_event", { p_token: token, p_type: type }).then(
-            () => {},
-            () => {},
-          );
-        }
-        document.addEventListener("visibilitychange", () => {
-          logEv(document.hidden ? "hidden" : "visible");
-          if (!document.hidden && cur && !syncing && !busy)
-            loadState().catch(() => {});
-        });
-        window.addEventListener("blur", () => logEv("blur"));
-        $("answer").addEventListener("paste", () => logEv("paste"));
-
-        // Tab di kolom jawaban menyisipkan 2 spasi (berguna untuk menulis kode)
-        $("answer").addEventListener("keydown", (e) => {
-          if (
-            e.key !== "Tab" ||
-            e.shiftKey ||
-            e.ctrlKey ||
-            e.altKey ||
-            e.metaKey
-          )
-            return;
-          e.preventDefault();
-          const t = e.target,
-            a = t.selectionStart,
-            b = t.selectionEnd;
-          t.setRangeText("  ", a, b, "end");
-          t.dispatchEvent(new Event("input"));
-        });
-
-        /* ---------- tombol Back browser dinonaktifkan ---------- */
-        history.pushState(null, "", location.href);
-        window.addEventListener("popstate", () =>
-          history.pushState(null, "", location.href),
-        );
-
-        /* ---------- mulai ---------- */
-        if (token) {
-          loadState().catch(() => {
-            setLoginMsg(
-              "Tidak bisa terhubung ke server. Periksa internet lalu muat ulang halaman.",
-            );
-            show("login");
-          });
-        }
-      })();
-    </script>
-  </body>
+  /* ---------- mulai ---------- */
+  if (token) {
+    loadState().catch(() => {
+      setLoginMsg('Tidak bisa terhubung ke server. Periksa internet lalu muat ulang halaman.');
+      show('login');
+    });
+  }
+})();
+</script>
+</body>
 </html>
