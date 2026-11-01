@@ -242,6 +242,12 @@
   .seg-ctl label{display:inline-flex; align-items:center; height:34px; padding:0 14px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--ink-2)}
   .seg-ctl input{position:absolute; opacity:0; pointer-events:none}
   .seg-ctl label:has(input:checked){background:var(--surface); color:var(--ink); box-shadow:var(--shadow-sm)}
+  .g-shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin:0 0 10px}
+  .g-shots a{position:relative; display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
+  .g-shots img{width:100%; height:100%; object-fit:contain; display:block}
+  .g-shots span{position:absolute; left:6px; top:6px; min-width:22px; height:22px; padding:0 6px; border-radius:6px; background:rgba(15,20,40,.72); color:#fff; font-size:12px; font-weight:700; display:grid; place-items:center}
+  .g-shots a.bad::after{content:'Gambar gagal dimuat'; position:absolute; inset:0; display:grid; place-items:center; font-size:12.5px; color:var(--danger)}
+  .g-shots a.bad img{visibility:hidden}
   .tbl tr.grp td{background:var(--surface-2); padding:9px 14px; font-size:13px; color:var(--ink-2)}
   .tbl tr.grp:hover td{background:var(--surface-2)}
   .tbl tr.grp strong{color:var(--ink); font-size:14px; margin-right:8px}
@@ -295,13 +301,19 @@
   .pr-ans{margin:4px 0 0 20px; border:1px solid #999; border-radius:4px; padding:6px 8px; white-space:pre-wrap; word-break:break-word; min-height:16pt}
   .pr-ans.code{background:#f7f7f7 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
   .pr-ans.empty{color:#777 !important; font-style:italic}
+  .pr-shots{margin:6px 0 0 20px; display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .pr-shots figure{margin:0; border:1px solid #999; border-radius:4px; padding:4px; break-inside:avoid; text-align:center}
+  .pr-shots img{display:block; max-width:100%; max-height:95mm; margin:0 auto; object-fit:contain}
+  .pr-shots img.fail{display:none}
+  .pr-shots figcaption{font-size:8pt; color:#555 !important; margin-top:2px}
   .pr-help{margin:3px 0 0 20px; font-size:8.5pt; color:#444 !important}
   .pr-grade{margin:5px 0 0 20px; display:flex; gap:14px; align-items:center; font-size:9pt}
   .pr-pt{display:inline-block; min-width:14mm; border-bottom:1px solid #111; text-align:center; font-weight:700}
   .pr-fb{margin:8px 0 0; font-size:9pt}
   .pr-fb .line{border-bottom:1px solid #999; height:16pt}
   .pr-fb .given{border:1px solid #999; border-radius:4px; padding:4px 8px; white-space:pre-wrap}
-  .pr-q, .pr-head, .pr-step h2{break-inside:avoid}
+  .pr-head, .pr-step h2, .pr-qh, .pr-grade{break-inside:avoid}
+  .pr-q:not(:has(.pr-shots)){break-inside:avoid}
   .pr-step h2{break-after:avoid}
   .pr-foot{margin-top:10px; font-size:8.5pt; color:#555 !important; display:flex; justify-content:space-between; border-top:1px solid #ccc; padding-top:4px}
   details.more{border:1px solid var(--line); border-radius:12px; padding:0 14px; margin-bottom:14px}
@@ -1093,7 +1105,7 @@
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
 
   /* ---------- pertanyaan: jenis & nilai ---------- */
-  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub' };
+  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub', image: 'Screenshot / bukti' };
   const isAuto = (q) => q.type === 'single' || q.type === 'multi' || q.type === 'tf' || (q.type === 'short' && ((q.accept || []).length || String(q.acceptText || '').trim()));
   const qsOf = (st) => st.questions || [];
   const hasVal = (v) => v != null && !(typeof v === 'string' && !v.trim()) && !(Array.isArray(v) && !v.length);
@@ -1143,7 +1155,10 @@
       renderResults(); return;
     }
     if (!S.ws) { noSheet($('rTable')); return; }
-    try { S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1)); }
+    try {
+      S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1));
+      S.results.title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || '';
+    }
     catch (e) { $('rTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     renderResults();
   }
@@ -1303,6 +1318,10 @@
           const key = q.type === 'multi' ? (q.correct || []) : [q.correct];
           ans = '<div class="gq-opts">' + (q.options || []).map((o, k) => '<div class="gq-opt' + (picked.includes(k) ? ' pick' : '') + (key.includes(k) ? ' ok-key' : '') + '"><span class="m">' +
             (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</span>' + h(o) + '</div>').join('') + '</div>' + (picked.length ? '' : '<p class="muted" style="margin:-4px 0 10px;font-size:13px">Tidak menjawab.</p>');
+        } else if (q.type === 'image') {
+          const list = Array.isArray(v) ? v : [];
+          ans = list.length ? '<div class="g-shots">' + list.map((u, k) => '<a href="' + h(u) + '" target="_blank" rel="noopener" title="Buka gambar ' + (k + 1) + ' di tab baru"><img src="' + h(u) + '" alt="Screenshot ' + (k + 1) + '" loading="lazy" onerror="this.parentNode.classList.add(\'bad\')"><span>' + (k + 1) + '</span></a>').join('') + '</div>'
+            : '<p class="muted" style="margin:0 0 10px;font-size:13px">Tidak mengunggah gambar.</p>';
         } else if (hasVal(v)) {
           ans = q.type === 'github' ? '<p style="margin:0 0 10px"><a class="repo-link" href="' + h(v) + '" target="_blank" rel="noopener">' + h(v) + '</a></p>' : '<pre class="g-answer">' + h(v) + '</pre>';
           if (q.type === 'short' && (q.accept || []).length) ans += '<div class="help" style="margin:-6px 0 10px">Kunci: ' + q.accept.map(h).join(', ') + '</div>';
@@ -1444,7 +1463,7 @@
   };
 
   /* ---------- cetak PDF (lewat jendela cetak browser) ---------- */
-  const PR_DEF = { key: false, grades: true, instr: false, page: true };
+  const PR_DEF = { key: false, grades: true, instr: false, page: true, imgs: true };
   function printItems() {
     if (S.rMode === 'student') return studentGroups().flatMap((g) => g.items);
     return S.results ? visibleRows().map((row) => ({ R: S.results, row })) : [];
@@ -1458,6 +1477,7 @@
       ck('grades', 'Isi poin yang sudah ada', 'Poin otomatis dan nilai yang sudah Anda beri ikut tercetak. Matikan agar kolom poin kosong untuk dikoreksi manual.') +
       ck('key', 'Tandai kunci jawaban', 'Pilihan yang benar dan isian yang diterima ditandai. Jangan dibagikan ke murid.') +
       ck('instr', 'Sertakan instruksi langkah', 'Teks instruksi tiap langkah, tanpa gambar.') +
+      ck('imgs', 'Sertakan screenshot', 'Gambar bukti yang diunggah murid dicetak di bawah pertanyaannya. Matikan untuk mencetak daftar link saja.') +
       ck('page', 'Satu murid per halaman', 'Setiap lembar jawaban dimulai di halaman baru.') +
       '</div><div class="notice info" style="margin-top:14px"><svg><use href="#i-alert"/></svg><span>Di jendela cetak, pilih tujuan <strong>Simpan sebagai PDF</strong> dan kertas A4.</span></div>' +
       '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Cetak</button></div>');
@@ -1478,6 +1498,11 @@
         '<div class="pr-opt' + (picked.includes(k) ? ' pick' : '') + '"><span class="pr-box">' + (picked.includes(k) ? '&#10003;' : '') + '</span><span>' +
         (q.type === 'tf' ? '' : String.fromCharCode(65 + k) + '. ') + h(t) + (o.key && key.includes(k) ? '<span class="pr-key">KUNCI</span>' : '') + '</span></div>').join('') + '</div>' +
         (picked.length ? '' : '<div class="pr-help"><em>Tidak memilih jawaban.</em></div>');
+    } else if (q.type === 'image') {
+      const list = Array.isArray(v) ? v : [];
+      body = !list.length ? '<div class="pr-ans empty">Tidak mengunggah gambar.</div>'
+        : o.imgs ? '<div class="pr-shots">' + list.map((u, k) => '<figure><img src="' + h(u) + '" alt=""><figcaption>Gambar ' + (k + 1) + '</figcaption></figure>').join('') + '</div>'
+        : '<div class="pr-ans">' + list.map((u, k) => (k + 1) + '. ' + h(u)).join('\n') + '</div>';
     } else if (hasVal(v)) {
       body = q.type === 'code' ? '<div class="pr-ans code"><pre>' + h(v) + '</pre></div>' : '<div class="pr-ans">' + h(v) + '</div>';
     } else body = '<div class="pr-ans empty">Tidak menjawab.</div>';
@@ -1511,8 +1536,20 @@
       '<div class="pr-foot"><span>' + h(row.name) + ' &middot; ' + h(R.title || '') + '</span><span>' + (score.endsWith('*') ? '* sebagian soal belum dinilai &middot; ' : '') + 'Dicetak ' + h(when(new Date())) + '</span></div>' +
       '</article>';
   }
-  function doPrint(items, o) {
+  async function doPrint(items, o) {
     $('printArea').innerHTML = items.map(({ R, row }) => prSheet(R, row, o)).join('');
+    // tunggu screenshot selesai dimuat (paling lama 20 detik) agar tidak tercetak kosong
+    const imgs = [...$('printArea').querySelectorAll('img')];
+    if (imgs.length) {
+      toast('Menyiapkan ' + imgs.length + ' gambar untuk dicetak…');
+      await Promise.race([
+        Promise.all(imgs.map((im) => (im.complete ? Promise.resolve() : new Promise((r) => { im.onload = r; im.onerror = r; })))),
+        new Promise((r) => setTimeout(r, 20000)),
+      ]);
+      const bad = imgs.filter((im) => !im.naturalWidth);
+      bad.forEach((im) => { im.classList.add('fail'); im.nextElementSibling.textContent += ' (gagal dimuat: ' + im.src + ')'; });
+      if (bad.length) toast(bad.length + ' gambar gagal dimuat dan dicetak sebagai link.', 'err');
+    }
     const old = document.title;
     const titles = [...new Set(items.map((x) => x.R.title))];
     document.title = 'Hasil ' + (items.length === 1 ? items[0].row.name + ' - ' + items[0].R.title : titles.length === 1 ? titles[0] : 'per murid') + (S.filters.rClass ? ' ' + S.filters.rClass : '');
@@ -1694,7 +1731,7 @@
         (q.type === 'multi' ? '<div class="help">Pilih semua jawaban yang benar.</div>' : '') +
         (q.type === 'single' || q.type === 'multi' || q.type === 'tf'
           ? (q.type === 'tf' ? ['Benar', 'Salah'] : q.options || []).map((o, k) => '<div class="pv-opt"><b>' + (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</b>' + h(o || '…') + '</div>').join('')
-          : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' ? ' tall' : '') + '">' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…' })[q.type] + '</div>') +
+          : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' || q.type === 'image' ? ' tall' : '') + '"' + (q.type === 'image' ? ' style="border-style:dashed;text-align:center;display:grid;place-items:center"' : '') + '>' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…', image: 'Pilih gambar, Ctrl+V, atau seret ke sini (maks. ' + (q.max || 5) + ')' })[q.type] + '</div>') +
         '</div>').join('');
     };
     const renderQB = () => {
@@ -1714,6 +1751,10 @@
         } else if (q.type === 'short') {
           body += '<textarea class="textarea code" rows="2" data-i="' + i + '" data-f="accept" placeholder="Jawaban yang diterima, satu per baris" style="margin-top:8px">' + h(q.acceptText || '') + '</textarea>' +
             '<div class="qb-key">Huruf besar-kecil dan spasi berlebih tidak dibedakan. Kosongkan bila ingin dinilai sendiri.</div>';
+        } else if (q.type === 'image') {
+          body += '<label class="qb-pts" style="margin-top:8px">Maksimal <input class="input" type="number" min="1" max="10" data-i="' + i + '" data-f="max" value="' + (q.max ?? 5) + '"> gambar</label>' +
+            '<div class="qb-key">Murid mengunggah screenshot sebagai bukti (pilih file, tempel dengan Ctrl+V, atau seret). Gambar disimpan di server gambar Nextcloud. Dinilai guru.' +
+            (IMAGE_UPLOAD_BASE ? '' : ' <strong>IMAGE_UPLOAD_BASE di config.js masih kosong, jadi murid belum bisa mengunggah.</strong>') + '</div>';
         } else {
           body += '<div class="qb-key">' + ({ essay: 'Murid menulis jawaban panjang. Dinilai guru.', code: 'Kotak teks kode (huruf rata, tombol Tab berfungsi). Dinilai guru; kemiripan dengan kode acuan ikut dihitung.', github: 'Murid menempelkan link repository. Dipakai menu Kode & GitHub. Dinilai guru.' })[q.type] + '</div>';
         }
@@ -1734,6 +1775,7 @@
       else if (f === 'points') q.points = t.value === '' ? '' : Number(t.value);
       else if (f === 'opt') q.options[+t.dataset.k] = t.value;
       else if (f === 'accept') q.acceptText = t.value;
+      else if (f === 'max') q.max = t.value === '' ? '' : Number(t.value);
       pvQs();
     });
     $('qbList').addEventListener('change', (e) => {
@@ -1823,6 +1865,7 @@
         if (q.type === 'single' || q.type === 'multi') { o.options = q.options.map((x) => String(x).trim()); o.correct = q.correct; }
         if (q.type === 'tf') o.correct = q.correct;
         if (q.type === 'short') o.accept = String(q.acceptText || '').split('\n').map((x) => x.trim()).filter(Boolean);
+        if (q.type === 'image') o.max = Math.min(10, Math.max(1, Number(q.max) || 5));
         return o;
       });
       const id = await run('t_save_step', {
@@ -2133,7 +2176,7 @@
     if (!S.ws) { $('ghNotice').innerHTML = ''; noSheet($('gTable')); return; }
     {
       if (!S.results || S.results._ws !== S.ws) $('gTable').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
-      try { S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1)); }
+      try { S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1)); S.results.title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || ''; }
       catch (e) { $('gTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     }
     if (!S.gh || S.gh.ws !== S.ws) S.gh = { ws: S.ws, byS: {} };

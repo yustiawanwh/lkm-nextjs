@@ -334,6 +334,19 @@
   .q-prompt{font-size:16px; color:var(--ink); font-weight:500; padding-top:2px}
   .q-prompt.prose > *{margin-bottom:6px}
   .q-hint{font-size:12.5px; color:var(--muted); margin:0 0 10px}
+  .shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-bottom:10px}
+  .shots:empty{display:none}
+  .shot{position:relative; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
+  .shot img{width:100%; height:100%; object-fit:contain; display:block; cursor:zoom-in}
+  .shot button{position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:8px; border:0; background:rgba(15,20,40,.72); color:#fff; font-size:16px; line-height:1; cursor:pointer}
+  .shot button:hover{background:var(--danger)}
+  .shot.up{display:grid; place-items:center; font-size:12.5px; color:var(--muted); text-align:center; padding:8px}
+  .shot-drop{border:1.5px dashed var(--line); border-radius:12px; padding:16px; text-align:center; font-size:14px; color:var(--ink-2); transition:border-color .15s, background-color .15s}
+  .shot-drop.over{border-color:var(--accent); background:var(--accent-soft)}
+  .shot-drop .pick{display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 14px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 14px var(--sans); cursor:pointer; margin-bottom:6px}
+  .shot-drop small{display:block; color:var(--muted); font-size:12.5px; margin-top:4px}
+  .shot-st{font-size:13px; margin-top:8px; min-height:18px; color:var(--muted)}
+  .shot-st.err{color:var(--danger); font-weight:600}
   .q textarea,.q .txt{
     width:100%; display:block; border:1.5px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink);
     transition:border-color .15s, box-shadow .15s;
@@ -666,6 +679,7 @@
   const SUPABASE_URL = String(CFG.SUPABASE_URL || '').trim();
   const SUPABASE_KEY = String(CFG.SUPABASE_KEY || '').trim();
   const CONFIG_OK = /^https?:\/\/\S+$/.test(SUPABASE_URL) && SUPABASE_KEY && !/GANTI/.test(SUPABASE_URL + SUPABASE_KEY);
+  const IMAGE_UPLOAD_BASE = String(CFG.IMAGE_UPLOAD_BASE || '').trim();
 
   const AUTOSAVE_MS = 5000;       // simpan otomatis tiap 5 detik jika ada perubahan
   const FLUSH_BEFORE_MS = 3000;   // 3 detik terakhir: simpan tiap detik
@@ -1108,6 +1122,26 @@
         inp.value = typeof v === 'string' ? v : '';
         card.appendChild(inp);
         if (q.type === 'github') { const hp = el('div', 'repo-help', REPO_HELP); card.appendChild(hp); checkRepo(inp); }
+      } else if (q.type === 'image') {
+        card.dataset.urls = JSON.stringify(Array.isArray(v) ? v : []);
+        card.dataset.max = String(q.max || 5);
+        card.appendChild(el('div', 'shots'));
+        if (IMAGE_UPLOAD_BASE) {
+          const drop = el('div', 'shot-drop');
+          const pick = el('button', 'pick', 'Pilih gambar'); pick.type = 'button';
+          const file = document.createElement('input');
+          file.type = 'file'; file.accept = 'image/png,image/jpeg,image/gif,image/webp'; file.multiple = true; file.hidden = true;
+          pick.onclick = () => file.click();
+          file.onchange = () => { uploadShots(card, [...file.files]); file.value = ''; };
+          drop.append(pick, file, el('small', null, 'Atau tekan Print Screen lalu Ctrl+V di halaman ini, atau seret gambar ke kotak ini. Maksimal ' + (q.max || 5) + ' gambar.'));
+          drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+          drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+          drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); uploadShots(card, [...e.dataTransfer.files]); });
+          card.appendChild(drop);
+        } else card.appendChild(el('p', 'q-hint', 'Unggah gambar belum diaktifkan. Beri tahu guru.'));
+        card.appendChild(el('div', 'shot-st'));
+        card.addEventListener('pointerdown', () => (lastShotCard = card));
+        drawShots(card);
       } else {
         const ta = document.createElement('textarea');
         ta.id = pid; ta.spellcheck = false;
@@ -1135,6 +1169,9 @@
       } else if (t === 'multi') {
         const arr = [...c.querySelectorAll('input:checked')].map((x) => Number(x.value));
         if (arr.length) out[id] = arr;
+      } else if (t === 'image') {
+        const arr = JSON.parse(c.dataset.urls || '[]');
+        if (arr.length) out[id] = arr;
       } else {
         const f = c.querySelector('textarea, input'); const val = f ? f.value : '';
         if (val.trim()) out[id] = val;
@@ -1142,6 +1179,86 @@
     });
     return out;
   }
+  /* ---------- screenshot bukti: unggah ke server gambar (Nextcloud) ---------- */
+  let lastShotCard = null;
+  function drawShots(card) {
+    const box = card.querySelector('.shots'), urls = JSON.parse(card.dataset.urls || '[]');
+    box.replaceChildren(...urls.map((u, k) => {
+      const d = el('div', 'shot'), img = document.createElement('img');
+      img.src = u; img.alt = 'Screenshot ' + (k + 1); img.loading = 'lazy';
+      img.onclick = () => window.open(u, '_blank', 'noopener');
+      const del = el('button', null, '\u00d7'); del.type = 'button'; del.setAttribute('aria-label', 'Hapus gambar ' + (k + 1));
+      del.onclick = () => {
+        const list = JSON.parse(card.dataset.urls || '[]'); list.splice(k, 1);
+        card.dataset.urls = JSON.stringify(list); drawShots(card); markDirty(); save();
+      };
+      d.append(img, del); return d;
+    }), ...[...Array(Number(card.dataset.busy || 0))].map(() => el('div', 'shot up', 'Mengunggah…')));
+    const max = Number(card.dataset.max || 5), drop = card.querySelector('.shot-drop');
+    if (drop) drop.hidden = urls.length + Number(card.dataset.busy || 0) >= max;
+  }
+  // gambar besar diperkecil (sisi terpanjang 1920 px, JPEG) agar unggahan cepat untuk 40 murid
+  async function shrink(file) {
+    if (file.size <= 900 * 1024 || file.type === 'image/gif') return file;
+    try {
+      const bmp = await createImageBitmap(file);
+      const k = Math.min(1, 1920 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+      const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.88));
+      return out && out.size < file.size ? out : file;
+    } catch { return file; }
+  }
+  async function putImage(blob) {
+    const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/webp': 'webp' }[blob.type];
+    const d = new Date(), pad = (n) => String(n).padStart(2, '0');
+    const rnd = [...crypto.getRandomValues(new Uint8Array(8))].map((b) => b.toString(16).padStart(2, '0')).join('');
+    const url = IMAGE_UPLOAD_BASE.replace(/\/?$/, '/') + 'bukti-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + rnd + '.' + ext;
+    let r;
+    try { r = await fetch(url, { method: 'PUT', body: blob, headers: { 'Content-Type': blob.type } }); }
+    catch { throw new Error('Tidak bisa terhubung ke server gambar.'); }
+    if (!r.ok) throw new Error('Server gambar menolak unggahan (kode ' + r.status + '). Beri tahu guru.');
+    return url;
+  }
+  async function uploadShots(card, files) {
+    const st = card.querySelector('.shot-st'), stepId = cur && cur.step_id;
+    const okType = (f) => /^image\/(png|jpeg|gif|webp)$/.test(f.type);
+    const bad = files.filter((f) => !okType(f));
+    files = files.filter(okType);
+    const room = Number(card.dataset.max || 5) - JSON.parse(card.dataset.urls || '[]').length - Number(card.dataset.busy || 0);
+    const skipped = Math.max(0, files.length - room);
+    files = files.slice(0, Math.max(0, room));
+    st.className = 'shot-st'; st.textContent = '';
+    if (bad.length) { st.className = 'shot-st err'; st.textContent = 'Hanya gambar PNG, JPG, GIF, atau WebP.'; }
+    if (!files.length) { if (skipped) { st.className = 'shot-st err'; st.textContent = 'Jumlah gambar sudah maksimal.'; } return; }
+    card.dataset.busy = String(Number(card.dataset.busy || 0) + files.length); drawShots(card);
+    const errs = [];
+    await Promise.all(files.map(async (f) => {
+      try {
+        const b = await shrink(f);
+        if (b.size > 10 * 1024 * 1024) throw new Error('Gambar lebih dari 10 MB.');
+        const url = await putImage(b);
+        if (!cur || cur.step_id !== stepId || !card.isConnected) return;   // langkah sudah berganti
+        const list = JSON.parse(card.dataset.urls || '[]'); list.push(url); card.dataset.urls = JSON.stringify(list);
+      } catch (e) { errs.push(e.message); }
+      finally { card.dataset.busy = String(Math.max(0, Number(card.dataset.busy || 0) - 1)); if (card.isConnected) drawShots(card); }
+    }));
+    if (!card.isConnected) return;
+    if (errs.length) { st.className = 'shot-st err'; st.textContent = errs[0]; }
+    else if (skipped) { st.className = 'shot-st err'; st.textContent = skipped + ' gambar tidak diunggah karena melebihi batas.'; }
+    else { st.className = 'shot-st'; st.textContent = files.length + ' gambar terunggah.'; }
+    markDirty(); save();
+  }
+  // Ctrl+V gambar (misalnya hasil Print Screen) masuk ke pertanyaan screenshot
+  document.addEventListener('paste', (e) => {
+    if (!cur || !IMAGE_UPLOAD_BASE || !$('slide').classList.contains('active')) return;
+    const files = [...(e.clipboardData?.items || [])].filter((it) => it.kind === 'file' && it.type.startsWith('image/')).map((it) => it.getAsFile()).filter(Boolean);
+    if (!files.length) return;
+    const cards = [...document.querySelectorAll('#qlist .q[data-type="image"]')]; if (!cards.length) return;
+    const target = (e.target.closest && e.target.closest('.q[data-type="image"]')) || (lastShotCard && lastShotCard.isConnected ? lastShotCard : cards[0]);
+    e.preventDefault();
+    uploadShots(target, files.map((f, i) => (f.name && f.name !== 'image.png' ? f : new File([f], 'tempel-' + i + '.png', { type: f.type }))));
+  });
   const markDirty = () => { if (JSON.stringify(collect()) !== lastSaved) setSave('dirty'); };
   $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); markDirty(); });
   $('qlist').addEventListener('change', markDirty);
@@ -1188,6 +1305,8 @@
   let lastFocus = null;
   function openConfirm() {
     if (!cur) return;
+    const up = [...document.querySelectorAll('#qlist .q[data-type="image"]')].find((c) => Number(c.dataset.busy || 0) > 0);
+    if (up) { const st = up.querySelector('.shot-st'); st.className = 'shot-st err'; st.textContent = 'Tunggu sebentar, gambar masih diunggah.'; up.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     $('cTitle').textContent = cur.is_last ? 'Selesaikan lembar kerja?' : 'Lanjut ke langkah ' + (cur.step_index + 1) + '?';
     $('cBody').textContent = cur.is_last
       ? 'Jawabanmu akan dikirim dan lembar kerja ditutup. Kamu tidak bisa mengubahnya lagi.'
