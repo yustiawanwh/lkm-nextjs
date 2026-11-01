@@ -477,6 +477,7 @@
         <input class="input" id="mSearch" type="search" placeholder="Cari nama…" aria-label="Cari nama">
         <span class="spacer"></span>
         <span class="stamp" id="mStamp"></span>
+        <button class="btn btn-ghost" id="mPause" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>Istirahat</button>
       </div>
       <div class="panel table-wrap" id="mTable"></div>
     </section>
@@ -892,7 +893,14 @@
     const rows = inClass.filter((r) => (!q || norm(r.name).includes(q)) &&
       (!f.mState || (f.mState === 'check' ? needsCheck(r) : r.status === f.mState)));
     if (!m.total) { $('mTable').innerHTML = '<div class="empty"><strong>Lembar kerja ini belum punya langkah</strong>Tambahkan langkah di menu Lembar kerja.</div>'; return; }
-    const closedNote = m.is_active ? '' : '<div class="notice" style="margin:12px 12px 0"><svg><use href="#i-alert"/></svg><span>Lembar kerja ini sedang ditutup. Murid tidak bisa mengerjakan sampai dibuka lagi di menu Lembar kerja. Waktu mereka tetap berjalan.</span></div>';
+    const pz = pauseInfo(m);
+    $('mPause').hidden = !!pz.active || !m.is_active;
+    const closedNote = (m.is_active ? '' : '<div class="notice" style="margin:12px 12px 0"><svg><use href="#i-alert"/></svg><span>Lembar kerja ini sedang ditutup. Murid tidak bisa mengerjakan sampai dibuka lagi di menu Lembar kerja. Waktu mereka tetap berjalan.</span></div>') +
+      (pz.active ? '<div class="notice info" style="margin:12px 12px 0;align-items:center"><svg><use href="#i-alert"/></svg><span style="flex:1"><strong>Istirahat.</strong> Waktu semua murid dihentikan. ' +
+          (pz.until ? 'Lanjut otomatis pukul ' + clock(pz.until) + ' (<span class="pz-left" data-until="' + m.paused_until + '"></span> lagi).' : 'Lanjut setelah Anda menekan Lanjutkan.') +
+          '</span><button class="btn btn-primary btn-sm" data-pz="resume">Lanjutkan sekarang</button></div>'
+       : pz.scheduled ? '<div class="notice info" style="margin:12px 12px 0;align-items:center"><svg><use href="#i-alert"/></svg><span style="flex:1">Istirahat terjadwal pukul ' + clock(pz.start) +
+          (pz.until ? ' sampai ' + clock(pz.until) : ' sampai Anda melanjutkan') + '.</span><button class="btn btn-sm" data-pz="cancel">Batalkan jadwal</button></div>' : '');
     if (!rows.length) { $('mTable').innerHTML = '<div class="empty">' + (m.students.length ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid</strong>Tambahkan murid di menu Murid.') + '</div>'; return; }
 
     const status = (r) => r.status === 'finished' ? '<span class="pill ok">Selesai</span>'
@@ -929,10 +937,29 @@
         '</td></tr>').join('') + '</tbody></table>';
     tickTimes();
     $('mTable').querySelectorAll('button[data-a]').forEach((b) => (b.onclick = () => rowAction(b.dataset.a, b.closest('tr').dataset.id)));
+    $('mTable').querySelectorAll('button[data-pz]').forEach((b) => (b.onclick = async () => {
+      if (b.dataset.pz === 'resume' && !(await confirmBox('Lanjutkan sekarang?', 'Waktu semua murid berjalan lagi mulai sekarang, dengan sisa waktu yang sama seperti saat istirahat dimulai.', 'Lanjutkan'))) return;
+      await run('t_resume', { p_ws: S.ws }, b.dataset.pz === 'resume' ? 'Istirahat selesai, waktu berjalan lagi.' : 'Jadwal istirahat dibatalkan.').catch(() => {});
+      await refreshOverview(); pollMonitor();
+    }));
+  }
+  // status istirahat dari data pantau/ringkasan
+  function pauseInfo(x) {
+    const now = Date.now(), st = x && x.paused_at ? new Date(x.paused_at).getTime() : null, un = x && x.paused_until ? new Date(x.paused_until).getTime() : null;
+    if (!st) return {};
+    if (st > now) return { scheduled: true, start: x.paused_at, until: x.paused_until };
+    if (un && un <= now) return {};
+    return { active: true, until: x.paused_until };
   }
   function tickTimes() {
     const el = $('mTable'); if (!el) return;
-    const elapsed = performance.now() - fetchedAt;
+    const frozen = S.monitor && pauseInfo(S.monitor).active;
+    const elapsed = frozen ? 0 : performance.now() - fetchedAt;
+    el.querySelectorAll('.pz-left').forEach((t) => {
+      const ms = new Date(t.dataset.until) - Date.now();
+      t.textContent = mmss(ms);
+      if (ms <= -2000 && !t.dataset.done) { t.dataset.done = '1'; pollMonitor(); }
+    });
     el.querySelectorAll('.time[data-rem]').forEach((t) => {
       if (t.dataset.rem === '') return;
       const ms = Number(t.dataset.rem) - elapsed;
@@ -949,6 +976,42 @@
     }
     pollMonitor();
   }
+  $('mPause').onclick = () => {
+    const w = S.overview.worksheets.find((x) => x.id === S.ws); if (!w) return;
+    const d = new Date(Date.now() + 5 * 60000), hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    const box = openModal('<h2>Istirahat</h2><p class="sub">Waktu semua murid di "' + h(w.title) + '" dihentikan. Sisa waktu langkah mereka tidak berkurang, dan murid melihat layar istirahat dengan hitung mundur.</p>' +
+      '<div class="field"><span class="lbl">Mulai</span><div class="seg-ctl"><label><input type="radio" name="pzStart" value="now" checked>Sekarang</label><label><input type="radio" name="pzStart" value="at">Pada jam</label></div>' +
+      '<input class="input" id="pzAt" type="time" value="' + hhmm + '" style="width:140px;margin-top:8px" hidden><div class="help" id="pzAtHelp" hidden>Hari ini. Halaman murid berpindah ke layar istirahat tepat pada jam itu.</div></div>' +
+      '<div class="field"><span class="lbl">Lama</span><div class="seg-ctl"><label><input type="radio" name="pzLen" value="min" checked>Selama</label><label><input type="radio" name="pzLen" value="manual">Sampai saya lanjutkan</label></div>' +
+      '<div class="dur" id="pzMinWrap" style="margin-top:8px"><input class="input" id="pzMin" type="number" min="1" max="720" value="40"> menit</div></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Mulai istirahat</button></div>');
+    const sync = () => {
+      const at = box.querySelector('input[name="pzStart"]:checked').value === 'at';
+      $('pzAt').hidden = !at; $('pzAtHelp').hidden = !at;
+      $('pzMinWrap').hidden = box.querySelector('input[name="pzLen"]:checked').value !== 'min';
+      box.querySelector('[data-x="yes"]').textContent = at ? 'Jadwalkan istirahat' : 'Mulai istirahat';
+    };
+    box.querySelectorAll('input[type="radio"]').forEach((r) => r.addEventListener('change', sync)); sync();
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelector('[data-x="yes"]').onclick = async () => {
+      let start = null;
+      if (box.querySelector('input[name="pzStart"]:checked').value === 'at') {
+        const [hh, mm] = ($('pzAt').value || '').split(':').map(Number);
+        if (isNaN(hh)) { toast('Isi jam mulai istirahat.', 'err'); return; }
+        const t = new Date(); t.setHours(hh, mm, 0, 0);
+        if (t.getTime() < Date.now() - 60000) { toast('Jam itu sudah lewat. Pilih "Sekarang" atau jam yang akan datang.', 'err'); return; }
+        start = t.toISOString();
+      }
+      const manual = box.querySelector('input[name="pzLen"]:checked').value === 'manual';
+      const mins = manual ? null : parseInt($('pzMin').value, 10);
+      if (!manual && !(mins >= 1 && mins <= 720)) { toast('Lama istirahat 1 sampai 720 menit.', 'err'); return; }
+      const r = await run('t_pause', { p_ws: S.ws, p_minutes: mins, p_start: start }).catch(() => null);
+      if (!r) return;
+      closeModal(true);
+      toast(start ? 'Istirahat dijadwalkan pukul ' + clock(r.paused_at) + '.' : 'Istirahat dimulai' + (r.paused_until ? ' sampai ' + clock(r.paused_until) : '') + '.', 'ok');
+      await refreshOverview(); pollMonitor();
+    };
+  };
   $('mClass').onchange = () => { S.filters.mClass = $('mClass').value; renderMonitor(); };
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
 
@@ -1201,7 +1264,7 @@
     const ws = S.overview.worksheets;
     $('wsList').innerHTML = ws.length ? ws.map((w) =>
       '<button class="ws-item" data-id="' + w.id + '" aria-current="' + (w.id === edWs) + '"><strong>' + h(w.title) + '</strong>' +
-      '<span class="meta">' + (w.is_active ? '<span class="pill ok">Dibuka</span>' : '<span class="pill">Ditutup</span>') +
+      '<span class="meta">' + (w.is_active ? '<span class="pill ok">Dibuka</span>' : '<span class="pill">Ditutup</span>') + (pauseInfo(w).active ? '<span class="pill run">Istirahat</span>' : pauseInfo(w).scheduled ? '<span class="pill plain">Istirahat ' + clock(w.paused_at) + '</span>' : '') +
       w.steps + ' langkah, ' + Math.round(w.minutes) + ' menit</span></button>').join('')
       : '<p class="muted" style="padding:6px">Belum ada lembar kerja.</p>';
     $('wsList').querySelectorAll('.ws-item').forEach((b) => (b.onclick = async () => { edWs = b.dataset.id; renderSheetList(); await loadSteps(); }));

@@ -386,7 +386,14 @@
   /* =========================================================
      SELESAI
      ========================================================= */
-  #done,#closed{align-items:center; justify-content:center; padding:16px; overflow:auto}
+  #done,#closed,#paused{align-items:center; justify-content:center; padding:16px; overflow:auto}
+  .break-card{width:min(520px, 100%); text-align:center; background:var(--surface); border:1px solid var(--line); border-radius:24px; padding:44px 32px 36px; box-shadow:var(--shadow-lg)}
+  .break-card .done-icon{background:var(--accent-soft); color:var(--accent)}
+  .break-card h1{font-size:26px; letter-spacing:-.02em; margin:0 0 6px; font-weight:800}
+  .break-card p{margin:0; color:var(--muted)}
+  .break-clock{font-size:clamp(48px, 12vw, 76px); font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1; margin:22px 0 6px; color:var(--ink)}
+  .break-until{font-size:14px; color:var(--muted)}
+  .break-keep{margin-top:22px; padding:12px 16px; border-radius:12px; background:var(--surface-2); color:var(--ink-2); font-size:14px; font-weight:600}
   .closed-icon{background:var(--warn-soft) !important; color:var(--warn) !important}
   .done-card{
     width:min(460px, 100%); text-align:center; background:var(--surface);
@@ -581,6 +588,18 @@
     <div class="bottom-note" id="bottomNote"><svg><use href="#i-lock"/></svg><span>Setelah lanjut, langkah ini tertutup.</span></div>
     <button id="nextBtn" class="btn btn-primary" type="button"><span id="nextLabel">Lanjut</span><svg id="nextIcon"><use href="#i-arrow"/></svg></button>
   </footer>
+</section>
+
+<!-- ================= ISTIRAHAT ================= -->
+<section id="paused" class="screen" aria-live="polite">
+  <div class="break-card">
+    <div class="done-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg></div>
+    <h1>Istirahat</h1>
+    <p>Waktu mengerjakan dihentikan sementara. Halaman ini lanjut sendiri setelah istirahat selesai.</p>
+    <div class="break-clock" id="breakClock">--:--</div>
+    <div class="break-until" id="breakUntil"></div>
+    <div class="break-keep" id="breakKeep"></div>
+  </div>
 </section>
 
 <!-- ================= DITUTUP GURU ================= -->
@@ -854,9 +873,37 @@
     }
   }
 
+  // istirahat: hitung mundur sampai lanjut, lalu memuat ulang keadaan dari server
+  let breakEnd = 0, breakTimer = null, pauseTimer = null;
+  function showBreak(s) {
+    if (cur) save();                   // simpan ketikan terakhir sebelum layar istirahat
+    cur = null;
+    closeConfirm(); $('lock').classList.remove('on'); setNet(true);
+    breakEnd = s.resume_in_ms != null ? performance.now() + Number(s.resume_in_ms) : 0;
+    $('breakUntil').textContent = s.paused_until
+      ? 'Lanjut pukul ' + new Date(s.paused_until).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      : 'Lanjut setelah guru melanjutkan';
+    $('breakKeep').textContent = 'Sisa waktu langkah ' + s.step_index + ' tetap ' + mmssB(s.remaining_ms) + ' dan tidak berkurang selama istirahat.';
+    const tickB = () => {
+      if (!breakEnd) { $('breakClock').textContent = '--:--'; return; }
+      const ms = breakEnd - performance.now();
+      $('breakClock').textContent = mmssB(ms);
+      if (ms <= -1500 && !syncing && !busy) { breakEnd = 0; loadState().catch(() => setNet(false)); }
+    };
+    clearInterval(breakTimer); tickB(); breakTimer = setInterval(tickB, 500);
+    show('paused');
+  }
+  const mmssB = (ms) => { const t = Math.max(0, Math.ceil(ms / 1000)), hh = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+    return (hh ? hh + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(sec).padStart(2, '0'); };
+
   function apply(s) {
     busy = false;
     $('nextBtn').disabled = false;
+    if (s.status !== 'paused') clearInterval(breakTimer);
+    clearTimeout(pauseTimer);
+    if (s.status === 'paused') { showBreak(s); return; }
+    // istirahat terjadwal: muat ulang tepat saat istirahat dimulai
+    if (s.pause_in_ms != null && s.pause_in_ms < 6 * 3600 * 1000) pauseTimer = setTimeout(() => { if (!syncing && !busy) loadState().catch(() => {}); }, Number(s.pause_in_ms) + 800);
     if (s.status === 'closed') {
       cur = null;
       closeConfirm();
@@ -1219,7 +1266,7 @@
   /* ---------- cek status berkala ---------- */
   setInterval(() => {
     if (!token || syncing || busy || document.hidden) return;
-    if (!($('slide').classList.contains('active') || $('closed').classList.contains('active'))) return;
+    if (!($('slide').classList.contains('active') || $('closed').classList.contains('active') || $('paused').classList.contains('active'))) return;
     loadState().catch(() => setNet(false));
   }, HEARTBEAT_MS);
 
