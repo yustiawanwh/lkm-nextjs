@@ -7,7 +7,7 @@
 <title>Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
   /* =========================================================
      Token warna & tipografi
@@ -317,7 +317,7 @@
 
   /* jawaban */
   .answer-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px}
-  .answer-head label{font-weight:700; font-size:15px}
+  .answer-title{font-weight:700; font-size:15px}
   .save-state{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--muted); font-weight:500}
   .save-state::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--line)}
   .save-state:empty{display:none}
@@ -326,17 +326,34 @@
   .save-state[data-s="dirty"]::before{background:var(--muted)}
   .save-state[data-s="error"]{color:var(--danger)}
   .save-state[data-s="error"]::before{background:var(--danger)}
-  textarea{
-    width:100%; min-height:200px; padding:16px; resize:vertical; display:block;
-    border:1.5px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink);
-    font:14.5px/1.6 var(--mono); tab-size:2;
+  /* pertanyaan */
+  .qlist{display:grid; gap:16px}
+  .q{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 18px 20px}
+  .q-head{display:flex; gap:12px; align-items:flex-start; margin-bottom:12px}
+  .q-no{flex:none; min-width:28px; height:28px; padding:0 8px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:13px; display:grid; place-items:center}
+  .q-prompt{font-size:16px; color:var(--ink); font-weight:500; padding-top:2px}
+  .q-prompt.prose > *{margin-bottom:6px}
+  .q-hint{font-size:12.5px; color:var(--muted); margin:0 0 10px}
+  .q textarea,.q .txt{
+    width:100%; display:block; border:1.5px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink);
     transition:border-color .15s, box-shadow .15s;
   }
-  textarea:focus,#repo:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
-  #repo{
-    width:100%; height:52px; padding:0 16px; display:block; border:1.5px solid var(--line); border-radius:14px;
-    background:var(--surface); color:var(--ink); font:15px var(--mono);
-  }
+  .q textarea{min-height:140px; padding:14px 16px; resize:vertical; font:15px/1.6 var(--sans)}
+  .q textarea.code{min-height:200px; font:14px/1.6 var(--mono); tab-size:2}
+  .q .txt{height:50px; padding:0 16px; font:15px var(--sans)}
+  .q .txt.mono{font-family:var(--mono)}
+  .q textarea:focus,.q .txt:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  .opts{display:grid; gap:8px}
+  .opts.tf{grid-template-columns:1fr 1fr}
+  .opt{position:relative; display:flex; gap:12px; align-items:center; padding:11px 14px; border:1.5px solid var(--line); border-radius:12px; cursor:pointer; background:var(--surface); transition:border-color .15s, background-color .15s}
+  .opt:hover{border-color:color-mix(in srgb, var(--line) 40%, var(--accent))}
+  .opt input{position:absolute; opacity:0; pointer-events:none}
+  .opt .mark{flex:none; width:28px; height:28px; border-radius:8px; border:1.5px solid var(--line); display:grid; place-items:center; font-weight:800; font-size:13px; color:var(--muted); transition:all .15s}
+  .opt.radio .mark{border-radius:50%}
+  .opt .otext{font-size:15px; line-height:1.45; color:var(--ink); word-break:break-word}
+  .opt:has(input:checked){border-color:var(--accent); background:var(--accent-soft)}
+  .opt:has(input:checked) .mark{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+  .opt:has(input:focus-visible){outline:3px solid var(--accent); outline-offset:2px}
   .repo-help{font-size:13px; color:var(--muted); margin-top:8px}
   .repo-help.bad{color:var(--danger)}
 
@@ -552,12 +569,10 @@
       <div class="col-media" id="images"></div>
       <section class="answer" id="answerWrap" hidden>
           <div class="answer-head">
-            <label for="answer">Jawabanmu</label>
+            <span class="answer-title" id="answerTitle">Jawabanmu</span>
             <span class="save-state" id="saveState" aria-live="polite"></span>
           </div>
-          <textarea id="answer" spellcheck="false" placeholder="Tulis jawaban atau catatanmu di sini…"></textarea>
-          <input id="repo" type="url" spellcheck="false" autocomplete="off" placeholder="https://github.com/namamu/nama-repository" hidden>
-          <div class="repo-help" id="repoHelp" hidden>Tempel alamat repository GitHub proyekmu. Pastikan repository-nya bisa dibuka guru.</div>
+          <div class="qlist" id="qlist"></div>
       </section>
     </article>
   </main>
@@ -593,7 +608,7 @@
   <div class="sheet">
     <h2 id="cTitle">Lanjut ke langkah berikutnya?</h2>
     <p id="cBody">Kamu tidak bisa kembali ke langkah ini setelah lanjut.</p>
-    <div class="warn-line" id="cEmpty" hidden><svg><use href="#i-alert"/></svg><span>Kolom jawabanmu masih kosong.</span></div>
+    <div class="warn-line" id="cEmpty" hidden><svg><use href="#i-alert"/></svg><span id="cEmptyText">Jawabanmu masih kosong.</span></div>
     <div class="sheet-actions">
       <button class="btn btn-ghost" type="button" id="cNo">Tetap di sini</button>
       <button class="btn btn-primary" type="button" id="cYes">Ya, lanjut</button>
@@ -732,13 +747,18 @@
   }
 
   /* ---------- format instruksi (aman: di-escape dulu) ----------
-     Mendukung: ```blok kode```, `kode`, **tebal**, daftar "1. ..." dan "- ...",
+     Mendukung: ```blok kode```, `kode`, **tebal**, *miring*, daftar "1. ..." dan "- ...",
      paragraf dipisah baris kosong. */
   function esc(s) {
     return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   }
   function inline(t) {
-    return t.replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    // `kode` dulu agar isinya tidak ikut diformat; lalu **tebal**, lalu *miring*
+    return t.split(/(`[^`\n]+`)/).map((part, i) => i % 2
+      ? '<code>' + part.slice(1, -1) + '</code>'
+      : part.replace(/\*\*(?!\s)([^*\n]+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*\w])\*(?![\s*])([^*\n]+?)\*(?![*\w])/g, (m, pre, txt) => (/\s$/.test(txt) ? m : pre + '<em>' + txt + '</em>'))
+    ).join('');
   }
   function blocks(text) {
     let out = '';
@@ -912,16 +932,13 @@
     box.hidden = imgs.length === 0;
     $('page').classList.toggle('has-media', imgs.length > 0);
 
-    $('answerWrap').hidden = !s.needs_answer;
-    const gh = s.answer_kind === 'github';
-    $('answer').hidden = gh; $('repo').hidden = !gh; $('repoHelp').hidden = !gh;
-    document.querySelector('.answer-head label').textContent = gh ? 'Link repository GitHub' : 'Jawabanmu';
-    document.querySelector('.answer-head label').htmlFor = gh ? 'repo' : 'answer';
-    $('answer').value = gh ? '' : (s.answer || '');
-    $('repo').value = gh ? (s.answer || '') : '';
-    checkRepo();
-    lastSaved = s.answer || '';
-    setSave(s.answer ? 'saved-prev' : '');
+    const qs = s.questions || [];
+    const prev = s.answer && typeof s.answer === 'object' ? s.answer : {};
+    $('answerWrap').hidden = !qs.length;
+    $('answerTitle').textContent = qs.length > 1 ? qs.length + ' pertanyaan' : 'Jawabanmu';
+    renderQuestions(qs, prev);
+    lastSaved = JSON.stringify(collect());
+    setSave(Object.keys(prev).length ? 'saved-prev' : '');
     lastFlushAt = 0;
     warned = {};
     clearToasts();
@@ -1006,36 +1023,106 @@
     el.dataset.s = s === 'saved-prev' ? 'saved' : s;
     el.textContent = map[s] ?? '';
   }
-  // kolom jawaban yang sedang dipakai: teks biasa atau link repository
-  const field = () => (cur && cur.answer_kind === 'github' ? $('repo') : $('answer'));
+  /* ---------- pertanyaan ---------- */
   const REPO_RE = /^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+\/?(\.git)?$/;
-  function checkRepo() {
-    const v = $('repo').value.trim(), h = $('repoHelp');
-    const bad = v && !REPO_RE.test(v);
-    h.classList.toggle('bad', !!bad);
-    h.textContent = bad ? 'Format belum benar. Contoh: https://github.com/namamu/nama-repository'
-      : 'Tempel alamat repository GitHub proyekmu. Pastikan repository-nya bisa dibuka guru.';
+  const REPO_HELP = 'Tempel alamat repository GitHub proyekmu. Pastikan repository-nya bisa dibuka guru.';
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  function renderQuestions(qs, prev) {
+    const box = $('qlist');
+    box.replaceChildren();
+    qs.forEach((q, i) => {
+      const card = el('div', 'q'); card.dataset.qid = q.id; card.dataset.type = q.type;
+      const head = el('div', 'q-head');
+      if (qs.length > 1) head.appendChild(el('span', 'q-no', String(i + 1)));
+      const pr = el('div', 'q-prompt prose');
+      pr.innerHTML = fmt(q.prompt || '') || (qs.length > 1 ? '<p>Pertanyaan ' + (i + 1) + '</p>' : '');
+      head.appendChild(pr);
+      if (pr.innerHTML) card.appendChild(head);
+      const v = prev[q.id];
+      const pid = 'q_' + q.id;
+      if (q.type === 'single' || q.type === 'tf' || q.type === 'multi') {
+        if (q.type === 'multi') card.appendChild(el('p', 'q-hint', 'Pilih semua jawaban yang benar.'));
+        const list = el('div', 'opts' + (q.type === 'tf' ? ' tf' : ''));
+        list.setAttribute('role', q.type === 'multi' ? 'group' : 'radiogroup');
+        (q.options || []).forEach((o, k) => {
+          const lab = el('label', 'opt' + (q.type === 'multi' ? '' : ' radio'));
+          const inp = document.createElement('input');
+          inp.type = q.type === 'multi' ? 'checkbox' : 'radio'; inp.name = pid; inp.value = String(k);
+          inp.checked = q.type === 'multi' ? Array.isArray(v) && v.includes(k) : v === k;
+          lab.append(inp, el('span', 'mark', q.type === 'tf' ? (k === 0 ? 'B' : 'S') : String.fromCharCode(65 + k)), el('span', 'otext', o));
+          list.appendChild(lab);
+        });
+        card.appendChild(list);
+      } else if (q.type === 'short' || q.type === 'github') {
+        const inp = document.createElement('input');
+        inp.className = 'txt' + (q.type === 'github' ? ' mono' : ''); inp.id = pid;
+        inp.type = q.type === 'github' ? 'url' : 'text'; inp.spellcheck = false; inp.autocomplete = 'off';
+        inp.placeholder = q.type === 'github' ? 'https://github.com/namamu/nama-repository' : 'Jawaban singkat';
+        inp.value = typeof v === 'string' ? v : '';
+        card.appendChild(inp);
+        if (q.type === 'github') { const hp = el('div', 'repo-help', REPO_HELP); card.appendChild(hp); checkRepo(inp); }
+      } else {
+        const ta = document.createElement('textarea');
+        ta.id = pid; ta.spellcheck = false;
+        if (q.type === 'code') ta.className = 'code';
+        ta.placeholder = q.type === 'code' ? 'Tulis kodemu di sini…' : 'Tulis jawabanmu di sini…';
+        ta.value = typeof v === 'string' ? v : '';
+        card.appendChild(ta);
+      }
+      box.appendChild(card);
+    });
   }
-  ['answer', 'repo'].forEach((id) => $(id).addEventListener('input', () => {
-    if (id === 'repo') checkRepo();
-    if (field().value !== lastSaved) setSave('dirty');
-  }));
+  function checkRepo(inp) {
+    const h = inp.parentElement && inp.parentElement.querySelector('.repo-help'); if (!h) return;
+    const v = inp.value.trim(), bad = v && !REPO_RE.test(v);
+    h.classList.toggle('bad', !!bad);
+    h.textContent = bad ? 'Format belum benar. Contoh: https://github.com/namamu/nama-repository' : REPO_HELP;
+  }
+  // mengumpulkan jawaban {id: nilai}; soal yang belum dijawab tidak ikut
+  function collect() {
+    const out = {};
+    document.querySelectorAll('#qlist .q').forEach((c) => {
+      const id = c.dataset.qid, t = c.dataset.type;
+      if (t === 'single' || t === 'tf') {
+        const r = c.querySelector('input:checked'); if (r) out[id] = Number(r.value);
+      } else if (t === 'multi') {
+        const arr = [...c.querySelectorAll('input:checked')].map((x) => Number(x.value));
+        if (arr.length) out[id] = arr;
+      } else {
+        const f = c.querySelector('textarea, input'); const val = f ? f.value : '';
+        if (val.trim()) out[id] = val;
+      }
+    });
+    return out;
+  }
+  const markDirty = () => { if (JSON.stringify(collect()) !== lastSaved) setSave('dirty'); };
+  $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); markDirty(); });
+  $('qlist').addEventListener('change', markDirty);
+  $('qlist').addEventListener('paste', () => logEv('paste'));
+  // Tab di kolom kode menyisipkan 2 spasi
+  $('qlist').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    const t = e.target; if (!(t.tagName === 'TEXTAREA' && t.classList.contains('code'))) return;
+    e.preventDefault();
+    t.setRangeText('  ', t.selectionStart, t.selectionEnd, 'end');
+    t.dispatchEvent(new Event('input', { bubbles: true }));
+  });
 
   async function save() {
     if (!cur || !cur.needs_answer) return;
     if (saving) { saveAgain = true; return; }
     const stepId = cur.step_id;
-    const content = field().value;
+    const data = collect(), content = JSON.stringify(data);
     if (content === lastSaved) return;
     saving = true;
     setSave('saving');
     try {
-      const r = await rpc('save_answer', { p_token: token, p_step_id: stepId, p_content: content });
+      const r = await rpc('save_answer', { p_token: token, p_step_id: stepId, p_data: data });
       setNet(true);
       if (cur && cur.step_id === stepId) {
         if (r.ok) {
           lastSaved = content;
-          setSave(field().value === content ? 'saved' : 'dirty');
+          setSave(JSON.stringify(collect()) === content ? 'saved' : 'dirty');
         } else if (!syncing) {
           loadState().catch(() => {});
         }
@@ -1059,7 +1146,9 @@
       ? 'Jawabanmu akan dikirim dan lembar kerja ditutup. Kamu tidak bisa mengubahnya lagi.'
       : 'Kamu tidak bisa kembali ke langkah ini setelah lanjut.';
     $('cYes').textContent = cur.is_last ? 'Ya, selesaikan' : 'Ya, lanjut';
-    $('cEmpty').hidden = !(cur.needs_answer && !field().value.trim());
+    const total = (cur.questions || []).length, left = total - Object.keys(collect()).length;
+    $('cEmpty').hidden = !(total && left > 0);
+    $('cEmptyText').textContent = total === 1 ? 'Jawabanmu masih kosong.' : left + ' dari ' + total + ' pertanyaan belum dijawab.';
     lastFocus = document.activeElement;
     $('confirm').classList.add('on');
     $('cNo').focus();   // fokus ke "Tetap di sini" agar Enter tidak langsung melanjutkan
@@ -1087,7 +1176,7 @@
       apply(await rpc('next_step', {
         p_token: token,
         p_step_id: cur.step_id,
-        p_content: cur.needs_answer ? field().value : null,
+        p_data: (cur.questions || []).length ? collect() : null,
       }));
     } catch (e) {
       if (isInvalidSession(e)) { logout(sessMsg(e)); return; }
@@ -1126,16 +1215,6 @@
     if (!document.hidden && cur && !syncing && !busy) loadState().catch(() => {});
   });
   window.addEventListener('blur', () => logEv('blur'));
-  $('answer').addEventListener('paste', () => logEv('paste'));
-
-  // Tab di kolom jawaban menyisipkan 2 spasi (berguna untuk menulis kode)
-  $('answer').addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
-    e.preventDefault();
-    const t = e.target, a = t.selectionStart, b = t.selectionEnd;
-    t.setRangeText('  ', a, b, 'end');
-    t.dispatchEvent(new Event('input'));
-  });
 
   /* ---------- cek status berkala ---------- */
   setInterval(() => {

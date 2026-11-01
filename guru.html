@@ -8,7 +8,7 @@
 <title>Ruang Guru · Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <style>
   :root{
     --bg:#F2F4F9; --surface:#FFFFFF; --surface-2:#EDF0F6; --ink:#141A2E; --ink-2:#434B68; --muted:#6A7190;
@@ -246,6 +246,46 @@
   details.more summary{cursor:pointer; padding:12px 0; font-weight:700; font-size:14px}
   details.more[open]{padding-bottom:14px}
 
+  /* penyusun pertanyaan */
+  .qb-list{display:grid; gap:12px; margin-bottom:12px}
+  .qb{border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:14px}
+  .qb-top{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
+  .qb-no{width:28px; height:28px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:13px; display:grid; place-items:center; flex:none}
+  .qb-top .select{width:auto; height:34px; font-size:13.5px; font-weight:600; padding-left:10px}
+  .qb-acts{display:flex; gap:4px; margin-left:auto}
+  .qb-pts{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); margin-top:10px}
+  .qb-pts .input{width:72px; height:34px; text-align:center}
+  .qb .textarea{min-height:0}
+  .qb-opt{display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; margin-top:8px}
+  .qb-opt input[type=radio],.qb-opt input[type=checkbox]{width:18px; height:18px; margin:0 4px; accent-color:var(--ok); cursor:pointer}
+  .qb-opt .input{height:36px}
+  .qb-key{font-size:12px; color:var(--muted); margin-top:6px}
+  .qb-tag{font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:99px; background:var(--ok-soft); color:var(--ok)}
+  .qb-tag.man{background:var(--surface-2); color:var(--ink-2)}
+  .qb-add{display:flex; gap:8px; flex-wrap:wrap}
+  .qb-add .select{width:auto}
+  .pv-q{border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:12px 14px; margin-top:10px}
+  .pv-q .q-no{font-weight:800; color:var(--accent); font-size:12.5px}
+  .pv-opt{display:flex; gap:10px; align-items:center; padding:7px 10px; border:1px solid var(--line); border-radius:9px; margin-top:6px; font-size:14px}
+  .pv-opt b{width:22px; height:22px; border-radius:6px; border:1px solid var(--line); display:grid; place-items:center; font-size:11.5px; color:var(--muted); flex:none}
+  .pv-field{margin-top:8px; height:34px; border:1px dashed var(--line); border-radius:9px; color:var(--muted); font-size:13px; display:flex; align-items:center; padding:0 10px}
+  .pv-field.tall{height:70px; align-items:flex-start; padding-top:8px}
+
+  /* penilaian per soal */
+  .gq{border-top:1px dashed var(--line); padding-top:12px; margin-top:12px}
+  .gq:first-of-type{border-top:0; padding-top:0; margin-top:0}
+  .gq-prompt{font-weight:600; font-size:14.5px; margin-bottom:8px}
+  .gq-prompt .prose{font-size:14.5px}
+  .gq-opts{display:grid; gap:5px; margin-bottom:10px}
+  .gq-opt{display:flex; gap:9px; align-items:center; font-size:14px; padding:6px 10px; border-radius:9px; border:1px solid var(--line)}
+  .gq-opt.pick{border-color:var(--accent); background:var(--accent-soft)}
+  .gq-opt.ok-key::after{content:"kunci"; margin-left:auto; font-size:11px; font-weight:800; color:var(--ok)}
+  .gq-opt .m{width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-size:11px; font-weight:800; border:1px solid var(--line); color:var(--muted); flex:none}
+  .gq-opt.pick .m{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .gq-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .gq-row .input{width:90px; height:40px; text-align:center; font-weight:800}
+  .gq-row .reset{border:0; background:none; color:var(--accent); font-size:12.5px; font-weight:700; padding:0; text-decoration:underline; text-underline-offset:3px}
+
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
   .sim-bar{flex:1; height:8px; border-radius:99px; background:var(--line); overflow:hidden; min-width:60px; max-width:120px}
@@ -288,7 +328,8 @@
   #pvImgs img{max-width:100%; height:auto; border-radius:10px; border:1px solid var(--line)}
   .dur{display:flex; gap:8px; align-items:center}
   .dur .input{width:84px}
-  .preview{border:1px solid var(--line); border-radius:14px; padding:18px; background:var(--bg); max-height:62vh; overflow:auto}
+  .preview{border:1px solid var(--line); border-radius:14px; padding:18px; background:var(--bg); max-height:calc(100vh - 160px); overflow:auto}
+  .step-edit > div:last-child{position:sticky; top:0; align-self:start}
   .preview-label{font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:8px}
   .thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
   .thumbs img{width:88px; height:60px; object-fit:cover; border-radius:8px; border:1px solid var(--line); background:var(--surface-2)}
@@ -322,7 +363,7 @@
   .prose pre code{background:none; border:0; padding:0; color:inherit}
   .prose img{max-width:100%; border-radius:10px; border:1px solid var(--line)}
 
-  .toast-zone{position:fixed; right:20px; bottom:20px; z-index:90; display:grid; gap:8px; max-width:min(420px, calc(100% - 40px))}
+  .toast-zone{position:fixed; right:20px; top:20px; z-index:90; display:grid; gap:8px; max-width:min(420px, calc(100% - 40px))}
   .toast{padding:12px 16px; border-radius:12px; background:var(--ink); color:var(--bg); font-size:14px; font-weight:600; box-shadow:var(--shadow-lg); animation:rise .18s ease-out}
   .toast.err{background:var(--danger); color:#fff}
   .toast.ok{background:var(--ok); color:#fff}
@@ -621,7 +662,14 @@
 
   /* format instruksi: sama dengan index.html */
   function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-  function inline(t) { return t.replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>'); }
+  function inline(t) {
+    // `kode` dulu agar isinya tidak ikut diformat; lalu **tebal**, lalu *miring*
+    return t.split(/(`[^`\n]+`)/).map((part, i) => i % 2
+      ? '<code>' + part.slice(1, -1) + '</code>'
+      : part.replace(/\*\*(?!\s)([^*\n]+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*\w])\*(?![\s*])([^*\n]+?)\*(?![*\w])/g, (m, pre, txt) => (/\s$/.test(txt) ? m : pre + '<em>' + txt + '</em>'))
+    ).join('');
+  }
   function blocks(text) {
     let out = '';
     for (const chunk of text.split(/\n\s*\n/)) {
@@ -904,6 +952,34 @@
   $('mClass').onchange = () => { S.filters.mClass = $('mClass').value; renderMonitor(); };
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
 
+  /* ---------- pertanyaan: jenis & nilai ---------- */
+  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub' };
+  const isAuto = (q) => q.type === 'single' || q.type === 'multi' || q.type === 'tf' || (q.type === 'short' && ((q.accept || []).length || String(q.acceptText || '').trim()));
+  const qsOf = (st) => st.questions || [];
+  const hasVal = (v) => v != null && !(typeof v === 'string' && !v.trim()) && !(Array.isArray(v) && !v.length);
+  // nilai efektif satu pertanyaan: nilai tersimpan; jawaban kosong = 0; sudah menjawab tapi belum dinilai = null
+  function qPoint(q, a) {
+    const g = a && a.qgrades && a.qgrades[q.id];
+    if (g && g.p != null) return { p: Number(g.p), manual: !!g.m };
+    if (!a || !a.data || !hasVal(a.data[q.id])) return { p: 0, empty: true };
+    return { p: null };
+  }
+  function stepPoints(st, a) {
+    let earned = 0, max = 0, todo = 0;
+    qsOf(st).forEach((q) => { const r = qPoint(q, a); max += Number(q.points) || 0; if (r.p == null) todo++; else earned += r.p; });
+    return { earned, max, todo, pct: max ? (earned * 100) / max : null };
+  }
+  const answeredAny = (st, a) => !!(a && a.data && qsOf(st).some((q) => hasVal(a.data[q.id])));
+  const fmtNum = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toString().replace('.', ',');
+  // teks jawaban kode/uraian untuk dibandingkan dengan kode acuan
+  const simTypes = (st) => (qsOf(st).some((q) => q.type === 'code') ? ['code'] : ['essay']);
+  function lkmText(st, a) {
+    if (!a) return '';
+    const types = simTypes(st);
+    const parts = qsOf(st).filter((q) => types.includes(q.type)).map((q) => (a.data || {})[q.id]).filter((v) => typeof v === 'string' && v.trim());
+    return parts.join('\n');
+  }
+
   /* =========================================================
      HASIL & NILAI
      ========================================================= */
@@ -916,11 +992,13 @@
     catch (e) { $('rTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     renderResults();
   }
-  const gradedSteps = () => (S.results?.steps || []).filter((s) => s.needs_answer);
+  const gradedSteps = () => (S.results?.steps || []).filter((s) => qsOf(s).length);
+  // nilai akhir = total poin / total bobot semua pertanyaan (0-100); soal yang belum dinilai belum dihitung
   function average(row) {
     const st = gradedSteps(); if (!st.length) return null;
-    const sc = st.map((s) => row.answers[s.id]?.score).filter((v) => v != null).map(Number);
-    return sc.length ? { avg: sc.reduce((a, b) => a + b, 0) / sc.length, n: sc.length, of: st.length } : { avg: null, n: 0, of: st.length };
+    let earned = 0, max = 0, todo = 0, total = 0;
+    st.forEach((s) => { const a = row.answers[s.id]; qsOf(s).forEach((q) => { total++; const r = qPoint(q, a); if (r.p == null) todo++; else { earned += r.p; max += Number(q.points) || 0; } }); });
+    return { avg: max ? (earned * 100) / max : null, n: total - todo, of: total };
   }
   function visibleRows() {
     const f = S.filters, q = norm(f.rSearch);
@@ -930,20 +1008,23 @@
     const R = S.results; const st = gradedSteps();
     const rows = visibleRows();
     if (!R.steps.length) { $('rTable').innerHTML = '<div class="empty"><strong>Lembar kerja ini belum punya langkah</strong></div>'; return; }
-    if (!st.length) { $('rTable').innerHTML = '<div class="empty"><strong>Tidak ada langkah yang meminta jawaban</strong>Centang "Murid perlu menulis jawaban" pada langkah yang ingin dinilai.</div>'; return; }
+    if (!st.length) { $('rTable').innerHTML = '<div class="empty"><strong>Belum ada pertanyaan</strong>Tambahkan pertanyaan di editor langkah (menu Lembar kerja).</div>'; return; }
     if (!rows.length) { $('rTable').innerHTML = '<div class="empty">' + (R.rows.length ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid yang mengerjakan</strong>Hasil muncul di sini setelah murid mulai.') + '</div>'; return; }
-    const cell = (a) => !a || (!a.content?.trim() && a.score == null) ? '<span class="grade-cell gc-none">-</span>'
-      : a.score != null ? '<span class="grade-cell gc-score">' + Number(a.score) + '</span>'
-      : '<span class="grade-cell gc-todo" title="Sudah menjawab, belum dinilai">Nilai</span>';
+    const cell = (s, a) => {
+      const sp = stepPoints(s, a);
+      if (!answeredAny(s, a) && !(a && a.qgrades && Object.values(a.qgrades).some((g) => g.m))) return '<span class="grade-cell gc-none" title="Tidak menjawab (0)">-</span>';
+      if (sp.todo) return '<span class="grade-cell gc-todo" title="' + sp.todo + ' pertanyaan belum dinilai">Nilai</span>';
+      return '<span class="grade-cell gc-score">' + fmtNum(sp.pct, 0) + '</span>';
+    };
     $('rTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th>' +
       st.map((s) => '<th class="center" title="' + h(s.title) + '">L' + s.no + '</th>').join('') +
-      '<th class="num">Rata-rata</th></tr></thead><tbody>' + rows.map((r) => {
+      '<th class="num">Nilai akhir</th></tr></thead><tbody>' + rows.map((r) => {
         const av = average(r);
         return '<tr class="clickable" data-s="' + r.session_id + '" tabindex="0">' +
           '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.finished ? '' : ', belum selesai') + '</span></div></div></td>' +
-          st.map((s) => '<td class="center">' + cell(r.answers[s.id]) + '</td>').join('') +
-          '<td class="num"><strong>' + (av && av.avg != null ? av.avg.toFixed(1).replace('.', ',') : '-') + '</strong>' +
-          (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' dinilai</div>' : '') + '</td></tr>';
+          st.map((s) => '<td class="center">' + cell(s, r.answers[s.id]) + '</td>').join('') +
+          '<td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
+          (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' soal dinilai</div>' : '') + '</td></tr>';
       }).join('') + '</tbody></table>';
     $('rTable').querySelectorAll('tr[data-s]').forEach((tr) => {
       tr.onclick = () => openDrawer(tr.dataset.s);
@@ -973,13 +1054,31 @@
     $('dPrev').disabled = i <= 0; $('dNext').disabled = i < 0 || i >= list.length - 1;
     $('dBody').innerHTML = gradedSteps().map((s) => {
       const a = r.answers[s.id] || {};
+      const sp = stepPoints(s, a);
+      const qhtml = qsOf(s).map((q, qi) => {
+        const v = (a.data || {})[q.id], pt = qPoint(q, a), auto = isAuto(q);
+        let ans = '';
+        if (q.type === 'single' || q.type === 'multi' || q.type === 'tf') {
+          const picked = q.type === 'multi' ? (Array.isArray(v) ? v : []) : (typeof v === 'number' ? [v] : []);
+          const key = q.type === 'multi' ? (q.correct || []) : [q.correct];
+          ans = '<div class="gq-opts">' + (q.options || []).map((o, k) => '<div class="gq-opt' + (picked.includes(k) ? ' pick' : '') + (key.includes(k) ? ' ok-key' : '') + '"><span class="m">' +
+            (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</span>' + h(o) + '</div>').join('') + '</div>' + (picked.length ? '' : '<p class="muted" style="margin:-4px 0 10px;font-size:13px">Tidak menjawab.</p>');
+        } else if (hasVal(v)) {
+          ans = q.type === 'github' ? '<p style="margin:0 0 10px"><a class="repo-link" href="' + h(v) + '" target="_blank" rel="noopener">' + h(v) + '</a></p>' : '<pre class="g-answer">' + h(v) + '</pre>';
+          if (q.type === 'short' && (q.accept || []).length) ans += '<div class="help" style="margin:-6px 0 10px">Kunci: ' + q.accept.map(h).join(', ') + '</div>';
+          if (simTypes(s).includes(q.type) && s.ref_code) ans += '<div style="margin:-4px 0 10px">' + simDetail(codeSimilarity(s.ref_code, v), 'Kecocokan dengan kode acuan') + '</div>';
+        } else ans = '<p class="muted" style="margin:0 0 10px;font-size:13px">Tidak menjawab.</p>';
+        const tag = pt.manual ? (auto ? 'Diubah guru' : 'Dinilai guru') : pt.p != null && auto && !pt.empty ? 'Otomatis' : pt.empty ? 'Kosong = 0' : 'Belum dinilai';
+        return '<div class="gq" data-q="' + h(q.id) + '"><div class="gq-prompt">' + (qsOf(s).length > 1 ? '<span class="pill plain" style="margin-right:6px">' + (qi + 1) + '. ' + QTYPES[q.type] + '</span>' : '<span class="pill plain" style="margin-right:6px">' + QTYPES[q.type] + '</span>') +
+          '<span class="prose">' + (fmt(q.prompt || '') || '') + '</span></div>' + ans +
+          '<div class="gq-row"><input class="input" type="number" min="0" max="' + q.points + '" step="0.5" inputmode="decimal" aria-label="Poin" placeholder="-" value="' + (pt.p != null && !pt.empty ? pt.p : pt.manual ? pt.p : '') + '">' +
+          '<span class="muted" style="font-size:13px">dari ' + q.points + ' poin</span><span class="qb-tag' + (tag === 'Otomatis' ? '' : ' man') + '">' + tag + '</span>' +
+          (pt.manual && auto ? '<button type="button" class="reset">Kembalikan ke nilai otomatis</button>' : '') + '<span class="save-state" style="margin:0"></span></div></div>';
+      }).join('');
       return '<section class="g-step" data-step="' + s.id + '">' +
-        '<h3><span class="pill run plain">Langkah ' + s.no + '</span>' + h(s.title) + '</h3>' +
-        (a.content && a.content.trim() ? '<pre class="g-answer">' + h(a.content) + '</pre>' : '<p class="muted" style="margin:0 0 12px">Tidak menjawab.</p>') +
-        (s.ref_code && s.answer_kind !== 'github' && a.content && a.content.trim() ? '<div style="margin:-2px 0 14px">' + simDetail(codeSimilarity(s.ref_code, a.content), 'Kecocokan jawaban dengan kode acuan') + '</div>' : '') +
-        '<div class="g-inputs"><div><label class="lbl">Nilai (0-100)</label><input class="input" type="number" min="0" max="100" step="1" inputmode="numeric" value="' + (a.score ?? '') + '"></div>' +
-        '<div><label class="lbl">Komentar untuk catatan guru</label><textarea class="textarea" rows="2">' + h(a.feedback || '') + '</textarea></div></div>' +
-        '<div class="save-state">' + (a.graded_at ? 'Dinilai ' + clock(a.graded_at) : '') + '</div></section>';
+        '<h3><span class="pill run plain">Langkah ' + s.no + '</span>' + h(s.title) + '<span class="muted" style="margin-left:auto;font-size:13px;font-weight:600" data-total>' + (sp.todo ? sp.todo + ' belum dinilai' : fmtNum(sp.earned) + ' / ' + sp.max + ' poin') + '</span></h3>' +
+        qhtml +
+        '<div style="margin-top:14px"><label class="lbl">Komentar untuk catatan guru</label><textarea class="textarea" rows="2" data-fb>' + h(a.feedback || '') + '</textarea><div class="save-state" data-fbst></div></div></section>';
     }).join('');
     $('dBody').querySelectorAll('.g-step').forEach(bindGrade);
     showDrawer();
@@ -990,26 +1089,65 @@
     if (dMode === 'gh') { if (S.gh) renderGithub(); } else if (S.results) renderResults();
   }
   function bindGrade(sec) {
-    const stepId = sec.dataset.step, inp = sec.querySelector('input'), ta = sec.querySelector('textarea'), st = sec.querySelector('.save-state');
-    let timer = null;
-    const save = async () => {
-      clearTimeout(timer);
-      const raw = inp.value.trim();
-      const score = raw === '' ? null : Number(raw);
-      if (score != null && (isNaN(score) || score < 0 || score > 100)) { st.className = 'save-state err'; st.textContent = 'Nilai harus 0 sampai 100.'; return; }
-      st.className = 'save-state'; st.textContent = 'Menyimpan…';
-      const sid = dSession;
-      try {
-        const res = await api('t_grade', { p_session: sid, p_step: stepId, p_score: score, p_feedback: ta.value });
-        const row = S.results.rows.find((x) => x.session_id === sid);
-        if (row) row.answers[stepId] = Object.assign(row.answers[stepId] || { content: '' }, { score, feedback: ta.value, graded_at: res.graded_at });
-        if (sid === dSession) { st.className = 'save-state ok'; st.textContent = 'Tersimpan ' + clock(res.graded_at); }
-      } catch (e) { st.className = 'save-state err'; st.textContent = errMsg(e); }
+    const stepId = sec.dataset.step;
+    const step = S.results.steps.find((x) => x.id === stepId);
+    const rowOf = (sid) => S.results.rows.find((x) => x.session_id === sid);
+    const refreshTotal = () => {
+      const row = rowOf(dSession); if (!row) return;
+      const sp = stepPoints(step, row.answers[stepId]);
+      sec.querySelector('[data-total]').textContent = sp.todo ? sp.todo + ' belum dinilai' : fmtNum(sp.earned) + ' / ' + sp.max + ' poin';
     };
-    inp.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(save, 700); });
-    ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(save, 900); });
-    inp.addEventListener('blur', () => { if (timer) save(); });
-    ta.addEventListener('blur', () => { if (timer) save(); });
+    sec.querySelectorAll('.gq').forEach((g) => {
+      const qid = g.dataset.q, q = qsOf(step).find((x) => x.id === qid), inp = g.querySelector('input'), st = g.querySelector('.save-state');
+      let timer = null;
+      const save = async (val) => {
+        clearTimeout(timer); timer = null;
+        const raw = val !== undefined ? val : inp.value.trim().replace(',', '.');
+        const pts = raw === '' || raw === null ? null : Number(raw);
+        if (pts != null && (isNaN(pts) || pts < 0 || pts > Number(q.points))) { st.className = 'save-state err'; st.textContent = '0 sampai ' + q.points + '.'; return; }
+        st.className = 'save-state'; st.textContent = 'Menyimpan…';
+        const sid = dSession;
+        try {
+          const res = await api('t_grade_q', { p_session: sid, p_step: stepId, p_qid: qid, p_points: pts });
+          const row = rowOf(sid);
+          if (row) row.answers[stepId] = Object.assign(row.answers[stepId] || { content: '', data: {} }, { qgrades: res.grades, score: res.score, graded_at: res.graded_at });
+          if (sid === dSession) {
+            st.className = 'save-state ok'; st.textContent = 'Tersimpan';
+            const tag = g.querySelector('.qb-tag'), gr = res.grades[qid];
+            if (gr && gr.p != null && inp.value === '') inp.value = gr.p;
+            if (tag) { tag.textContent = gr && gr.m ? (isAuto(q) ? 'Diubah guru' : 'Dinilai guru') : gr ? 'Otomatis' : 'Belum dinilai'; tag.className = 'qb-tag' + (gr && !gr.m ? '' : ' man'); }
+            syncReset(gr && gr.m && isAuto(q));
+            refreshTotal();
+          }
+        } catch (e) { st.className = 'save-state err'; st.textContent = errMsg(e); }
+      };
+      inp.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => save(), 700); });
+      inp.addEventListener('blur', () => { if (timer) save(); });
+      // tombol kembali ke nilai otomatis: tampil hanya bila nilai soal berkunci diubah guru
+      function syncReset(show) {
+        let btn = g.querySelector('.reset');
+        if (show && !btn) {
+          btn = document.createElement('button'); btn.type = 'button'; btn.className = 'reset'; btn.textContent = 'Kembalikan ke nilai otomatis';
+          g.querySelector('.qb-tag').after(btn);
+        }
+        if (!show && btn) btn.remove();
+        if (show) btn.onclick = () => { inp.value = ''; btn.remove(); save(null); };
+      }
+      syncReset(!!g.querySelector('.reset'));
+    });
+    const ta = sec.querySelector('[data-fb]'), fst = sec.querySelector('[data-fbst]');
+    let ft = null;
+    const saveFb = async () => {
+      clearTimeout(ft); ft = null;
+      const sid = dSession; fst.className = 'save-state'; fst.textContent = 'Menyimpan…';
+      try {
+        await api('t_feedback', { p_session: sid, p_step: stepId, p_feedback: ta.value });
+        const row = rowOf(sid); if (row) row.answers[stepId] = Object.assign(row.answers[stepId] || { content: '', data: {} }, { feedback: ta.value });
+        if (sid === dSession) { fst.className = 'save-state ok'; fst.textContent = 'Komentar tersimpan'; }
+      } catch (e) { fst.className = 'save-state err'; fst.textContent = errMsg(e); }
+    };
+    ta.addEventListener('input', () => { clearTimeout(ft); ft = setTimeout(saveFb, 900); });
+    ta.addEventListener('blur', () => { if (ft) saveFb(); });
   }
   $('dClose').onclick = closeDrawer;
   $('drawerScrim').onclick = closeDrawer;
@@ -1029,13 +1167,16 @@
     const num = (v) => v == null || v === '' ? '' : String(v).replace('.', ',');
     const head = ['Kelas', 'Nama', 'Status'];
     st.forEach((s) => head.push('L' + s.no + ' nilai', 'L' + s.no + ' jawaban', 'L' + s.no + ' komentar'));
-    head.push('Rata-rata');
+    head.push('Nilai akhir', 'Soal dinilai');
     const lines = [head.map(safe).join(';')];
     visibleRows().forEach((r) => {
       const av = average(r);
       const cells = [safe(r.class), safe(r.name), safe(r.finished ? 'Selesai' : 'Belum selesai')];
-      st.forEach((s) => { const a = r.answers[s.id] || {}; cells.push(num(a.score), safe(a.content), safe(a.feedback)); });
-      cells.push(av && av.avg != null ? num(av.avg.toFixed(2)) : '');
+      st.forEach((s) => {
+        const a = r.answers[s.id] || {}, sp = stepPoints(s, r.answers[s.id]);
+        cells.push(sp.todo ? '' : num(sp.pct.toFixed(2)), safe(a.content), safe(a.feedback));
+      });
+      cells.push(av && av.avg != null ? num(av.avg.toFixed(2)) : '', safe(av ? av.n + '/' + av.of : ''));
       lines.push(cells.join(';'));
     });
     const title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || 'hasil';
@@ -1084,7 +1225,8 @@
       (steps.length ? '<ol class="steps">' + steps.map((s, i) =>
         '<li class="step-row" data-id="' + s.id + '"><span class="step-no">' + (i + 1) + '</span>' +
         '<div><strong>' + h(s.title) + '</strong><div class="meta"><span class="pill plain">' + durText(s.duration_seconds) + '</span>' +
-        (s.needs_answer ? '<span class="pill run plain">' + (s.answer_kind === 'github' ? 'Link GitHub' : 'Ada jawaban') + '</span>' : '') +
+        ((s.questions || []).length ? '<span class="pill run plain">' + s.questions.length + ' pertanyaan</span>' : '') +
+        ((s.questions || []).some((q) => q.type === 'github') ? '<span class="pill plain">Link GitHub</span>' : '') +
         (s.ref_code ? '<span class="pill plain">Kode acuan' + (s.ref_path ? ': ' + h(s.ref_path) : '') + '</span>' : '') +
         (s.images.length ? '<span class="pill plain">' + s.images.length + ' gambar</span>' : '') +
         (s.answers ? '<span class="pill warn plain">' + s.answers + ' jawaban murid</span>' : '') + '</div></div>' +
@@ -1174,20 +1316,21 @@
       '<div class="step-edit"><div>' +
       '<div class="field"><label class="lbl" for="seTitle">Judul langkah</label><input class="input" id="seTitle" value="' + h(s?.title || '') + '" autofocus></div>' +
       '<div class="field"><label class="lbl">Durasi</label><div class="dur"><input class="input" id="seMin" type="number" min="0" max="240" value="' + Math.floor(d / 60) + '"> menit <input class="input" id="seSec" type="number" min="0" max="59" value="' + (d % 60) + '"> detik</div></div>' +
-      '<div class="field"><label class="check"><input type="checkbox" id="seNeeds"' + (s?.needs_answer ? ' checked' : '') + '><span>Murid perlu menulis jawaban<br><span class="help">Jawaban langkah ini muncul di menu Hasil &amp; nilai.</span></span></label></div>' +
-      '<div class="field" id="seKindWrap"><span class="lbl">Jenis jawaban</span><div class="seg-ctl">' +
-      '<label><input type="radio" name="seKind" value="text"' + (s?.answer_kind !== 'github' ? ' checked' : '') + '>Teks</label>' +
-      '<label><input type="radio" name="seKind" value="github"' + (s?.answer_kind === 'github' ? ' checked' : '') + '>Link repository GitHub</label></div>' +
-      '<div class="help">Link GitHub dipakai menu Kode &amp; GitHub untuk membaca commit dan kode murid.</div></div>' +
       '<div class="field"><label class="lbl" for="seInstr">Instruksi</label><textarea class="textarea code" id="seInstr" rows="10">' + h(s?.instruction || '') + '</textarea>' +
-      '<div class="help">Format: `kode`, **tebal**, daftar "1." atau "-", dan blok kode dengan ``` di baris sendiri. Pisahkan paragraf dengan baris kosong.</div></div>' +
+      '<div class="help">Format: `kode`, **tebal**, *miring*, daftar "1." atau "-", dan blok kode dengan ``` di baris sendiri. Pisahkan paragraf dengan baris kosong.</div></div>' +
       '<div class="field"><label class="lbl" for="seImg">URL gambar (satu per baris)</label><textarea class="textarea code" id="seImg" rows="3" placeholder="https://api-files-…/lkm/kerangka-8f3a1c.png">' + h((s?.images || []).join('\n')) + '</textarea>' +
       (IMAGE_UPLOAD_BASE ? '<div class="drop" id="seDrop"><svg width="18" height="18" style="vertical-align:-4px"><use href="#i-upload"/></svg> Seret gambar ke sini, tempel dengan Ctrl+V, atau <button type="button" id="sePick">pilih file</button><input type="file" id="seFile" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden><span class="st" id="seUpSt"></span></div>' : '') +
       '<div class="thumbs" id="seThumbs"></div></div>' +
+      '<div class="field"><span class="lbl">Pertanyaan</span>' +
+      (s && s.answers ? '<div class="notice" style="margin-bottom:10px"><svg><use href="#i-alert"/></svg><span>Langkah ini sudah punya ' + s.answers + ' jawaban murid. Mengubah soal atau kunci akan menilai ulang jawaban otomatis. Nilai yang Anda beri sendiri tetap.</span></div>' : '') +
+      '<div class="qb-list" id="qbList"></div>' +
+      '<div class="qb-add"><select class="select" id="qbType" aria-label="Jenis pertanyaan">' + Object.entries(QTYPES).map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join('') + '</select>' +
+      '<button type="button" class="btn btn-sm" id="qbAdd" style="height:40px"><svg><use href="#i-plus"/></svg>Tambah pertanyaan</button></div>' +
+      '<div class="help">Pilihan ganda, pilihan majemuk, benar/salah, dan isian singkat yang punya kunci dinilai otomatis. Uraian, kode program, dan link GitHub dinilai guru. Kunci jawaban tidak pernah dikirim ke murid.</div></div>' +
       '<details class="more"' + (s?.ref_code ? ' open' : '') + '><summary>Kode acuan untuk cek kemiripan (opsional)</summary>' +
       '<div class="field"><label class="lbl" for="seRefPath">Nama file di repository murid</label><input class="input code" id="seRefPath" placeholder="index.html" value="' + h(s?.ref_path || '') + '"><div class="help">Dipakai untuk membaca file murid dari GitHub. Kosongkan bila hanya ingin membandingkan dengan jawaban yang diketik di LKM.</div></div>' +
       '<div class="field" style="margin:0"><label class="lbl" for="seRefCode">Kode acuan</label><textarea class="textarea code" id="seRefCode" rows="8" placeholder="Tempel kode yang ada di screenshot">' + h(s?.ref_code || '') + '</textarea><div class="help">Murid tidak bisa melihat kode acuan.</div></div></details>' +
-      '</div><div><div class="preview-label">Pratinjau untuk murid</div><div class="preview"><h3 id="pvTitle" style="font-size:20px;font-weight:800;margin:0 0 12px"></h3><div class="prose" id="pvBody"></div><div id="pvImgs" style="display:grid;gap:10px;margin-top:14px"></div></div></div></div>' +
+      '</div><div><div class="preview-label">Pratinjau untuk murid</div><div class="preview"><h3 id="pvTitle" style="font-size:20px;font-weight:800;margin:0 0 12px"></h3><div class="prose" id="pvBody"></div><div id="pvImgs" style="display:grid;gap:10px;margin-top:14px"></div><div id="pvQs" style="margin-top:6px"></div></div></div></div>' +
       '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">' + (s ? 'Simpan perubahan' : 'Tambah langkah') + '</button></div>', true);
     const urls = () => $('seImg').value.split('\n').map((u) => u.trim()).filter(Boolean);
     const preview = () => {
@@ -1199,8 +1342,95 @@
     };
     ['seTitle', 'seInstr'].forEach((id) => $(id).addEventListener('input', preview));
     let imgT; $('seImg').addEventListener('input', () => { clearTimeout(imgT); imgT = setTimeout(preview, 500); });
-    const syncKind = () => { $('seKindWrap').hidden = !$('seNeeds').checked; };
-    $('seNeeds').addEventListener('change', syncKind); syncKind();
+    // ----- penyusun pertanyaan -----
+    const QS = JSON.parse(JSON.stringify(s?.questions || []));
+    QS.forEach((q) => { if (q.type === 'short') q.acceptText = (q.accept || []).join('\n'); });
+    const newId = () => { let id; do { id = 'q' + Math.random().toString(36).slice(2, 7); } while (QS.some((q) => q.id === id)); return id; };
+    const pvQs = () => {
+      $('pvQs').innerHTML = QS.map((q, i) => '<div class="pv-q">' + (QS.length > 1 ? '<span class="q-no">' + (i + 1) + '</span> ' : '') +
+        '<span class="prose" style="font-size:14.5px">' + (fmt(q.prompt || '') || '<span class="muted">(tanpa teks soal)</span>') + '</span>' +
+        (q.type === 'multi' ? '<div class="help">Pilih semua jawaban yang benar.</div>' : '') +
+        (q.type === 'single' || q.type === 'multi' || q.type === 'tf'
+          ? (q.type === 'tf' ? ['Benar', 'Salah'] : q.options || []).map((o, k) => '<div class="pv-opt"><b>' + (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</b>' + h(o || '…') + '</div>').join('')
+          : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' ? ' tall' : '') + '">' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…' })[q.type] + '</div>') +
+        '</div>').join('');
+    };
+    const renderQB = () => {
+      $('qbList').innerHTML = QS.map((q, i) => {
+        const auto = isAuto(q);
+        let body = '<textarea class="textarea" rows="2" data-i="' + i + '" data-f="prompt" placeholder="Tulis pertanyaannya…">' + h(q.prompt || '') + '</textarea>';
+        if (q.type === 'single' || q.type === 'multi') {
+          body += (q.options || []).map((o, k) => '<div class="qb-opt"><input type="' + (q.type === 'single' ? 'radio' : 'checkbox') + '" name="qbk' + i + '" data-i="' + i + '" data-k="' + k + '" data-f="key"' +
+            (q.type === 'single' ? (q.correct === k ? ' checked' : '') : ((q.correct || []).includes(k) ? ' checked' : '')) + ' title="Tandai sebagai kunci">' +
+            '<input class="input" data-i="' + i + '" data-k="' + k + '" data-f="opt" value="' + h(o) + '" placeholder="Pilihan ' + String.fromCharCode(65 + k) + '">' +
+            '<button type="button" class="btn btn-ghost btn-sm btn-icon" data-a="delopt" data-i="' + i + '" data-k="' + k + '" aria-label="Hapus pilihan"' + ((q.options || []).length <= 2 ? ' disabled' : '') + '><svg><use href="#i-trash"/></svg></button></div>').join('') +
+            ((q.options || []).length < 10 ? '<button type="button" class="btn btn-ghost btn-sm" data-a="addopt" data-i="' + i + '" style="margin-top:8px"><svg><use href="#i-plus"/></svg>Tambah pilihan</button>' : '') +
+            '<div class="qb-key">' + (q.type === 'single' ? 'Klik bulatan di kiri untuk menandai jawaban yang benar.' : 'Centang semua jawaban yang benar. Nilai sebagian: pilihan salah mengurangi nilai.') + '</div>';
+        } else if (q.type === 'tf') {
+          body += ['Benar', 'Salah'].map((o, k) => '<div class="qb-opt"><input type="radio" name="qbk' + i + '" data-i="' + i + '" data-k="' + k + '" data-f="key"' + (q.correct === k ? ' checked' : '') + '><span>' + o + '</span><span></span></div>').join('') +
+            '<div class="qb-key">Tandai pernyataan ini benar atau salah.</div>';
+        } else if (q.type === 'short') {
+          body += '<textarea class="textarea code" rows="2" data-i="' + i + '" data-f="accept" placeholder="Jawaban yang diterima, satu per baris" style="margin-top:8px">' + h(q.acceptText || '') + '</textarea>' +
+            '<div class="qb-key">Huruf besar-kecil dan spasi berlebih tidak dibedakan. Kosongkan bila ingin dinilai sendiri.</div>';
+        } else {
+          body += '<div class="qb-key">' + ({ essay: 'Murid menulis jawaban panjang. Dinilai guru.', code: 'Kotak teks kode (huruf rata, tombol Tab berfungsi). Dinilai guru; kemiripan dengan kode acuan ikut dihitung.', github: 'Murid menempelkan link repository. Dipakai menu Kode & GitHub. Dinilai guru.' })[q.type] + '</div>';
+        }
+        return '<div class="qb"><div class="qb-top"><span class="qb-no">' + (i + 1) + '</span>' +
+          '<select class="select" data-i="' + i + '" data-f="type">' + Object.entries(QTYPES).map(([k, v]) => '<option value="' + k + '"' + (k === q.type ? ' selected' : '') + '>' + v + '</option>').join('') + '</select>' +
+          '<span class="qb-tag' + (auto ? '' : ' man') + '">' + (auto ? 'Otomatis' : 'Dinilai guru') + '</span>' +
+          '<span class="qb-acts"><button type="button" class="btn btn-ghost btn-sm btn-icon" data-a="up" data-i="' + i + '" aria-label="Naikkan"' + (i === 0 ? ' disabled' : '') + '><svg><use href="#i-up"/></svg></button>' +
+          '<button type="button" class="btn btn-ghost btn-sm btn-icon" data-a="down" data-i="' + i + '" aria-label="Turunkan"' + (i === QS.length - 1 ? ' disabled' : '') + '><svg><use href="#i-down"/></svg></button>' +
+          '<button type="button" class="btn btn-danger btn-sm btn-icon" data-a="del" data-i="' + i + '" aria-label="Hapus pertanyaan"><svg><use href="#i-trash"/></svg></button></span></div>' + body +
+          '<label class="qb-pts">Bobot <input class="input" type="number" min="1" max="1000" data-i="' + i + '" data-f="points" value="' + (q.points ?? 10) + '"> poin</label></div>';
+      }).join('') || '<p class="muted" style="margin:0 0 4px;font-size:13.5px">Belum ada pertanyaan. Langkah tanpa pertanyaan hanya berisi instruksi.</p>';
+      pvQs();
+    };
+    $('qbList').addEventListener('input', (e) => {
+      const t = e.target, i = +t.dataset.i, f = t.dataset.f; if (!f || isNaN(i)) return;
+      const q = QS[i];
+      if (f === 'prompt') q.prompt = t.value;
+      else if (f === 'points') q.points = t.value === '' ? '' : Number(t.value);
+      else if (f === 'opt') q.options[+t.dataset.k] = t.value;
+      else if (f === 'accept') q.acceptText = t.value;
+      pvQs();
+    });
+    $('qbList').addEventListener('change', (e) => {
+      const t = e.target, i = +t.dataset.i, f = t.dataset.f; if (!f || isNaN(i)) return;
+      const q = QS[i];
+      if (f === 'key') {
+        const k = +t.dataset.k;
+        if (q.type === 'multi') { q.correct = (q.correct || []).filter((x) => x !== k); if (t.checked) q.correct.push(k); q.correct.sort(); }
+        else q.correct = k;
+      } else if (f === 'type') {
+        const t2 = t.value; q.type = t2;
+        if ((t2 === 'single' || t2 === 'multi') && !(q.options || []).length) q.options = ['', ''];
+        if (t2 === 'single') q.correct = typeof q.correct === 'number' ? q.correct : null;
+        if (t2 === 'multi') q.correct = Array.isArray(q.correct) ? q.correct : (typeof q.correct === 'number' ? [q.correct] : []);
+        if (t2 === 'tf') q.correct = q.correct === 0 || q.correct === 1 ? q.correct : null;
+        renderQB();
+      }
+    });
+    $('qbList').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-a]'); if (!b) return;
+      const i = +b.dataset.i, a = b.dataset.a, q = QS[i];
+      if (a === 'up' && i > 0) [QS[i - 1], QS[i]] = [QS[i], QS[i - 1]];
+      if (a === 'down' && i < QS.length - 1) [QS[i + 1], QS[i]] = [QS[i], QS[i + 1]];
+      if (a === 'del') QS.splice(i, 1);
+      if (a === 'addopt') q.options.push('');
+      if (a === 'delopt') {
+        const k = +b.dataset.k; q.options.splice(k, 1);
+        if (q.type === 'single') q.correct = q.correct === k ? null : q.correct > k ? q.correct - 1 : q.correct;
+        else q.correct = (q.correct || []).filter((x) => x !== k).map((x) => (x > k ? x - 1 : x));
+      }
+      renderQB();
+    });
+    $('qbAdd').onclick = () => {
+      const t = $('qbType').value;
+      QS.push({ id: newId(), type: t, prompt: '', points: 10, options: t === 'single' || t === 'multi' ? ['', '', '', ''] : [], correct: t === 'multi' ? [] : null });
+      renderQB();
+      const all = $('qbList').querySelectorAll('textarea[data-f="prompt"]'); if (all.length) all[all.length - 1].focus();
+    };
+    renderQB();
     preview();
     if (IMAGE_UPLOAD_BASE) {
       const st = $('seUpSt'), drop = $('seDrop');
@@ -1236,10 +1466,26 @@
       if (dur < 10) { toast('Durasi minimal 10 detik.', 'err'); return; }
       const bad = urls().filter((u) => !/^https?:\/\//i.test(u) || (/^http:/i.test(u) && !/^http:\/\/localhost/i.test(u)));
       if (bad.length) { toast('URL gambar harus diawali https://', 'err'); return; }
+      for (let i = 0; i < QS.length; i++) {
+        const q = QS[i], no = 'Pertanyaan ' + (i + 1) + ': ';
+        if (!(Number(q.points) > 0)) { toast(no + 'bobot harus lebih dari 0.', 'err'); return; }
+        if (q.type === 'single' || q.type === 'multi') {
+          if ((q.options || []).some((o) => !String(o).trim())) { toast(no + 'ada pilihan yang masih kosong.', 'err'); return; }
+          if (q.type === 'single' && typeof q.correct !== 'number') { toast(no + 'tandai jawaban yang benar.', 'err'); return; }
+          if (q.type === 'multi' && !(q.correct || []).length) { toast(no + 'centang minimal satu jawaban yang benar.', 'err'); return; }
+        }
+        if (q.type === 'tf' && typeof q.correct !== 'number') { toast(no + 'pilih Benar atau Salah sebagai kunci.', 'err'); return; }
+      }
+      const questions = QS.map((q) => {
+        const o = { id: q.id, type: q.type, prompt: q.prompt || '', points: Number(q.points) };
+        if (q.type === 'single' || q.type === 'multi') { o.options = q.options.map((x) => String(x).trim()); o.correct = q.correct; }
+        if (q.type === 'tf') o.correct = q.correct;
+        if (q.type === 'short') o.accept = String(q.acceptText || '').split('\n').map((x) => x.trim()).filter(Boolean);
+        return o;
+      });
       const id = await run('t_save_step', {
         p_id: s ? s.id : null, p_ws: edWs, p_title: title, p_instruction: $('seInstr').value,
-        p_images: urls(), p_duration: dur, p_needs: $('seNeeds').checked,
-        p_answer_kind: $('seNeeds').checked ? (document.querySelector('input[name="seKind"]:checked') || {}).value || 'text' : 'text',
+        p_images: urls(), p_duration: dur, p_questions: questions,
         p_ref_path: $('seRefPath').value.trim(), p_ref_code: $('seRefCode').value,
       }, s ? 'Langkah disimpan.' : 'Langkah ditambahkan.').catch(() => null);
       if (!id) return;
@@ -1531,7 +1777,14 @@
     if (!S.gh || S.gh.ws !== S.ws) S.gh = { ws: S.ws, byS: {} };
     renderGithub();
   }
-  const ghStep = () => (S.results?.steps || []).find((s) => s.answer_kind === 'github');
+  const ghStep = () => (S.results?.steps || []).find((s) => qsOf(s).some((q) => q.type === 'github'));
+  // link repository murid: jawaban pertanyaan Link GitHub (atau isi lama untuk data versi sebelumnya)
+  function repoText(r) {
+    const gs = ghStep(); if (!gs) return '';
+    const a = r.answers[gs.id] || {}, q = qsOf(gs).find((x) => x.type === 'github');
+    const v = (a.data || {})[q.id];
+    return String(typeof v === 'string' ? v : (a.content || '')).trim();
+  }
   const refSteps = () => (S.results?.steps || []).filter((s) => s.ref_code && s.ref_code.trim());
   function ghVisible() {
     const f = S.filters, q = norm(f.gSearch);
@@ -1546,7 +1799,7 @@
     updateTokenLabel();
     const gs = ghStep(), refs = refSteps();
     const notes = [];
-    if (!gs) notes.push('Lembar kerja ini belum punya langkah dengan jenis jawaban <strong>Link repository GitHub</strong>. Atur di menu Lembar kerja: ubah langkah, centang "Murid perlu menulis jawaban", lalu pilih jenis jawaban itu.');
+    if (!gs) notes.push('Lembar kerja ini belum punya pertanyaan berjenis <strong>Link GitHub</strong>. Tambahkan di menu Lembar kerja: ubah langkah, lalu Tambah pertanyaan dengan jenis Link GitHub.');
     if (!refs.length) notes.push('Belum ada langkah dengan <strong>kode acuan</strong>, jadi kemiripan kode belum bisa dihitung. Tambahkan di editor langkah, bagian "Kode acuan untuk cek kemiripan".');
     if (!ghToken()) notes.push('Tanpa token, GitHub hanya mengizinkan 60 permintaan per jam untuk seluruh jaringan sekolah. Satu murid butuh 1 permintaan, ditambah 1 untuk tiap file acuan. Klik <strong>Atur token GitHub</strong> agar kuotanya menjadi 5.000 per jam.');
     $('ghNotice').innerHTML = !notes.length ? '' : notes.length === 1
@@ -1560,15 +1813,15 @@
     $('gTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th><th>Repository</th><th class="num">Commit bermakna</th><th>Commit terakhir</th>' + refCols + '<th class="act"></th></tr></thead><tbody>' +
       rows.map((r) => {
         const d = S.gh.byS[r.session_id] || {};
-        const repo = gs ? parseRepo(r.answers[gs.id]?.content) : null;
-        const rawLink = gs ? (r.answers[gs.id]?.content || '').trim() : '';
+        const repo = gs ? parseRepo(repoText(r)) : null;
+        const rawLink = repoText(r);
         const commits = d.commits || null;
         const good = commits ? commits.filter((c) => commitKind(c) === 'ok').length : null;
         const last = commits && commits[0];
         const simCells = refs.map((st) => {
-          const ans = r.answers[st.id]?.content;
+          const ans = lkmText(st, r.answers[st.id]);
           const gitSim = d.files && d.files[st.id] && d.files[st.id].text != null ? codeSimilarity(st.ref_code, d.files[st.id].text) : null;
-          const lkmSim = st.answer_kind !== 'github' && ans && ans.trim() ? codeSimilarity(st.ref_code, ans) : null;
+          const lkmSim = ans ? codeSimilarity(st.ref_code, ans) : null;
           const fileErr = d.files && d.files[st.id] && d.files[st.id].err;
           return '<td>' + (gitSim ? simHtml(gitSim, 'Kode di GitHub') : fileErr ? '<span class="gh-row-err">' + h(fileErr) + '</span>' : '') +
             (lkmSim ? '<div class="bar-label">Jawaban LKM ' + lkmSim.pct + '%</div>' : '') + (!gitSim && !fileErr && !lkmSim ? '<span class="muted">-</span>' : '') + '</td>';
@@ -1588,7 +1841,7 @@
   $('gSearch').oninput = () => { S.filters.gSearch = $('gSearch').value; if (S.results) renderGithub(); };
 
   async function fetchRow(r) {
-    const gs = ghStep(); const repo = gs ? parseRepo(r.answers[gs.id]?.content) : null;
+    const gs = ghStep(); const repo = gs ? parseRepo(repoText(r)) : null;
     const d = S.gh.byS[r.session_id] = { status: 'loading', files: {} };
     if (!repo) { d.status = 'norepo'; return; }
     try {
@@ -1645,7 +1898,7 @@
     dSession = sid; dMode = 'gh';
     const r = S.results.rows.find((x) => x.session_id === sid); if (!r) return;
     const d = S.gh.byS[sid] || {};
-    const gs = ghStep(), rawLink = gs ? (r.answers[gs.id]?.content || '') : '', repo = parseRepo(rawLink);
+    const gs = ghStep(), rawLink = repoText(r), repo = parseRepo(rawLink);
     $('dAv').textContent = initials(r.name); $('dName').textContent = r.name;
     $('dMeta').textContent = r.class + (r.started_at ? ', mulai LKM ' + new Date(r.started_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
     drawerNav(ghVisible(), sid);
@@ -1658,11 +1911,11 @@
     if (refs.length) {
       html += '<section class="g-step"><h3>Kemiripan dengan kode acuan</h3>' + refs.map((st) => {
         const f = d.files && d.files[st.id];
-        const ans = r.answers[st.id]?.content;
+        const ans = lkmText(st, r.answers[st.id]);
         return '<div style="margin-bottom:14px"><strong>Langkah ' + st.no + ': ' + h(st.title) + '</strong>' +
           (st.ref_path ? (f && f.text != null ? simDetail(codeSimilarity(st.ref_code, f.text), 'File ' + st.ref_path + ' di GitHub')
             : '<div class="help">' + (f && f.err ? h(f.err) : 'File ' + h(st.ref_path) + ' belum diambil. Klik Ambil ulang data GitHub.') + '</div>') : '') +
-          (st.answer_kind !== 'github' && ans && ans.trim() ? simDetail(codeSimilarity(st.ref_code, ans), 'Jawaban yang diketik di LKM') : '') + '</div>';
+          (ans ? simDetail(codeSimilarity(st.ref_code, ans), 'Jawaban yang diketik di LKM') : '') + '</div>';
       }).join('') + '<p class="help" style="margin:0">Persentase = bagian kode acuan yang juga ada di kode murid. Spasi, komentar, huruf besar-kecil, dan jenis tanda petik diabaikan. Kode tambahan milik murid tidak mengurangi nilai. Ini petunjuk untuk guru, bukan nilai otomatis.</p></section>';
     }
     const cs = d.commits;
@@ -1690,7 +1943,9 @@
       if (v && !parseRepo(v)) { toast('Link harus berbentuk https://github.com/nama/repo', 'err'); return; }
       const ok = await run('t_set_repo', { p_session: sid, p_step: gs.id, p_url: v }, 'Link repository disimpan.').then(() => true).catch(() => false);
       if (!ok) return;
-      r.answers[gs.id] = Object.assign(r.answers[gs.id] || {}, { content: v });
+      const gq = qsOf(gs).find((x) => x.type === 'github');
+      const ga = r.answers[gs.id] = Object.assign(r.answers[gs.id] || {}, { content: v });
+      ga.data = Object.assign({}, ga.data || {}, { [gq.id]: v });
       delete S.gh.byS[sid]; openGhDetail(sid);
     };
     const one = $('ghOne');
