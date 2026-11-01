@@ -242,6 +242,68 @@
   .seg-ctl label{display:inline-flex; align-items:center; height:34px; padding:0 14px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--ink-2)}
   .seg-ctl input{position:absolute; opacity:0; pointer-events:none}
   .seg-ctl label:has(input:checked){background:var(--surface); color:var(--ink); box-shadow:var(--shadow-sm)}
+  .tbl tr.grp td{background:var(--surface-2); padding:9px 14px; font-size:13px; color:var(--ink-2)}
+  .tbl tr.grp:hover td{background:var(--surface-2)}
+  .tbl tr.grp strong{color:var(--ink); font-size:14px; margin-right:8px}
+  .when{font-size:13px; color:var(--ink-2); white-space:nowrap}
+  .when.none{color:var(--muted)}
+  .opt-list{display:grid; gap:10px; margin:4px 0 6px}
+  .opt-list label{display:flex; gap:10px; align-items:flex-start; font-size:14px; cursor:pointer}
+  .opt-list input{margin-top:3px; accent-color:var(--accent)}
+  .opt-list small{display:block; color:var(--muted); font-size:12.5px}
+
+  /* ---------- cetak (PDF) ---------- */
+  #printArea{display:none}
+  @media print{
+    @page{size:A4; margin:14mm 14mm 16mm}
+    html, body{height:auto !important; overflow:visible !important; background:#fff !important; color:#111 !important}
+    body > *:not(#printArea){display:none !important}
+    #printArea{display:block; font:10.5pt/1.45 'Plus Jakarta Sans', system-ui, sans-serif; color:#111}
+    #printArea *{color:#111; box-shadow:none !important}
+  }
+  .pr-sheet{padding-bottom:10mm}
+  .pr-sheet.newpage{break-after:page}
+  .pr-sheet.newpage:last-child{break-after:auto}
+  .pr-sheet + .pr-sheet:not(.after-break){border-top:2px dashed #999; padding-top:8mm}
+  .pr-head{display:flex; gap:16px; align-items:flex-start; justify-content:space-between; border-bottom:2px solid #111; padding-bottom:8px; margin-bottom:10px}
+  .pr-head h1{font-size:15pt; margin:0 0 4px; line-height:1.2}
+  .pr-head .id{font-size:11pt}
+  .pr-head .id b{font-weight:800}
+  .pr-meta{font-size:9pt; color:#444 !important; margin-top:2px}
+  .pr-score{border:1.5px solid #111; border-radius:6px; padding:6px 10px; text-align:center; min-width:30mm; flex:none}
+  .pr-score span{display:block; font-size:8pt; text-transform:uppercase; letter-spacing:.06em}
+  .pr-score b{display:block; font-size:16pt; min-height:22pt; line-height:22pt}
+  .pr-step{margin-top:10px}
+  .pr-step h2{font-size:11.5pt; margin:0 0 4px; padding:4px 8px; background:#eee !important; border-radius:4px; -webkit-print-color-adjust:exact; print-color-adjust:exact; display:flex; justify-content:space-between; gap:10px}
+  .pr-step h2 small{font-weight:600; font-size:9pt; white-space:nowrap}
+  .pr-instr{font-size:9.5pt; color:#333 !important; margin:4px 0 6px; padding-left:8px; border-left:2px solid #ccc}
+  .pr-instr p{margin:0 0 4px}
+  .pr-instr pre, .pr-ans pre{font:8.5pt/1.4 'JetBrains Mono', ui-monospace, monospace; white-space:pre-wrap; word-break:break-word; margin:0}
+  .pr-q{margin:8px 0 0; padding-left:2px}
+  .pr-qh{display:flex; gap:8px; align-items:baseline}
+  .pr-qh .no{font-weight:800; flex:none}
+  .pr-qh .txt{flex:1}
+  .pr-qh .txt p{margin:0 0 3px}
+  .pr-qh .txt pre{font:8.5pt/1.4 'JetBrains Mono', monospace; white-space:pre-wrap; margin:2px 0; background:#f4f4f4 !important; padding:4px 6px; border-radius:3px}
+  .pr-tag{font-size:8pt; color:#555 !important; white-space:nowrap; flex:none}
+  .pr-opts{margin:4px 0 0 20px; display:grid; gap:2px}
+  .pr-opt{display:flex; gap:7px; align-items:center}
+  .pr-box{display:inline-grid; place-items:center; width:10pt; height:10pt; border:1.2px solid #111; border-radius:2px; font-size:8pt; line-height:1; flex:none}
+  .pr-opt.pick .pr-box{background:#111 !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .pr-opt.pick{font-weight:700}
+  .pr-key{font-size:8pt; font-weight:700; border:1px solid #111; border-radius:3px; padding:0 4px; margin-left:4px}
+  .pr-ans{margin:4px 0 0 20px; border:1px solid #999; border-radius:4px; padding:6px 8px; white-space:pre-wrap; word-break:break-word; min-height:16pt}
+  .pr-ans.code{background:#f7f7f7 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .pr-ans.empty{color:#777 !important; font-style:italic}
+  .pr-help{margin:3px 0 0 20px; font-size:8.5pt; color:#444 !important}
+  .pr-grade{margin:5px 0 0 20px; display:flex; gap:14px; align-items:center; font-size:9pt}
+  .pr-pt{display:inline-block; min-width:14mm; border-bottom:1px solid #111; text-align:center; font-weight:700}
+  .pr-fb{margin:8px 0 0; font-size:9pt}
+  .pr-fb .line{border-bottom:1px solid #999; height:16pt}
+  .pr-fb .given{border:1px solid #999; border-radius:4px; padding:4px 8px; white-space:pre-wrap}
+  .pr-q, .pr-head, .pr-step h2{break-inside:avoid}
+  .pr-step h2{break-after:avoid}
+  .pr-foot{margin-top:10px; font-size:8.5pt; color:#555 !important; display:flex; justify-content:space-between; border-top:1px solid #ccc; padding-top:4px}
   details.more{border:1px solid var(--line); border-radius:12px; padding:0 14px; margin-bottom:14px}
   details.more summary{cursor:pointer; padding:12px 0; font-weight:700; font-size:14px}
   details.more[open]{padding-bottom:14px}
@@ -317,6 +379,8 @@
 
   /* modal & laci */
   .overlay{position:fixed; inset:0; z-index:60; background:var(--scrim); display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(3px)}
+  #modal{z-index:70}
+  #rSearch{width:170px} #rSort{min-width:0}
   .overlay.on{display:flex}
   .modal{width:min(480px,100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:var(--shadow-lg); animation:rise .18s ease-out}
   .modal.wide{width:min(1080px,100%)}
@@ -485,10 +549,20 @@
     <!-- HASIL -->
     <section data-v="results" hidden>
       <div class="toolbar">
+        <div class="seg-ctl" role="radiogroup" aria-label="Kelompokkan hasil">
+          <label><input type="radio" name="rMode" value="ws">Per lembar kerja</label>
+          <label><input type="radio" name="rMode" value="student">Per murid</label>
+        </div>
         <select class="select" id="rClass" aria-label="Filter kelas"></select>
         <input class="input" id="rSearch" type="search" placeholder="Cari nama…" aria-label="Cari nama">
+        <select class="select" id="rSort" aria-label="Urutkan">
+          <option value="name">Urut: nama</option>
+          <option value="time">Urut: waktu kumpul</option>
+        </select>
+        <button class="btn btn-ghost" id="rDir" type="button"></button>
         <span class="spacer"></span>
-        <button class="btn btn-ghost" id="rCsv"><svg><use href="#i-download"/></svg>Unduh CSV</button>
+        <button class="btn btn-ghost" id="rCsv" title="Unduh CSV"><svg><use href="#i-download"/></svg>CSV</button>
+        <button class="btn" id="rPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>Cetak PDF</button>
       </div>
       <div class="panel table-wrap" id="rTable"></div>
     </section>
@@ -553,6 +627,7 @@
     <div class="who"><span class="avatar" id="dAv"></span><div><strong id="dName"></strong><span id="dMeta"></span></div></div>
     <button class="btn btn-ghost btn-sm btn-icon" id="dPrev" aria-label="Murid sebelumnya"><svg><use href="#i-left"/></svg></button>
     <button class="btn btn-ghost btn-sm btn-icon" id="dNext" aria-label="Murid berikutnya"><svg><use href="#i-right"/></svg></button>
+    <button class="btn btn-ghost btn-sm" id="dPrint" title="Cetak lembar jawaban murid ini">Cetak</button>
     <button class="btn btn-sm" id="dClose">Tutup</button>
   </div>
   <div class="drawer-body" id="dBody"></div>
@@ -572,6 +647,7 @@
 </div>
 
 <div class="toast-zone" id="toasts" aria-live="polite"></div>
+<div id="printArea" aria-hidden="true"></div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
@@ -620,6 +696,7 @@
     codes: ss.get('g_codes') || {},
     filters: { mClass: '', mSearch: '', mState: '', rClass: '', rSearch: '', sClass: '', sSearch: '', gClass: '', gSearch: '' },
     gh: null, ghRate: null,
+    rMode: ss.get('g_rmode') || 'ws', rSort: ss.get('g_rsort') || 'name', rDir: ss.get('g_rdir') || 'asc', resAll: null,
   };
 
   /* ---------- util ---------- */
@@ -835,7 +912,7 @@
     document.querySelectorAll('.nav-btn').forEach((b) => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
     document.querySelectorAll('[data-v]').forEach((s) => (s.hidden = s.dataset.v !== view));
     $('viewTitle').textContent = TITLES[view];
-    $('wsPick').hidden = !(view === 'monitor' || view === 'results' || view === 'github');
+    $('wsPick').hidden = !(view === 'monitor' || (view === 'results' && S.rMode !== 'student') || view === 'github');
     stopPoll();
     ({ monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub })[view]();
   }
@@ -1046,29 +1123,88 @@
   /* =========================================================
      HASIL & NILAI
      ========================================================= */
+  function syncResultsBar() {
+    document.querySelectorAll('input[name="rMode"]').forEach((r) => (r.checked = r.value === S.rMode));
+    $('rSort').value = S.rSort;
+    $('rDir').textContent = S.rSort === 'name' ? (S.rDir === 'asc' ? 'A ke Z' : 'Z ke A') : (S.rDir === 'asc' ? 'Awal dulu' : 'Akhir dulu');
+    $('rDir').title = S.rSort === 'name' ? 'Balik urutan nama' : 'Awal dulu = yang mengumpulkan paling awal di atas. Klik untuk membalik.';
+    $('wsPick').hidden = S.view === 'results' && S.rMode === 'student';
+  }
   async function loadResults() {
     classOptions($('rClass'), S.filters.rClass);
     $('rSearch').value = S.filters.rSearch;
-    if (!S.ws) { noSheet($('rTable')); return; }
+    syncResultsBar();
     $('rTable').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
+    if (S.rMode === 'student') {
+      try {
+        S.resAll = await api('t_results_all', {});
+        S.resAll.forEach((R) => { R._ws = R.ws_id; R.steps.forEach((s, i) => (s.no = i + 1)); });
+      } catch (e) { $('rTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
+      renderResults(); return;
+    }
+    if (!S.ws) { noSheet($('rTable')); return; }
     try { S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1)); }
     catch (e) { $('rTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     renderResults();
   }
-  const gradedSteps = () => (S.results?.steps || []).filter((s) => qsOf(s).length);
+  // urutan: nama (A-Z / Z-A) atau waktu dikumpulkan; yang belum mengumpulkan selalu di bawah
+  const collator = new Intl.Collator('id', { sensitivity: 'base', numeric: true });
+  const tOf = (r) => (r.finished_at ? new Date(r.finished_at).getTime() : null);
+  function sortRows(rows) {
+    const d = S.rDir === 'desc' ? -1 : 1;
+    return rows.slice().sort((a, b) => {
+      if (S.rSort === 'time') {
+        const ta = tOf(a), tb = tOf(b);
+        if (ta == null || tb == null) { if (ta !== tb) return ta == null ? 1 : -1; }
+        else if (ta !== tb) return (ta - tb) * d;
+      }
+      return (collator.compare(a.name, b.name) || collator.compare(a.class, b.class)) * (S.rSort === 'name' ? d : 1);
+    });
+  }
+  const when = (d) => new Date(d).toLocaleString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const whenCell = (r) => r.finished_at ? '<span class="when">' + h(when(r.finished_at)) + '</span>' : '<span class="when none">Belum mengumpulkan</span>';
+  const gradedSteps = (R = S.results) => (R?.steps || []).filter((s) => qsOf(s).length);
   // nilai akhir = total poin / total bobot semua pertanyaan (0-100); soal yang belum dinilai belum dihitung
-  function average(row) {
-    const st = gradedSteps(); if (!st.length) return null;
+  function average(row, R = S.results) {
+    const st = gradedSteps(R); if (!st.length) return null;
     let earned = 0, max = 0, todo = 0, total = 0;
     st.forEach((s) => { const a = row.answers[s.id]; qsOf(s).forEach((q) => { total++; const r = qPoint(q, a); if (r.p == null) todo++; else { earned += r.p; max += Number(q.points) || 0; } }); });
     return { avg: max ? (earned * 100) / max : null, n: total - todo, of: total };
   }
+  const rowFilter = (r) => { const f = S.filters, q = norm(f.rSearch); return (!f.rClass || r.class === f.rClass) && (!q || norm(r.name).includes(q)); };
   function visibleRows() {
-    const f = S.filters, q = norm(f.rSearch);
-    return (S.results?.rows || []).filter((r) => (!f.rClass || r.class === f.rClass) && (!q || norm(r.name).includes(q)));
+    return sortRows((S.results?.rows || []).filter(rowFilter));
+  }
+  // mode per murid: kelompok [{student, rows:[{R,row}]}] sesuai filter dan urutan
+  function studentGroups() {
+    const map = new Map();
+    (S.resAll || []).forEach((R) => R.rows.filter(rowFilter).forEach((row) => {
+      if (!map.has(row.student_id)) map.set(row.student_id, { name: row.name, class: row.class, student_id: row.student_id, items: [] });
+      map.get(row.student_id).items.push({ R, row });
+    }));
+    const d = S.rDir === 'desc' ? -1 : 1;
+    const groups = [...map.values()];
+    groups.forEach((g) => {
+      g.items.sort((a, b) => {
+        const ta = tOf(a.row), tb = tOf(b.row);
+        if (ta == null || tb == null) return ta === tb ? 0 : ta == null ? 1 : -1;
+        return (ta - tb) * (S.rSort === 'time' ? d : 1);
+      });
+      const ts = g.items.map((x) => tOf(x.row)).filter((t) => t != null);
+      g.last = ts.length ? Math.max(...ts) : null;
+    });
+    return groups.sort((a, b) => {
+      if (S.rSort === 'time') {
+        if (a.last == null || b.last == null) { if (a.last !== b.last) return a.last == null ? 1 : -1; }
+        else if (a.last !== b.last) return (a.last - b.last) * d;
+      }
+      return (collator.compare(a.name, b.name) || collator.compare(a.class, b.class)) * (S.rSort === 'name' ? d : 1);
+    });
   }
   function renderResults() {
-    const R = S.results; const st = gradedSteps();
+    syncResultsBar();
+    if (S.rMode === 'student') return renderResultsStudent();
+    const R = S.results; if (!R) return; const st = gradedSteps();
     const rows = visibleRows();
     if (!R.steps.length) { $('rTable').innerHTML = '<div class="empty"><strong>Lembar kerja ini belum punya langkah</strong></div>'; return; }
     if (!st.length) { $('rTable').innerHTML = '<div class="empty"><strong>Belum ada pertanyaan</strong>Tambahkan pertanyaan di editor langkah (menu Lembar kerja).</div>'; return; }
@@ -1081,12 +1217,12 @@
     };
     $('rTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th>' +
       st.map((s) => '<th class="center" title="' + h(s.title) + '">L' + s.no + '</th>').join('') +
-      '<th class="num">Nilai akhir</th></tr></thead><tbody>' + rows.map((r) => {
+      '<th>Dikumpulkan</th><th class="num">Nilai akhir</th></tr></thead><tbody>' + rows.map((r) => {
         const av = average(r);
         return '<tr class="clickable" data-s="' + r.session_id + '" tabindex="0">' +
           '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.finished ? '' : ', belum selesai') + '</span></div></div></td>' +
           st.map((s) => '<td class="center">' + cell(s, r.answers[s.id]) + '</td>').join('') +
-          '<td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
+          '<td>' + whenCell(r) + '</td><td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
           (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' soal dinilai</div>' : '') + '</td></tr>';
       }).join('') + '</tbody></table>';
     $('rTable').querySelectorAll('tr[data-s]').forEach((tr) => {
@@ -1094,8 +1230,47 @@
       tr.onkeydown = (e) => { if (e.key === 'Enter') openDrawer(tr.dataset.s); };
     });
   }
-  $('rClass').onchange = () => { S.filters.rClass = $('rClass').value; if (S.results) renderResults(); };
-  $('rSearch').oninput = () => { S.filters.rSearch = $('rSearch').value; if (S.results) renderResults(); };
+  function renderResultsStudent() {
+    if (!S.resAll) return;
+    const groups = studentGroups();
+    S.flat = groups.flatMap((g) => g.items.map((x) => ({ session_id: x.row.session_id, R: x.R })));
+    if (!groups.length) {
+      $('rTable').innerHTML = '<div class="empty">' + (S.resAll.some((R) => R.rows.length) ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid yang mengerjakan</strong>Hasil muncul di sini setelah murid mulai.') + '</div>';
+      return;
+    }
+    $('rTable').innerHTML = '<table class="tbl"><thead><tr><th>Lembar kerja</th><th>Status</th><th>Dikumpulkan</th><th class="num">Nilai akhir</th></tr></thead><tbody>' +
+      groups.map((g) => {
+        const avs = g.items.map((x) => average(x.row, x.R)).filter((a) => a && a.avg != null);
+        const mean = avs.length ? avs.reduce((t, a) => t + a.avg, 0) / avs.length : null;
+        return '<tr class="grp"><td colspan="4"><strong>' + h(g.name) + '</strong>' + h(g.class) + ', ' + g.items.length + ' lembar kerja' +
+          (mean != null ? ', rata-rata ' + fmtNum(mean) : '') + '</td></tr>' +
+          g.items.map(({ R, row }) => {
+            const av = average(row, R);
+            return '<tr class="clickable" data-s="' + row.session_id + '" tabindex="0"><td>' + h(R.title) + '</td>' +
+              '<td>' + (row.finished ? '<span class="pill ok">Selesai</span>' : '<span class="pill run">Belum selesai</span>') + '</td>' +
+              '<td>' + whenCell(row) + '</td>' +
+              '<td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
+              (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' soal dinilai</div>' : '') + '</td></tr>';
+          }).join('');
+      }).join('') + '</tbody></table>';
+    $('rTable').querySelectorAll('tr[data-s]').forEach((tr) => {
+      tr.onclick = () => openAny(tr.dataset.s);
+      tr.onkeydown = (e) => { if (e.key === 'Enter') openAny(tr.dataset.s); };
+    });
+  }
+  // buka laci penilaian dari mode per murid: pasang data lembar kerja yang sesuai
+  function openAny(sid) {
+    const it = (S.flat || []).find((x) => x.session_id === sid); if (!it) return;
+    S.results = it.R; openDrawer(sid);
+  }
+  const drawerList = () => (S.rMode === 'student' ? (S.flat || []) : visibleRows());
+  $('rClass').onchange = () => { S.filters.rClass = $('rClass').value; renderResults(); };
+  $('rSearch').oninput = () => { S.filters.rSearch = $('rSearch').value; renderResults(); };
+  document.querySelectorAll('input[name="rMode"]').forEach((r) => r.addEventListener('change', () => {
+    S.rMode = r.value; ss.set('g_rmode', S.rMode); S.results = null; loadResults();
+  }));
+  $('rSort').onchange = () => { S.rSort = $('rSort').value; S.rDir = 'asc'; ss.set('g_rsort', S.rSort); ss.set('g_rdir', S.rDir); renderResults(); };
+  $('rDir').onclick = () => { S.rDir = S.rDir === 'asc' ? 'desc' : 'asc'; ss.set('g_rdir', S.rDir); renderResults(); };
 
   // laci penilaian
   let dSession = null, dMode = 'grade';
@@ -1113,8 +1288,10 @@
     $('dAv').textContent = initials(r.name);
     $('dName').textContent = r.name;
     $('dMeta').textContent = r.class + (r.finished ? ', selesai' : ', masih mengerjakan');
-    const list = visibleRows(); const i = list.findIndex((x) => x.session_id === sid);
+    const list = drawerList(); const i = list.findIndex((x) => x.session_id === sid);
     $('dPrev').disabled = i <= 0; $('dNext').disabled = i < 0 || i >= list.length - 1;
+    $('dPrint').hidden = false;
+    $('dMeta').textContent += S.rMode === 'student' ? ' · ' + (S.results.title || '') : '';
     $('dBody').innerHTML = gradedSteps().map((s) => {
       const a = r.answers[s.id] || {};
       const sp = stepPoints(s, a);
@@ -1149,7 +1326,7 @@
   }
   function closeDrawer() {
     $('drawer').classList.remove('on'); $('drawer').setAttribute('aria-hidden', 'true'); $('drawerScrim').classList.remove('on');
-    if (dMode === 'gh') { if (S.gh) renderGithub(); } else if (S.results) renderResults();
+    if (dMode === 'gh') { if (S.gh) renderGithub(); } else if (S.results || S.resAll) renderResults();
   }
   function bindGrade(sec) {
     const stepId = sec.dataset.step;
@@ -1215,26 +1392,46 @@
   $('dClose').onclick = closeDrawer;
   $('drawerScrim').onclick = closeDrawer;
   const stepDrawer = (d) => {
-    const l = dMode === 'gh' ? ghVisible() : visibleRows();
+    const l = dMode === 'gh' ? ghVisible() : drawerList();
     const i = l.findIndex((x) => x.session_id === dSession); const n = l[i + d];
-    if (n) (dMode === 'gh' ? openGhDetail : openDrawer)(n.session_id);
+    if (n) (dMode === 'gh' ? openGhDetail : S.rMode === 'student' ? openAny : openDrawer)(n.session_id);
   };
   $('dPrev').onclick = () => stepDrawer(-1);
   $('dNext').onclick = () => stepDrawer(1);
 
   // CSV: pemisah titik koma (Excel Indonesia), BOM UTF-8, rumus dinetralkan
+  const csvSafe = (v) => { let s = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const csvNum = (v) => v == null || v === '' ? '' : String(v).replace('.', ',');
+  const csvWhen = (d) => d ? new Date(d).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  function downloadCsv(lines, name) {
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name.replace(/[\\/:*?"<>|]/g, '') + '.csv';
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
   $('rCsv').onclick = () => {
+    if (S.rMode === 'student') {
+      const groups = studentGroups();
+      if (!groups.length) { toast('Belum ada hasil untuk diunduh.'); return; }
+      const lines = [['Kelas', 'Nama', 'Lembar kerja', 'Status', 'Dikumpulkan', 'Nilai akhir', 'Soal dinilai'].map(csvSafe).join(';')];
+      groups.forEach((g) => g.items.forEach(({ R, row }) => {
+        const av = average(row, R);
+        lines.push([csvSafe(row.class), csvSafe(row.name), csvSafe(R.title), csvSafe(row.finished ? 'Selesai' : 'Belum selesai'), csvSafe(csvWhen(row.finished_at)),
+          av && av.avg != null ? csvNum(av.avg.toFixed(2)) : '', csvSafe(av ? av.n + '/' + av.of : '')].join(';'));
+      }));
+      downloadCsv(lines, 'Nilai per murid' + (S.filters.rClass ? ' ' + S.filters.rClass : ''));
+      return;
+    }
     if (!S.results || !S.results.rows.length) { toast('Belum ada hasil untuk diunduh.'); return; }
     const st = gradedSteps();
-    const safe = (v) => { let s = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
-    const num = (v) => v == null || v === '' ? '' : String(v).replace('.', ',');
-    const head = ['Kelas', 'Nama', 'Status'];
+    const safe = csvSafe, num = csvNum;
+    const head = ['Kelas', 'Nama', 'Status', 'Dikumpulkan'];
     st.forEach((s) => head.push('L' + s.no + ' nilai', 'L' + s.no + ' jawaban', 'L' + s.no + ' komentar'));
     head.push('Nilai akhir', 'Soal dinilai');
     const lines = [head.map(safe).join(';')];
     visibleRows().forEach((r) => {
       const av = average(r);
-      const cells = [safe(r.class), safe(r.name), safe(r.finished ? 'Selesai' : 'Belum selesai')];
+      const cells = [safe(r.class), safe(r.name), safe(r.finished ? 'Selesai' : 'Belum selesai'), safe(csvWhen(r.finished_at))];
       st.forEach((s) => {
         const a = r.answers[s.id] || {}, sp = stepPoints(s, r.answers[s.id]);
         cells.push(sp.todo ? '' : num(sp.pct.toFixed(2)), safe(a.content), safe(a.feedback));
@@ -1243,11 +1440,93 @@
       lines.push(cells.join(';'));
     });
     const title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || 'hasil';
-    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Nilai ' + title.replace(/[\\/:*?"<>|]/g, '') + (S.filters.rClass ? ' ' + S.filters.rClass : '') + '.csv';
-    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    downloadCsv(lines, 'Nilai ' + title + (S.filters.rClass ? ' ' + S.filters.rClass : ''));
+  };
+
+  /* ---------- cetak PDF (lewat jendela cetak browser) ---------- */
+  const PR_DEF = { key: false, grades: true, instr: false, page: true };
+  function printItems() {
+    if (S.rMode === 'student') return studentGroups().flatMap((g) => g.items);
+    return S.results ? visibleRows().map((row) => ({ R: S.results, row })) : [];
+  }
+  function askPrint(items, label) {
+    if (!items.length) { toast('Belum ada hasil untuk dicetak.'); return; }
+    const o = Object.assign({}, PR_DEF, ss.get('g_print') || {});
+    const ck = (k, t, sub) => '<label><input type="checkbox" data-o="' + k + '"' + (o[k] ? ' checked' : '') + '><span>' + t + '<small>' + sub + '</small></span></label>';
+    const box = openModal('<h2>Cetak PDF</h2><p class="sub">' + h(label) + '. Semua pertanyaan dicetak beserta jawaban murid, termasuk pertanyaan yang tidak dijawab.</p>' +
+      '<div class="opt-list">' +
+      ck('grades', 'Isi poin yang sudah ada', 'Poin otomatis dan nilai yang sudah Anda beri ikut tercetak. Matikan agar kolom poin kosong untuk dikoreksi manual.') +
+      ck('key', 'Tandai kunci jawaban', 'Pilihan yang benar dan isian yang diterima ditandai. Jangan dibagikan ke murid.') +
+      ck('instr', 'Sertakan instruksi langkah', 'Teks instruksi tiap langkah, tanpa gambar.') +
+      ck('page', 'Satu murid per halaman', 'Setiap lembar jawaban dimulai di halaman baru.') +
+      '</div><div class="notice info" style="margin-top:14px"><svg><use href="#i-alert"/></svg><span>Di jendela cetak, pilih tujuan <strong>Simpan sebagai PDF</strong> dan kertas A4.</span></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Cetak</button></div>');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelector('[data-x="yes"]').onclick = () => {
+      box.querySelectorAll('[data-o]').forEach((c) => (o[c.dataset.o] = c.checked));
+      ss.set('g_print', o); closeModal(true);
+      doPrint(items, o);
+    };
+  }
+  function prQuestion(q, a, qi, o) {
+    const v = ((a && a.data) || {})[q.id], pt = qPoint(q, a);
+    let body = '';
+    if (q.type === 'single' || q.type === 'multi' || q.type === 'tf') {
+      const picked = q.type === 'multi' ? (Array.isArray(v) ? v : []) : (typeof v === 'number' ? [v] : []);
+      const key = q.type === 'multi' ? (q.correct || []) : [q.correct];
+      body = '<div class="pr-opts">' + (q.options || []).map((t, k) =>
+        '<div class="pr-opt' + (picked.includes(k) ? ' pick' : '') + '"><span class="pr-box">' + (picked.includes(k) ? '&#10003;' : '') + '</span><span>' +
+        (q.type === 'tf' ? '' : String.fromCharCode(65 + k) + '. ') + h(t) + (o.key && key.includes(k) ? '<span class="pr-key">KUNCI</span>' : '') + '</span></div>').join('') + '</div>' +
+        (picked.length ? '' : '<div class="pr-help"><em>Tidak memilih jawaban.</em></div>');
+    } else if (hasVal(v)) {
+      body = q.type === 'code' ? '<div class="pr-ans code"><pre>' + h(v) + '</pre></div>' : '<div class="pr-ans">' + h(v) + '</div>';
+    } else body = '<div class="pr-ans empty">Tidak menjawab.</div>';
+    if (o.key && q.type === 'short') {
+      const acc = (q.accept && q.accept.length ? q.accept : String(q.acceptText || '').split('\n')).map((x) => String(x).trim()).filter(Boolean);
+      if (acc.length) body += '<div class="pr-help">Kunci: ' + acc.map(h).join(' / ') + '</div>';
+    }
+    const shown = o.grades && pt.p != null ? fmtNum(pt.p) : '';
+    const how = !o.grades ? '' : pt.manual ? 'dinilai guru' : pt.empty ? 'kosong' : pt.p != null ? 'otomatis' : 'belum dinilai';
+    return '<div class="pr-q"><div class="pr-qh"><span class="no">' + (qi + 1) + '.</span><div class="txt">' + (fmt(q.prompt || '') || '') + '</div>' +
+      '<span class="pr-tag">' + h(QTYPES[q.type] || q.type) + '</span></div>' + body +
+      '<div class="pr-grade"><span>Poin: <span class="pr-pt">' + shown + '</span> / ' + h(q.points) + '</span>' + (how ? '<span class="pr-tag">' + how + '</span>' : '') + '</div></div>';
+  }
+  function prSheet(R, row, o) {
+    const av = average(row, R), steps = gradedSteps(R);
+    const score = o.grades && av && av.avg != null ? fmtNum(av.avg) + (av.n < av.of ? '*' : '') : '';
+    return '<article class="pr-sheet' + (o.page ? ' newpage after-break' : '') + '">' +
+      '<header class="pr-head"><div><h1>' + h(R.title || '') + '</h1>' +
+      '<div class="id"><b>' + h(row.name) + '</b> &middot; ' + h(row.class) + '</div>' +
+      '<div class="pr-meta">Mulai: ' + (row.started_at ? h(when(row.started_at)) : '-') + ' &middot; Dikumpulkan: ' + (row.finished_at ? h(when(row.finished_at)) : 'belum mengumpulkan') + '</div></div>' +
+      '<div class="pr-score"><span>Nilai akhir</span><b>' + score + '</b></div></header>' +
+      steps.map((s) => {
+        const a = row.answers[s.id], sp = stepPoints(s, a);
+        const fb = a && a.feedback ? '<div class="given">' + h(a.feedback) + '</div>' : '<div class="line"></div><div class="line"></div>';
+        return '<section class="pr-step"><h2><span>Langkah ' + s.no + '. ' + h(s.title) + '</span><small>' +
+          (o.grades && !sp.todo ? fmtNum(sp.earned) + ' / ' + sp.max + ' poin' : '____ / ' + sp.max + ' poin') + '</small></h2>' +
+          (o.instr && s.instruction ? '<div class="pr-instr">' + fmt(s.instruction) + '</div>' : '') +
+          qsOf(s).map((q, qi) => prQuestion(q, a, qi, o)).join('') +
+          '<div class="pr-fb">Catatan guru:' + fb + '</div></section>';
+      }).join('') +
+      '<div class="pr-foot"><span>' + h(row.name) + ' &middot; ' + h(R.title || '') + '</span><span>' + (score.endsWith('*') ? '* sebagian soal belum dinilai &middot; ' : '') + 'Dicetak ' + h(when(new Date())) + '</span></div>' +
+      '</article>';
+  }
+  function doPrint(items, o) {
+    $('printArea').innerHTML = items.map(({ R, row }) => prSheet(R, row, o)).join('');
+    const old = document.title;
+    const titles = [...new Set(items.map((x) => x.R.title))];
+    document.title = 'Hasil ' + (items.length === 1 ? items[0].row.name + ' - ' + items[0].R.title : titles.length === 1 ? titles[0] : 'per murid') + (S.filters.rClass ? ' ' + S.filters.rClass : '');
+    const done = () => { document.title = old; $('printArea').innerHTML = ''; window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    setTimeout(() => window.print(), 60);
+  }
+  $('rPrint').onclick = () => {
+    const items = printItems();
+    askPrint(items, items.length + ' lembar jawaban, sesuai filter dan urutan yang tampil');
+  };
+  $('dPrint').onclick = () => {
+    const row = S.results && S.results.rows.find((x) => x.session_id === dSession); if (!row) return;
+    askPrint([{ R: S.results, row }], 'Lembar jawaban ' + row.name);
   };
 
   /* =========================================================
@@ -1978,7 +2257,7 @@
   };
 
   function openGhDetail(sid) {
-    dSession = sid; dMode = 'gh';
+    dSession = sid; dMode = 'gh'; $('dPrint').hidden = true;
     const r = S.results.rows.find((x) => x.session_id === sid); if (!r) return;
     const d = S.gh.byS[sid] || {};
     const gs = ghStep(), rawLink = repoText(r), repo = parseRepo(rawLink);
