@@ -242,6 +242,8 @@
   .seg-ctl label{display:inline-flex; align-items:center; height:34px; padding:0 14px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--ink-2)}
   .seg-ctl input{position:absolute; opacity:0; pointer-events:none}
   .seg-ctl label:has(input:checked){background:var(--surface); color:var(--ink); box-shadow:var(--shadow-sm)}
+  .qb-paste{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; color:var(--ink-2); cursor:pointer}
+  .qb-paste input{accent-color:var(--accent)}
   .g-shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin:0 0 10px}
   .g-shots a{position:relative; display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
   .g-shots img{width:100%; height:100%; object-fit:contain; display:block}
@@ -962,7 +964,7 @@
       $('mStamp').innerHTML = '<span class="flag-hi">Gagal memperbarui, mencoba lagi</span>';
     }
   }
-  const needsCheck = (r) => r.is_active && (r.locked || r.logins > 1 || r.hidden >= 3 || r.paste > 0);
+  const needsCheck = (r) => r.is_active && (r.locked || r.logins > 1 || r.hidden >= 3 || r.paste > 0 || r.copy > 0 || r.devtools > 0);
   function renderMonitor() {
     const m = S.monitor; if (!m) return;
     const f = S.filters;
@@ -1009,7 +1011,7 @@
     $('mTable').innerHTML = closedNote + '<table class="tbl"><thead><tr>' +
       '<th>Murid</th><th>Progres</th><th>Sisa waktu</th><th class="num hide-sm">Jawaban</th>' +
       '<th class="num hide-sm" title="Lebih dari 1: akun dibuka ulang atau dari perangkat lain">Login</th>' +
-      '<th class="num hide-sm">Pindah tab</th><th class="num hide-sm">Paste</th><th>Status</th><th class="act"></th>' +
+      '<th class="num hide-sm">Pindah tab</th><th class="num hide-sm" title="Percobaan menempel (paste) ke kolom jawaban, dan percobaan menyalin teks lembar kerja">Tempel / salin</th><th class="num hide-sm" title="Percobaan membuka Inspect Element, Developer Tools, atau View Source lewat tombol pintas">Inspect</th><th>Status</th><th class="act"></th>' +
       '</tr></thead><tbody>' + rows.map((r) =>
         '<tr data-id="' + r.student_id + '"' + (r.is_active ? '' : ' class="off"') + '>' +
         '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + '</span></div></div></td>' +
@@ -1018,7 +1020,8 @@
         '<td class="num hide-sm">' + r.answered + '</td>' +
         '<td class="num hide-sm">' + n(r.logins, 2, 3) + '</td>' +
         '<td class="num hide-sm">' + n(r.hidden, 3, 6) + '</td>' +
-        '<td class="num hide-sm">' + n(r.paste, 1, 3) + '</td>' +
+        '<td class="num hide-sm">' + n((r.paste || 0) + (r.copy || 0), 1, 3) + '</td>' +
+        '<td class="num hide-sm">' + n(r.devtools || 0, 1, 2) + '</td>' +
         '<td>' + (r.is_active ? '' : '<span class="pill warn">Nonaktif</span> ') + (r.locked ? '<span class="pill danger">Terkunci</span> ' : '') + status(r) + '</td>' +
         '<td class="act">' +
           (r.locked ? '<button class="btn btn-sm" data-a="unlock">Buka kunci</button> ' : '') +
@@ -1750,13 +1753,14 @@
             '<div class="qb-key">Tandai pernyataan ini benar atau salah.</div>';
         } else if (q.type === 'short') {
           body += '<textarea class="textarea code" rows="2" data-i="' + i + '" data-f="accept" placeholder="Jawaban yang diterima, satu per baris" style="margin-top:8px">' + h(q.acceptText || '') + '</textarea>' +
-            '<div class="qb-key">Huruf besar-kecil dan spasi berlebih tidak dibedakan. Kosongkan bila ingin dinilai sendiri.</div>';
+            '<div class="qb-key">Huruf besar-kecil dan spasi berlebih tidak dibedakan. Kosongkan bila ingin dinilai sendiri.</div>' + '<label class="qb-paste"><input type="checkbox" data-i="' + i + '" data-f="paste"' + (q.paste ? ' checked' : '') + '> Izinkan murid menempel (paste) jawaban</label>';
         } else if (q.type === 'image') {
           body += '<label class="qb-pts" style="margin-top:8px">Maksimal <input class="input" type="number" min="1" max="10" data-i="' + i + '" data-f="max" value="' + (q.max ?? 5) + '"> gambar</label>' +
             '<div class="qb-key">Murid mengunggah screenshot sebagai bukti (pilih file, tempel dengan Ctrl+V, atau seret). Gambar disimpan di server gambar Nextcloud. Dinilai guru.' +
             (IMAGE_UPLOAD_BASE ? '' : ' <strong>IMAGE_UPLOAD_BASE di config.js masih kosong, jadi murid belum bisa mengunggah.</strong>') + '</div>';
         } else {
-          body += '<div class="qb-key">' + ({ essay: 'Murid menulis jawaban panjang. Dinilai guru.', code: 'Kotak teks kode (huruf rata, tombol Tab berfungsi). Dinilai guru; kemiripan dengan kode acuan ikut dihitung.', github: 'Murid menempelkan link repository. Dipakai menu Kode & GitHub. Dinilai guru.' })[q.type] + '</div>';
+          body += '<div class="qb-key">' + ({ essay: 'Murid menulis jawaban panjang. Dinilai guru.', code: 'Kotak teks kode (huruf rata, tombol Tab berfungsi). Dinilai guru; kemiripan dengan kode acuan ikut dihitung.', github: 'Murid menempelkan link repository. Dipakai menu Kode & GitHub. Dinilai guru.' })[q.type] + '</div>' +
+            (q.type === 'essay' || q.type === 'code' ? '<label class="qb-paste"><input type="checkbox" data-i="' + i + '" data-f="paste"' + (q.paste ? ' checked' : '') + '> Izinkan murid menempel (paste) jawaban</label>' : '');
         }
         return '<div class="qb"><div class="qb-top"><span class="qb-no">' + (i + 1) + '</span>' +
           '<select class="select" data-i="' + i + '" data-f="type">' + Object.entries(QTYPES).map(([k, v]) => '<option value="' + k + '"' + (k === q.type ? ' selected' : '') + '>' + v + '</option>').join('') + '</select>' +
@@ -1781,6 +1785,7 @@
     $('qbList').addEventListener('change', (e) => {
       const t = e.target, i = +t.dataset.i, f = t.dataset.f; if (!f || isNaN(i)) return;
       const q = QS[i];
+      if (f === 'paste') { q.paste = t.checked; return; }
       if (f === 'key') {
         const k = +t.dataset.k;
         if (q.type === 'multi') { q.correct = (q.correct || []).filter((x) => x !== k); if (t.checked) q.correct.push(k); q.correct.sort(); }
@@ -1866,6 +1871,7 @@
         if (q.type === 'tf') o.correct = q.correct;
         if (q.type === 'short') o.accept = String(q.acceptText || '').split('\n').map((x) => x.trim()).filter(Boolean);
         if (q.type === 'image') o.max = Math.min(10, Math.max(1, Number(q.max) || 5));
+        if (q.type === 'essay' || q.type === 'code' || q.type === 'short') o.paste = !!q.paste;
         return o;
       });
       const id = await run('t_save_step', {

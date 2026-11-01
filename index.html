@@ -298,6 +298,21 @@
   }
   @media (prefers-color-scheme: dark){ .prose pre{border:1px solid var(--line)} }
   .prose pre code{background:none; border:0; padding:0; color:inherit; font-size:inherit}
+  /* kode digambar di canvas: tidak ada teksnya di halaman, tidak bisa diblok atau disalin */
+  .prose pre.cv{overflow:hidden}
+  .prose pre.cv canvas{display:block}
+  .prose code.cv{display:inline-block; vertical-align:-0.28em; line-height:0; padding:3px 6px}
+  .prose code.cv canvas{display:inline-block}
+  /* isi lembar kerja tidak bisa diblok/disalin; kolom jawaban tetap bisa */
+  #slide, #slide *{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+  #slide input, #slide textarea{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
+  #slide img{-webkit-user-drag:none; user-drag:none}
+  .q-guard{font-size:12.5px; color:var(--muted); margin:8px 0 0; display:flex; gap:6px; align-items:center}
+  .q-guard.hit{color:var(--danger); font-weight:600}
+  @media print{
+    body > *{display:none !important}
+    body::before{content:"Lembar kerja tidak bisa dicetak."; display:block; padding:40px; font:600 16pt sans-serif}
+  }
 
   /* gambar */
   .shot{
@@ -785,10 +800,14 @@
   function esc(s) {
     return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   }
+  // teks kode disimpan di memori, bukan di halaman; ditampilkan sebagai gambar canvas
+  const CODE = new Map(); let codeSeq = 0;
+  const unesc = (t) => t.replace(/&(amp|lt|gt|quot);/g, (m, k) => ({ amp: '&', lt: '<', gt: '>', quot: '"' }[k]));
+  const stash = (t) => { const k = ++codeSeq; CODE.set(k, unesc(t)); return k; };
   function inline(t) {
     // `kode` dulu agar isinya tidak ikut diformat; lalu **tebal**, lalu *miring*
     return t.split(/(`[^`\n]+`)/).map((part, i) => i % 2
-      ? '<code>' + part.slice(1, -1) + '</code>'
+      ? '<code class="cv" role="img" aria-label="kode" data-k="' + stash(part.slice(1, -1)) + '"></code>'
       : part.replace(/\*\*(?!\s)([^*\n]+?)\*\*/g, '<strong>$1</strong>')
             .replace(/(^|[^*\w])\*(?![\s*])([^*\n]+?)\*(?![*\w])/g, (m, pre, txt) => (/\s$/.test(txt) ? m : pre + '<em>' + txt + '</em>'))
     ).join('');
@@ -821,10 +840,54 @@
     return parts.map((p, i) => {
       if (i % 2) {
         const code = p.replace(/^[A-Za-z0-9+#-]*\n/, '').replace(/\n$/, '');
-        return '<pre><code>' + code + '</code></pre>';
+        return '<pre class="cv" role="img" aria-label="Potongan kode" data-k="' + stash(code) + '"></pre>';
       }
       return blocks(p);
     }).join('');
+  }
+
+  function paintCode(root) {
+    (root || document).querySelectorAll('.cv[data-k]').forEach((box) => {
+      const txt = (CODE.get(+box.dataset.k) || '').replace(/\t/g, '  ');
+      const cs = getComputedStyle(box), block = box.tagName === 'PRE';
+      const size = parseFloat(cs.fontSize) * (block ? 1 : 0.86) || 14;
+      const font = '500 ' + size + 'px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+      const dpr = window.devicePixelRatio || 1;
+      let cv = box.querySelector('canvas');
+      if (!cv) { cv = document.createElement('canvas'); box.appendChild(cv); }
+      const g = cv.getContext('2d'); g.font = font;
+      const cw = g.measureText('M').width, lh = Math.round(size * 1.6);
+      let lines;
+      if (block) {
+        const avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const cols = Math.max(10, Math.floor(avail / cw));
+        lines = [];
+        txt.split('\n').forEach((l) => { if (!l.length) lines.push(''); for (let i = 0; i < l.length; i += cols) lines.push(l.slice(i, i + cols)); });
+      } else lines = [txt];
+      const w = Math.ceil(block ? Math.max(...lines.map((l) => g.measureText(l).width), 1) : g.measureText(txt).width) + 1;
+      const hgt = block ? lines.length * lh : Math.round(size * 1.35);
+      cv.width = Math.round(w * dpr); cv.height = Math.round(hgt * dpr);
+      cv.style.width = w + 'px'; cv.style.height = hgt + 'px';
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.font = font; g.fillStyle = cs.color; g.textBaseline = 'middle';
+      lines.forEach((l, i) => g.fillText(l, 0, block ? i * lh + lh / 2 : hgt / 2 + 0.5));
+    });
+  }
+  let paintT = null;
+  const repaint = () => { clearTimeout(paintT); paintT = setTimeout(() => paintCode($('page')), 120); };
+  window.addEventListener('resize', repaint);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', repaint);
+  if (document.fonts) document.fonts.ready.then(repaint);
+
+  // teks soal dari server disamarkan dengan token sesi (lihat _veil di schema.sql)
+  function unveil(t) {
+    if (!t) return '';
+    try {
+      const key = (token || '').replace(/-/g, '').match(/../g).map((x) => parseInt(x, 16));
+      const bin = atob(t), b = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i) ^ key[i % 16];
+      return new TextDecoder().decode(b);
+    } catch { return ''; }
   }
 
   function logout(msg) {
@@ -947,6 +1010,13 @@
   }
 
   function render(s) {
+    if (s.veiled) {
+      s = Object.assign({}, s, {
+        veiled: false, instruction: unveil(s.instruction),
+        questions: (s.questions || []).map((q) => Object.assign({}, q, { prompt: unveil(q.prompt), options: (q.options || []).map(unveil) })),
+      });
+    }
+    CODE.clear();
     $('avatar').textContent = initials(who.name);
     $('whoName').textContent = who.name;
     $('whoClass').textContent = who.cls + (s.worksheet ? ', ' + s.worksheet : '');
@@ -998,6 +1068,8 @@
     $('answerWrap').hidden = !qs.length;
     $('answerTitle').textContent = qs.length > 1 ? qs.length + ' pertanyaan' : 'Jawabanmu';
     renderQuestions(qs, prev);
+    paintCode($('page'));
+    if (document.fonts) document.fonts.load('500 14px "JetBrains Mono"').then(() => paintCode($('page')), () => {});
     lastSaved = JSON.stringify(collect());
     setSave(Object.keys(prev).length ? 'saved-prev' : '');
     lastFlushAt = 0;
@@ -1121,6 +1193,7 @@
         inp.placeholder = q.type === 'github' ? 'https://github.com/namamu/nama-repository' : 'Jawaban singkat';
         inp.value = typeof v === 'string' ? v : '';
         card.appendChild(inp);
+        if (q.type === 'short' && !q.paste) guardNote(card);
         if (q.type === 'github') { const hp = el('div', 'repo-help', REPO_HELP); card.appendChild(hp); checkRepo(inp); }
       } else if (q.type === 'image') {
         card.dataset.urls = JSON.stringify(Array.isArray(v) ? v : []);
@@ -1149,9 +1222,23 @@
         ta.placeholder = q.type === 'code' ? 'Tulis kodemu di sini…' : 'Tulis jawabanmu di sini…';
         ta.value = typeof v === 'string' ? v : '';
         card.appendChild(ta);
+        if (!q.paste) guardNote(card);
       }
       box.appendChild(card);
     });
+  }
+  function guardNote(card) {
+    card.dataset.nopaste = '1';
+    card.appendChild(el('p', 'q-guard', 'Ketik sendiri. Menempel (paste) dimatikan untuk pertanyaan ini.'));
+  }
+  function blockPaste(e) {
+    const card = e.target.closest && e.target.closest('.q[data-nopaste]');
+    if (!card || !e.target.closest('input, textarea')) return false;
+    e.preventDefault();
+    const n = card.querySelector('.q-guard');
+    n.classList.add('hit'); n.textContent = 'Tempel tidak diizinkan. Ketik jawabanmu sendiri.';
+    clearTimeout(n._t); n._t = setTimeout(() => { n.classList.remove('hit'); n.textContent = 'Ketik sendiri. Menempel (paste) dimatikan untuk pertanyaan ini.'; }, 4000);
+    return true;
   }
   function checkRepo(inp) {
     const h = inp.parentElement && inp.parentElement.querySelector('.repo-help'); if (!h) return;
@@ -1262,7 +1349,12 @@
   const markDirty = () => { if (JSON.stringify(collect()) !== lastSaved) setSave('dirty'); };
   $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); markDirty(); });
   $('qlist').addEventListener('change', markDirty);
-  $('qlist').addEventListener('paste', () => logEv('paste'));
+  $('qlist').addEventListener('paste', (e) => { logEv('paste'); blockPaste(e); });
+  $('qlist').addEventListener('drop', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('text/plain')) { if (blockPaste(e)) logEv('paste'); } });
+  // cadangan untuk tempel dari menu klik kanan / papan klip keyboard HP
+  $('qlist').addEventListener('beforeinput', (e) => {
+    if (/^insertFrom(Paste|Drop|PasteAsQuotation)$/.test(e.inputType) && blockPaste(e)) logEv('paste');
+  });
   // Tab di kolom kode menyisipkan 2 spasi
   $('qlist').addEventListener('keydown', (e) => {
     if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
@@ -1370,6 +1462,30 @@
     if ($('zoom').classList.contains('on')) closeZoom();
     else closeConfirm();
   });
+
+  /* ---------- perlindungan isi lembar kerja ----------
+     Mencegah blok/salin, klik kanan, seret, cetak, dan pintasan view-source / inspect.
+     Ini hanya mempersulit: browser tetap milik murid. Percobaan dicatat untuk guru. */
+  const onSlide = () => $('slide').classList.contains('active');
+  const inField = (t) => !!(t && t.closest && t.closest('input, textarea'));
+  let warnAt = 0;
+  const warnCopy = (msg) => { if (Date.now() - warnAt > 4000) { warnAt = Date.now(); toast(msg, 'warn', '#i-lock', 3500); } };
+  ['copy', 'cut'].forEach((ev) => document.addEventListener(ev, (e) => {
+    if (!onSlide() || inField(e.target)) return;
+    e.preventDefault(); logEv('copy'); warnCopy('Isi lembar kerja tidak bisa disalin. Ketik sendiri, ya.');
+  }));
+  document.addEventListener('contextmenu', (e) => { if (onSlide() && !inField(e.target)) e.preventDefault(); });
+  document.addEventListener('selectstart', (e) => { if (onSlide() && !inField(e.target)) e.preventDefault(); });
+  document.addEventListener('dragstart', (e) => { if (onSlide()) e.preventDefault(); });
+  document.addEventListener('keydown', (e) => {
+    if (!onSlide()) return;
+    const k = (e.key || '').toLowerCase(), mod = e.ctrlKey || e.metaKey;
+    const tools = e.key === 'F12' || (mod && e.shiftKey && ['i', 'j', 'c', 'k'].includes(k)) || (e.metaKey && e.altKey && ['i', 'j', 'c', 'u'].includes(k)) || (mod && !e.shiftKey && k === 'u');
+    if (tools) { e.preventDefault(); logEv('devtools'); warnCopy('Fitur itu dimatikan selama mengerjakan lembar kerja.'); return; }
+    if (mod && !e.shiftKey && (k === 's' || k === 'p')) { e.preventDefault(); return; }
+    if (mod && !e.shiftKey && k === 'a' && !inField(e.target)) e.preventDefault();
+  }, true);
+  window.addEventListener('beforeprint', () => { if (onSlide()) logEv('copy'); });
 
   /* ---------- catat aktivitas (hanya dicatat, tidak dilarang) ---------- */
   function logEv(type) {
