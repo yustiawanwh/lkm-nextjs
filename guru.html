@@ -1510,9 +1510,14 @@
       $('sTable').innerHTML = '<div class="empty">' + (S.students.length ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid</strong>Tambahkan satu per satu, atau impor dari file CSV.') + '</div>';
       return;
     }
-    $('sTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th><th>Kelas</th><th>Status</th><th class="act"></th></tr></thead><tbody>' +
+    const dobText = (d) => { if (!d) return ''; const [y, m, dd] = d.split('-'); return dd + '-' + m + '-' + y; };
+    $('sTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th><th>Kelas</th><th>Tanggal lahir</th><th>Status</th><th class="act"></th></tr></thead><tbody>' +
       rows.map((r) => '<tr data-id="' + r.id + '"' + (r.is_active ? '' : ' class="off"') + '><td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong></div></div></td>' +
-        '<td>' + h(r.class) + '</td><td>' + (!r.is_active ? '<span class="pill warn">Nonaktif</span>' : r.locked ? '<span class="pill danger">Terkunci</span>' : '<span class="pill ok">Aktif</span>') + '</td>' +
+        '<td>' + h(r.class) + '</td>' +
+        '<td style="white-space:nowrap">' + (r.dob ? '<span style="font-variant-numeric:tabular-nums">' + dobText(r.dob) + '</span>'
+          : '<span class="muted" style="font-size:13px" title="Terisi otomatis saat murid ini berhasil masuk, atau klik Ubah">Belum tercatat</span>') +
+        ' <button class="btn btn-ghost btn-sm" data-a="dob" title="Ubah tanggal lahir (kata sandi ikut berubah)">Ubah</button></td>' +
+        '<td>' + (!r.is_active ? '<span class="pill warn">Nonaktif</span>' : r.locked ? '<span class="pill danger">Terkunci</span>' : '<span class="pill ok">Aktif</span>') + '</td>' +
         '<td class="act">' + (r.locked ? '<button class="btn btn-sm" data-a="unlock">Buka kunci</button> ' : '') +
         (r.is_active ? '<button class="btn btn-ghost btn-sm" data-a="off">Nonaktifkan</button> ' : '<button class="btn btn-sm" data-a="on">Aktifkan</button> ') +
         '<button class="btn btn-danger btn-sm btn-icon" data-a="del" aria-label="Hapus ' + h(r.name) + '"><svg><use href="#i-trash"/></svg></button></td></tr>').join('') +
@@ -1520,6 +1525,21 @@
     $('sTable').querySelectorAll('button[data-a]').forEach((b) => (b.onclick = async () => {
       const r = S.students.find((x) => x.id === b.closest('tr').dataset.id);
       if (b.dataset.a === 'unlock') await run('t_unlock', { p_id: r.id }, 'Akun ' + r.name + ' dibuka.').catch(() => {});
+      if (b.dataset.a === 'dob') {
+        const ok = await new Promise((res) => {
+          modalResolve = res;
+          const box = openModal('<h2>Tanggal lahir ' + h(r.name) + '</h2><p class="sub">Tanggal lahir adalah kata sandi murid. Mengubahnya berarti kata sandi ' + h(r.name) + ' ikut berubah, dan kuncian akunnya dibuka.</p>' +
+            '<div class="field"><label class="lbl" for="dobVal">Tanggal lahir</label><input class="input" id="dobVal" type="date" max="' + new Date().toISOString().slice(0, 10) + '" value="' + (r.dob || '') + '"></div>' +
+            '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Simpan</button></div>');
+          box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+          box.querySelector('[data-x="yes"]').onclick = async () => {
+            const v = $('dobVal').value; if (!v) { toast('Pilih tanggal lahir.', 'err'); return; }
+            const done = await run('t_set_dob', { p_id: r.id, p_dob: v }, 'Tanggal lahir ' + r.name + ' disimpan. Kata sandi barunya ' + v.split('-').reverse().join('') + '.').then(() => true).catch(() => false);
+            if (done) closeModal(true);
+          };
+        });
+        if (!ok) return;
+      }
       if (b.dataset.a === 'off') {
         if (!(await confirmBox('Nonaktifkan ' + r.name + '?', r.name + ' tidak bisa masuk dan langsung dikeluarkan dari lembar kerja yang sedang dikerjakan. Data, jawaban, dan nilainya tetap tersimpan. Bisa diaktifkan lagi kapan saja.', 'Nonaktifkan', true))) return;
         await run('t_set_student_active', { p_id: r.id, p_active: false }, r.name + ' dinonaktifkan.').catch(() => {});
@@ -1537,7 +1557,7 @@
 
   $('sAdd').onclick = () => {
     const cls = S.overview.classes.map((c) => c.class);
-    const box = openModal('<h2>Tambah murid</h2><p class="sub">Tanggal lahir menjadi kata sandi murid (format ddmmyyyy saat masuk). Yang disimpan hanya hash-nya.</p>' +
+    const box = openModal('<h2>Tambah murid</h2><p class="sub">Tanggal lahir menjadi kata sandi murid (format ddmmyyyy saat masuk). Hanya guru yang bisa melihatnya.</p>' +
       '<div class="field"><label class="lbl" for="naName">Nama lengkap</label><input class="input" id="naName" autofocus></div>' +
       '<div class="field"><label class="lbl" for="naClass">Kelas</label><input class="input" id="naClass" list="naClasses" value="' + h(S.filters.sClass) + '"><datalist id="naClasses">' + cls.map((c) => '<option value="' + h(c) + '">').join('') + '</datalist>' +
       '<div class="help">Tulis kelas dengan cara yang sama untuk semua murid, misalnya XI RPL 1.</div></div>' +
