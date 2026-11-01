@@ -437,6 +437,8 @@
   @keyframes draw{to{stroke-dashoffset:0}}
   .done-card h1{font-size:26px; letter-spacing:-.02em; margin:0 0 8px; font-weight:800}
   .done-card p{margin:0; color:var(--muted)}
+  .done-next{margin-top:22px; width:100%}
+  .done-card .done-hint{margin-top:10px; font-size:13px}
   .done-who{
     margin-top:24px !important; padding:12px 16px; border-radius:12px; background:var(--surface-2);
     color:var(--ink-2) !important; font-size:14px; font-weight:600;
@@ -637,6 +639,7 @@
     <h1>Lembar kerja ditutup guru</h1>
     <p>Kamu tidak bisa mengerjakan untuk sementara. Jawaban yang sudah tersimpan tetap aman. Halaman ini lanjut sendiri bila guru membukanya lagi.</p>
     <p class="done-who" id="closedWho"></p>
+    <button class="btn btn-ghost done-next" type="button" data-relogin>Masuk dengan kode lain</button>
   </div>
 </section>
 
@@ -647,6 +650,8 @@
     <h1>Lembar kerja selesai</h1>
     <p>Semua jawabanmu sudah tersimpan. Kamu boleh menutup halaman ini.</p>
     <p class="done-who" id="doneWho"></p>
+    <button class="btn btn-primary done-next" type="button" data-relogin>Kerjakan lembar kerja lain</button>
+    <p class="done-hint">Minta kode lembar kerja berikutnya dari guru.</p>
   </div>
 </section>
 
@@ -890,6 +895,15 @@
     } catch { return ''; }
   }
 
+  // dari layar selesai / ditutup: kembali ke layar masuk untuk lembar kerja lain (nama & kelas diisi ulang)
+  document.querySelectorAll('[data-relogin]').forEach((b) => b.addEventListener('click', () => {
+    const w = who;
+    logout('');
+    $('fName').value = (w && w.name) || ''; $('fClass').value = (w && w.cls) || '';
+    $('fPass').value = ''; $('fCode').value = '';
+    $('fPass').focus();
+  }));
+
   function logout(msg) {
     store.clear();
     token = null; cur = null; busy = false; syncing = false;
@@ -996,6 +1010,8 @@
       $('lock').classList.remove('on');
       setNet(true);
       $('doneWho').textContent = (who.name ? who.name + ', ' + who.cls : '') + (s.worksheet ? '. ' + s.worksheet : '');
+      // sesi lembar kerja ini sudah selesai: lupakan tokennya agar memuat ulang halaman kembali ke layar masuk
+      store.clear();
       show('done');
       return;
     }
