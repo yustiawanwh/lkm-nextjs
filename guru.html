@@ -158,6 +158,22 @@
   .who{display:flex; align-items:center; gap:10px; min-width:170px}
   .who strong{display:block; font-weight:700; font-size:14px}
   .who span{font-size:12.5px; color:var(--muted)}
+  /* freeze pane: kolom pertama dan baris judul tetap; scrollbar mendatar selalu di bawah layar */
+  .freeze{overscroll-behavior:contain; scrollbar-gutter:stable}
+  .freeze .tbl th:first-child, .freeze .tbl td:first-child{position:sticky; left:0; z-index:2; background:var(--surface)}
+  .freeze .tbl th{box-shadow:inset 0 -1px 0 var(--line)}
+  .freeze .tbl th:first-child{z-index:3}
+  .freeze .tbl tbody tr:hover td:first-child{background:color-mix(in srgb, var(--surface-2) 55%, var(--surface))}
+  .freeze .tbl tr.grp td:first-child{background:var(--surface-2)}
+  .freeze .tbl td:first-child .who{max-width:260px}
+  .freeze.scrolled .tbl td:first-child{box-shadow:inset -1px 0 0 var(--line), 8px 0 10px -8px rgba(15,20,40,.28)}
+  .freeze.scrolled .tbl th:first-child{box-shadow:inset -1px 0 0 var(--line), inset 0 -1px 0 var(--line), 8px 0 10px -8px rgba(15,20,40,.28)}
+  .freeze > .notice{position:sticky; left:12px; max-width:calc(100% - 24px)}
+  .freeze::-webkit-scrollbar{height:14px; width:12px}
+  .freeze::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--muted) 45%, transparent); border-radius:8px; border:3px solid var(--surface)}
+  .freeze::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+  .freeze::-webkit-scrollbar-track{background:var(--surface)}
+  .freeze::-webkit-scrollbar-corner{background:var(--surface)}
   .flag{color:var(--warn); font-weight:800}
   .flag-hi{color:var(--danger); font-weight:800}
   .time{font-variant-numeric:tabular-nums; font-weight:700}
@@ -380,6 +396,8 @@
   .repo-link:hover{text-decoration:underline}
   .gh-row-err{color:var(--danger); font-size:12.5px}
   tr.off td{opacity:.6}
+  .freeze tr.off td:first-child{opacity:1}
+  .freeze tr.off td:first-child > *{opacity:.6}
 
   /* proyektor */
   #projector{position:fixed; inset:0; z-index:95; background:#1A2FB8; color:#fff; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px}
@@ -557,7 +575,7 @@
         <span class="stamp" id="mStamp"></span>
         <button class="btn btn-ghost" id="mPause" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>Istirahat</button>
       </div>
-      <div class="panel table-wrap" id="mTable"></div>
+      <div class="panel table-wrap freeze" id="mTable"></div>
     </section>
 
     <!-- HASIL -->
@@ -578,7 +596,7 @@
         <button class="btn btn-ghost" id="rCsv" title="Unduh CSV"><svg><use href="#i-download"/></svg>CSV</button>
         <button class="btn" id="rPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>Cetak PDF</button>
       </div>
-      <div class="panel table-wrap" id="rTable"></div>
+      <div class="panel table-wrap freeze" id="rTable"></div>
     </section>
 
     <!-- LEMBAR KERJA -->
@@ -601,7 +619,7 @@
         <button class="btn btn-ghost" id="sImport"><svg><use href="#i-download"/></svg>Impor CSV</button>
         <button class="btn btn-primary" id="sAdd"><svg><use href="#i-plus"/></svg>Tambah murid</button>
       </div>
-      <div class="panel table-wrap" id="sTable"></div>
+      <div class="panel table-wrap freeze" id="sTable"></div>
     </section>
 
     <!-- KODE & GITHUB -->
@@ -615,7 +633,7 @@
         <button class="btn btn-ghost" id="ghToken"><svg><use href="#i-key"/></svg><span id="ghTokenLbl">Token GitHub</span></button>
         <button class="btn btn-primary" id="ghFetch"><svg><use href="#i-download"/></svg>Ambil data GitHub</button>
       </div>
-      <div class="panel table-wrap" id="gTable"></div>
+      <div class="panel table-wrap freeze" id="gTable"></div>
     </section>
 
     <!-- TAYANGKAN -->
@@ -918,6 +936,27 @@
     $('wsBadge').innerHTML = cur ? (cur.is_active ? '<span class="pill ok">Dibuka untuk murid</span>' : '<span class="pill">Ditutup</span>') : '';
     go(S.view);
   });
+
+  /* ---------- tabel freeze pane ----------
+     Tinggi tabel dibuat pas sampai bawah layar, jadi scrollbar mendatar selalu terlihat
+     dan menggulir tabel tidak menggulir halaman. */
+  function fitTables() {
+    document.querySelectorAll('.freeze').forEach((el) => {
+      if (!el.offsetParent) return;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      el.style.maxHeight = Math.max(320, window.innerHeight - top - 20) + 'px';
+      el.classList.toggle('scrolled', el.scrollLeft > 2);
+    });
+  }
+  let fitRaf = 0;
+  const fitSoon = () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitTables); };
+  window.addEventListener('resize', fitSoon);
+  document.addEventListener('scroll', (e) => { const t = e.target; if (t.classList && t.classList.contains('freeze')) t.classList.toggle('scrolled', t.scrollLeft > 2); }, true);
+  // isi di atas tabel (ringkasan, toolbar yang melipat) bisa berubah tinggi
+  const fitObs = new ResizeObserver(fitSoon);
+  document.querySelectorAll('.main .head, .main section[data-v] > :not(.freeze)').forEach((x) => fitObs.observe(x));
+  new MutationObserver(fitSoon).observe(document.querySelector('.main'), { childList: true, subtree: false, attributes: true, attributeFilter: ['hidden'], });
+  document.querySelectorAll('.main section[data-v]').forEach((x) => new MutationObserver(fitSoon).observe(x, { attributes: true, attributeFilter: ['hidden'] }));
 
   /* ---------- navigasi ---------- */
   const TITLES = { monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub' };
