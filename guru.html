@@ -204,9 +204,19 @@
   .ws-item[aria-current="true"]{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
   .ws-item strong{font-size:14.5px; line-height:1.35}
   .ws-item .meta{display:flex; gap:8px; align-items:center; font-size:12.5px; color:var(--muted); flex-wrap:wrap}
+  .ws-group{display:grid; gap:8px}
+  .ws-group + .ws-group{margin-top:6px}
+  .ws-ghead{display:flex; align-items:center; gap:8px; width:100%; padding:8px 6px 4px; border:0; background:none; color:var(--ink); font:800 13px var(--sans); letter-spacing:.04em; text-transform:uppercase; cursor:pointer; text-align:left}
+  .ws-ghead .chev{width:16px; height:16px; color:var(--muted); transition:transform .15s; flex:none}
+  .ws-ghead[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+  .ws-ghead .cnt{margin-left:auto; font:600 12px var(--sans); letter-spacing:0; text-transform:none; color:var(--muted)}
+  .ws-ghead .cnt b{color:var(--ok); font-weight:700}
+  .ws-gbody{display:grid; gap:8px; padding-left:10px; border-left:2px solid var(--line); margin-left:8px}
+  .ws-gbody[hidden]{display:none}
   .ws-editor{padding:22px}
   .ws-top{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:18px}
   .ws-top .field{flex:1; min-width:240px; margin:0}
+  .ws-top .field.ws-day{flex:0 0 150px; min-width:120px}
   .ws-top .input{height:46px; font-size:17px; font-weight:700}
   .switch{display:flex; align-items:center; gap:10px; height:46px; padding:0 14px; border-radius:12px; border:1.5px solid var(--line); cursor:pointer; font-weight:600; font-size:14px}
   .switch input{appearance:none; width:38px; height:22px; border-radius:99px; background:var(--line); position:relative; margin:0; cursor:pointer; transition:background-color .2s}
@@ -397,6 +407,7 @@
 
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
+  .gh-from{max-width:200px; min-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   /* kolom rata-rata selalu terlihat di kanan */
   .tbl .gh-avg{position:sticky; right:0; z-index:2; background:var(--surface); box-shadow:inset 1px 0 0 var(--line), -8px 0 10px -8px rgba(15,20,40,.28); min-width:170px}
   .tbl th.gh-avg{z-index:3; color:var(--ink)}
@@ -651,6 +662,7 @@
       <div class="toolbar">
         <select class="select" id="gClass" aria-label="Filter kelas"></select>
         <input class="input" id="gSearch" type="search" placeholder="Cari nama…" aria-label="Cari nama">
+        <select class="select" id="ghSrc" aria-label="Sumber link repository" title="Dari mana link repository GitHub murid diambil"></select>
         <span class="spacer"></span>
         <span class="stamp" id="ghRate"></span>
         <button class="btn btn-ghost" id="ghToken"><svg><use href="#i-key"/></svg><span id="ghTokenLbl">Token GitHub</span></button>
@@ -957,7 +969,7 @@
     if (!ws.find((w) => w.id === S.ws)) S.ws = (ws.find((w) => w.is_active) || ws[0] || {}).id || null;
     ss.set('g_ws', S.ws);
     $('wsSel').innerHTML = ws.length
-      ? ws.map((w) => '<option value="' + w.id + '"' + (w.id === S.ws ? ' selected' : '') + '>' + h(w.title) + (w.is_active ? '  (dibuka)' : '') + '</option>').join('')
+      ? wsOptions(ws, S.ws, (w) => (w.is_active ? '  (dibuka)' : ''))
       : '<option value="">Belum ada lembar kerja</option>';
     const cur = ws.find((w) => w.id === S.ws);
     $('wsBadge').innerHTML = cur ? (cur.is_active ? '<span class="pill ok">Dibuka untuk murid</span>' : '<span class="pill">Ditutup</span>') : '';
@@ -1686,14 +1698,45 @@
     renderSheetList();
     await loadSteps();
   }
+  // ----- pengelompokan per hari -----
+  const wsColl = new Intl.Collator('id', { numeric: true, sensitivity: 'base' });
+  const dayOf = (w) => String(w.day || '').trim();
+  // judul tanpa awalan hari ("Senin1, Misi 1 - Buka Toko" -> "Misi 1 - Buka Toko")
+  const shortTitle = (w) => { const d = dayOf(w); if (!d || !w.title.toLowerCase().startsWith(d.toLowerCase())) return w.title; return w.title.slice(d.length).replace(/^\s*[,\-–:]\s*/, '') || w.title; };
+  function wsGroups(list) {
+    const m = new Map();
+    list.forEach((w) => { const d = dayOf(w); if (!m.has(d)) m.set(d, []); m.get(d).push(w); });
+    const groups = [...m.entries()].map(([day, items]) => ({ day, items: items.sort((a, b) => wsColl.compare(shortTitle(a), shortTitle(b))), last: Math.max(...items.map((w) => new Date(w.created_at).getTime() || 0)) }));
+    // hari terbaru di atas; "tanpa hari" paling bawah
+    return groups.sort((a, b) => (!a.day) - (!b.day) || b.last - a.last || wsColl.compare(a.day, b.day));
+  }
+  const dayName = (d) => d || 'Tanpa hari';
+  function wsOptions(list, selected, extra) {
+    return wsGroups(list).map((g) => '<optgroup label="' + h(dayName(g.day)) + '">' +
+      g.items.map((w) => '<option value="' + w.id + '"' + (w.id === selected ? ' selected' : '') + '>' + h(w.title) + (extra ? extra(w) : '') + '</option>').join('') + '</optgroup>').join('');
+  }
+  const foldGet = () => { try { return JSON.parse(localStorage.getItem('lkm_wsfold') || '{}'); } catch { return {}; } };
+  const foldSet = (o) => { try { localStorage.setItem('lkm_wsfold', JSON.stringify(o)); } catch {} };
   function renderSheetList() {
-    const ws = S.overview.worksheets;
-    $('wsList').innerHTML = ws.length ? ws.map((w) =>
-      '<button class="ws-item" data-id="' + w.id + '" aria-current="' + (w.id === edWs) + '"><strong>' + h(w.title) + '</strong>' +
+    const ws = S.overview.worksheets, fold = foldGet();
+    const item = (w) =>
+      '<button class="ws-item" data-id="' + w.id + '" aria-current="' + (w.id === edWs) + '"><strong>' + h(shortTitle(w)) + '</strong>' +
       '<span class="meta">' + (w.is_active ? '<span class="pill ok">Dibuka</span>' : '<span class="pill">Ditutup</span>') + (pauseInfo(w).active ? '<span class="pill run">Istirahat</span>' : pauseInfo(w).scheduled ? '<span class="pill plain">Istirahat ' + clock(w.paused_at) + '</span>' : '') +
-      w.steps + ' langkah, ' + Math.round(w.minutes) + ' menit</span></button>').join('')
-      : '<p class="muted" style="padding:6px">Belum ada lembar kerja.</p>';
+      w.steps + ' langkah, ' + Math.round(w.minutes) + ' menit</span></button>';
+    $('wsList').innerHTML = ws.length ? wsGroups(ws).map((g) => {
+      const open = g.day in fold ? !fold[g.day] : (g.items.some((w) => w.id === edWs || w.is_active) || wsGroups(ws)[0].day === g.day);
+      const on = g.items.filter((w) => w.is_active).length;
+      return '<div class="ws-group"><button class="ws-ghead" data-day="' + h(g.day) + '" aria-expanded="' + open + '">' +
+        '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
+        h(dayName(g.day)) + '<span class="cnt">' + g.items.length + ' misi' + (on ? ', <b>' + on + ' dibuka</b>' : '') + '</span></button>' +
+        '<div class="ws-gbody"' + (open ? '' : ' hidden') + '>' + g.items.map(item).join('') + '</div></div>';
+    }).join('') : '<p class="muted" style="padding:6px">Belum ada lembar kerja.</p>';
     $('wsList').querySelectorAll('.ws-item').forEach((b) => (b.onclick = async () => { edWs = b.dataset.id; renderSheetList(); await loadSteps(); }));
+    $('wsList').querySelectorAll('.ws-ghead').forEach((b) => (b.onclick = () => {
+      const open = b.getAttribute('aria-expanded') !== 'true', f = foldGet();
+      f[b.dataset.day] = !open; foldSet(f);
+      b.setAttribute('aria-expanded', String(open)); b.nextElementSibling.hidden = !open;
+    }));
   }
   async function loadSteps() {
     const el = $('wsEditor');
@@ -1706,7 +1749,9 @@
     const steps = S.steps.steps, live = S.steps.live;
     const total = steps.reduce((a, s) => a + s.duration_seconds, 0);
     $('wsEditor').innerHTML =
-      '<div class="ws-top"><div class="field"><label class="lbl" for="wsTitle">Judul lembar kerja</label><input class="input" id="wsTitle" value="' + h(w.title) + '"></div>' +
+      '<div class="ws-top"><div class="field ws-day"><label class="lbl" for="wsDay">Hari</label><input class="input" id="wsDay" list="wsDays" value="' + h(dayOf(w)) + '" placeholder="Senin1"></div>' +
+      '<div class="field"><label class="lbl" for="wsTitle">Judul lembar kerja</label><input class="input" id="wsTitle" value="' + h(w.title) + '"></div>' +
+      '<datalist id="wsDays">' + wsGroups(S.overview.worksheets).filter((g) => g.day).map((g) => '<option value="' + h(g.day) + '">').join('') + '</datalist>' +
       '<label class="switch"><input type="checkbox" id="wsActive"' + (w.is_active ? ' checked' : '') + '>Dibuka untuk murid</label></div>' +
       (live ? '<div class="notice"><svg><use href="#i-alert"/></svg><span>Ada murid yang sedang mengerjakan. Urutan dan penghapusan langkah dikunci sampai waktunya habis. Teks dan durasi masih bisa diubah, tetapi perubahan durasi hanya berlaku untuk langkah yang belum dibuka murid.</span></div>' : '') +
       '<div class="toolbar"><strong>' + steps.length + ' langkah</strong><span class="muted">total ' + durText(total) + '</span><span class="spacer"></span>' +
@@ -1729,6 +1774,15 @@
       '<div class="ws-foot"><span class="muted" style="font-size:13px">' + w.sessions + ' murid sudah pernah mengerjakan lembar ini.</span>' +
       '<button class="btn btn-danger btn-sm" id="wsDel"><svg><use href="#i-trash"/></svg>Hapus lembar kerja</button></div>';
 
+    $('wsDay').addEventListener('change', async () => {
+      const d = $('wsDay').value.trim(), old = dayOf(w);
+      // judul yang diawali nama hari lama ("Senin1, ...") ikut diganti agar tidak membingungkan
+      let title = w.title;
+      if (old && title.toLowerCase().startsWith(old.toLowerCase() + ',')) title = d ? d + title.slice(old.length) : shortTitle(w);
+      await run('t_save_worksheet', { p_id: w.id, p_title: title, p_day: d }, d ? 'Dipindah ke hari ' + d + '.' : 'Hari dikosongkan.').catch(() => {});
+      const f = foldGet(); if (d) { f[d] = false; foldSet(f); }
+      await refreshOverview(); renderSheetList(); renderEditor();
+    });
     $('wsTitle').addEventListener('change', async () => {
       const t = $('wsTitle').value.trim(); if (!t) { $('wsTitle').value = w.title; return; }
       await run('t_save_worksheet', { p_id: w.id, p_title: t }, 'Judul disimpan.').catch(() => {});
@@ -1771,11 +1825,16 @@
   }
   async function newSheet() {
     const box = openModal('<h2>Lembar kerja baru</h2><p class="sub">Langkah-langkahnya bisa ditambahkan setelah ini.</p>' +
-      '<div class="field"><label class="lbl" for="nwTitle">Judul</label><input class="input" id="nwTitle" placeholder="PjBL: Aplikasi Kalkulator" autofocus></div>' +
+      '<div class="field"><label class="lbl" for="nwDay">Hari</label><input class="input" id="nwDay" list="nwDays" placeholder="Senin1" value="' + h((wsGroups(S.overview.worksheets)[0] || {}).day || '') + '">' +
+      '<datalist id="nwDays">' + wsGroups(S.overview.worksheets).filter((g) => g.day).map((g) => '<option value="' + h(g.day) + '">').join('') + '</datalist>' +
+      '<div class="help">Pilih hari yang sudah ada atau ketik hari baru. Satu hari boleh berisi beberapa misi.</div></div>' +
+      '<div class="field"><label class="lbl" for="nwTitle">Judul</label><input class="input" id="nwTitle" placeholder="Misi 1 - Buka Toko" autofocus></div>' +
       '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Buat</button></div>');
     const submit = async () => {
       const t = $('nwTitle').value.trim(); if (!t) { $('nwTitle').focus(); return; }
-      const id = await run('t_save_worksheet', { p_id: null, p_title: t }, 'Lembar kerja dibuat.').catch(() => null);
+      const d = $('nwDay').value.trim();
+      const id = await run('t_save_worksheet', { p_id: null, p_title: t, p_day: d }, 'Lembar kerja dibuat.').catch(() => null);
+      if (id && d) { const f = foldGet(); f[d] = false; foldSet(f); }
       if (!id) return; closeModal(true); edWs = id; S.ws = id; ss.set('g_ws', id); await loadSheets();
     };
     box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
@@ -2152,7 +2211,7 @@
 
     const ws = S.overview.worksheets.filter((w) => w.steps > 0);
     const keep = $('oWs').value || S.ws;
-    $('oWs').innerHTML = ws.length ? ws.map((w) => '<option value="' + w.id + '"' + (w.id === keep ? ' selected' : '') + '>' + h(w.title) + (w.is_active ? '  (dibuka)' : '') + '</option>').join('')
+    $('oWs').innerHTML = ws.length ? wsOptions(ws, keep, (w) => (w.is_active ? '  (dibuka)' : ''))
       : '<option value="">Belum ada lembar kerja yang punya langkah</option>';
     const checked = new Set([...document.querySelectorAll('#oClasses input:checked')].map((i) => i.value));
     $('oClasses').innerHTML = S.overview.classes.length ? S.overview.classes.map((c) =>
@@ -2293,8 +2352,47 @@
       catch (e) { $('gTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     }
     if (!S.gh || S.gh.ws !== S.ws) S.gh = { ws: S.ws, byS: {} };
+    await loadRepoLinks();
     renderGithub();
   }
+  // link repo dari semua lembar kerja: student_id -> [{ws_id, title, url, session_id, step_id, at}], terbaru dulu
+  async function loadRepoLinks() {
+    try {
+      const list = await api('t_repo_links', {});
+      S.repoLinks = new Map();
+      list.forEach((x) => { if (!S.repoLinks.has(x.student_id)) S.repoLinks.set(x.student_id, []); S.repoLinks.get(x.student_id).push(x); });
+    } catch { S.repoLinks = S.repoLinks || new Map(); }
+    syncGhSrc();
+  }
+  const ghSrcKey = () => 'lkm_ghsrc_' + S.ws;
+  function ghSrc() { try { return localStorage.getItem(ghSrcKey()) || 'auto'; } catch { return 'auto'; } }
+  function syncGhSrc() {
+    const gs = ghStep(), wsMap = new Map();
+    (S.repoLinks ? [...S.repoLinks.values()] : []).forEach((arr) => {
+      const seen = new Set();
+      arr.forEach((x) => { if (x.ws_id === S.ws || seen.has(x.ws_id)) return; seen.add(x.ws_id); const w = wsMap.get(x.ws_id) || { title: x.title, n: 0 }; w.n++; wsMap.set(x.ws_id, w); });
+    });
+    let cur = ghSrc(); if (cur !== 'auto' && cur !== S.ws && !wsMap.has(cur)) cur = 'auto';
+    $('ghSrc').innerHTML = '<option value="auto">Link repo: ' + (gs ? 'lembar kerja ini, lalu misi lain' : 'terbaru dari misi lain') + '</option>' +
+      (gs ? '<option value="' + S.ws + '">Link repo: lembar kerja ini saja</option>' : '') +
+      [...wsMap.entries()].map(([id, w]) => '<option value="' + id + '">Link repo dari: ' + h(w.title) + ' (' + w.n + ' murid)</option>').join('');
+    $('ghSrc').value = cur;
+  }
+  // link repo yang dipakai untuk satu murid, beserta asalnya (untuk ditampilkan dan disimpan)
+  function resolveRepo(r) {
+    const gs = ghStep(), src = $('ghSrc').value || 'auto';
+    const own = gs ? { url: repoText(r), own: true, session_id: r.session_id, step_id: gs.id, title: '' } : null;
+    const others = ((S.repoLinks && S.repoLinks.get(r.student_id)) || []).filter((x) => x.ws_id !== S.ws);
+    if (src === S.ws) return own || { url: '' };
+    if (src === 'auto') return own && own.url ? own : (others[0] ? Object.assign({ own: false }, others[0]) : own || { url: '' });
+    const o = others.find((x) => x.ws_id === src);
+    return o ? Object.assign({ own: false }, o) : { url: '' };
+  }
+  $('ghSrc').onchange = () => {
+    try { localStorage.setItem(ghSrcKey(), $('ghSrc').value); } catch {}
+    if (S.gh) S.gh.byS = {};   // data GitHub lama mungkin dari repo lain
+    renderGithub();
+  };
   const ghStep = () => (S.results?.steps || []).find((s) => qsOf(s).some((q) => q.type === 'github'));
   // link repository murid: jawaban pertanyaan Link GitHub (atau isi lama untuk data versi sebelumnya)
   function repoText(r) {
@@ -2317,7 +2415,9 @@
     updateTokenLabel();
     const gs = ghStep(), refs = refSteps();
     const notes = [];
-    if (!gs) notes.push('Lembar kerja ini belum punya pertanyaan berjenis <strong>Link GitHub</strong>. Tambahkan di menu Lembar kerja: ubah langkah, lalu Tambah pertanyaan dengan jenis Link GitHub.');
+    const hasOther = S.repoLinks && [...S.repoLinks.values()].some((a) => a.some((x) => x.ws_id !== S.ws));
+    if (!gs && hasOther) notes.push('Lembar kerja ini tidak punya pertanyaan <strong>Link GitHub</strong>, jadi link repository murid diambil dari misi lain. Pilih sumbernya di kotak <strong>Link repo</strong> di bawah.');
+    else if (!gs) notes.push('Lembar kerja ini belum punya pertanyaan berjenis <strong>Link GitHub</strong>, dan belum ada link dari misi lain. Tambahkan di menu Lembar kerja: ubah langkah, lalu Tambah pertanyaan dengan jenis Link GitHub.');
     if (!refs.length) notes.push('Belum ada langkah dengan <strong>kode acuan</strong>, jadi kemiripan kode belum bisa dihitung. Tambahkan di editor langkah, bagian "Kode acuan untuk cek kemiripan".');
     if (!ghToken()) notes.push('Tanpa token, GitHub hanya mengizinkan 60 permintaan per jam untuk seluruh jaringan sekolah. Satu murid butuh 1 permintaan, ditambah 1 untuk tiap file acuan. Klik <strong>Atur token GitHub</strong> agar kuotanya menjadi 5.000 per jam.');
     $('ghNotice').innerHTML = !notes.length ? '' : notes.length === 1
@@ -2353,8 +2453,8 @@
       '</tr></thead><tbody>' +
       rows.map((r) => {
         const d = S.gh.byS[r.session_id] || {};
-        const repo = gs ? parseRepo(repoText(r)) : null;
-        const rawLink = repoText(r);
+        const src = resolveRepo(r), rawLink = src.url || '';
+        const repo = parseRepo(rawLink);
         const commits = d.commits || null;
         const good = commits ? commits.filter((c) => commitKind(c) === 'ok').length : null;
         const last = commits && commits[0];
@@ -2370,6 +2470,7 @@
           '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + '</span></div></div></td>' +
           '<td>' + (repo ? '<a class="repo-link" href="' + h(repo.url) + '" target="_blank" rel="noopener">' + h(repo.owner + '/' + repo.name) + '</a>'
             : rawLink ? '<span class="gh-row-err">Link tidak valid</span>' : '<span class="muted">Belum diisi</span>') +
+            (rawLink && !src.own ? '<div class="bar-label gh-from" title="Diisi murid di ' + h(src.title) + '">dari ' + h(src.title) + '</div>' : '') +
             (d.status === 'loading' ? '<div class="bar-label"><span class="spinner" style="width:11px;height:11px"></span> mengambil…</div>' : d.err ? '<div class="gh-row-err">' + h(d.err) + '</div>' : '') + '</td>' +
           '<td class="num">' + (commits ? '<strong>' + good + '</strong> <span class="muted">dari ' + commits.length + '</span>' : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (last ? '<div style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + h(last.msg) + '">' + h(last.msg) + '</div><div class="bar-label">' + new Date(last.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div>' : '<span class="muted">-</span>') + '</td>' +
@@ -2383,7 +2484,7 @@
   $('gSearch').oninput = () => { S.filters.gSearch = $('gSearch').value; if (S.results) renderGithub(); };
 
   async function fetchRow(r) {
-    const gs = ghStep(); const repo = gs ? parseRepo(repoText(r)) : null;
+    const repo = parseRepo(resolveRepo(r).url || '');
     const d = S.gh.byS[r.session_id] = { status: 'loading', files: {} };
     if (!repo) { d.status = 'norepo'; return; }
     try {
@@ -2440,14 +2541,19 @@
     dSession = sid; dMode = 'gh'; $('dPrint').hidden = true;
     const r = S.results.rows.find((x) => x.session_id === sid); if (!r) return;
     const d = S.gh.byS[sid] || {};
-    const gs = ghStep(), rawLink = repoText(r), repo = parseRepo(rawLink);
+    const src = resolveRepo(r), rawLink = src.url || '', repo = parseRepo(rawLink);
+    // link disimpan ke tempat asalnya: lembar kerja ini, atau misi lain tempat murid mengisinya
+    const target = src.session_id ? { session: src.session_id, step: src.step_id, own: src.own } : null;
     $('dAv').textContent = initials(r.name); $('dName').textContent = r.name;
     $('dMeta').textContent = r.class + (r.started_at ? ', mulai LKM ' + new Date(r.started_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
     drawerNav(ghVisible(), sid);
     const start = r.started_at ? new Date(r.started_at).getTime() : 0, end = r.finished_at ? new Date(r.finished_at).getTime() : Date.now();
     let html = '<section class="g-step"><h3>Repository</h3>' +
       (repo ? '<a class="repo-link" href="' + h(repo.url) + '" target="_blank" rel="noopener">' + h(repo.url) + '</a>' : '<p class="muted" style="margin:0">' + (rawLink ? 'Link dari murid tidak valid: ' + h(rawLink) : 'Murid belum mengisi link repository.') + '</p>') +
-      (gs ? '<div style="display:flex;gap:8px;margin-top:12px"><input class="input" id="ghUrl" value="' + h(rawLink) + '" placeholder="https://github.com/nama/repo"><button class="btn" id="ghUrlSave">Simpan link</button></div>' : '') +
+      (rawLink && !src.own ? '<div class="help" style="margin-top:6px">Diambil dari jawaban murid di <strong>' + h(src.title) + '</strong>.</div>' : '') +
+      (target ? '<div style="display:flex;gap:8px;margin-top:12px"><input class="input" id="ghUrl" value="' + h(rawLink) + '" placeholder="https://github.com/nama/repo"><button class="btn" id="ghUrlSave">Simpan link</button></div>' +
+          (!target.own ? '<div class="help">Perubahan disimpan ke jawaban murid di ' + h(src.title) + '.</div>' : '')
+        : '<div class="help" style="margin-top:8px">Murid ini belum mengisi link di misi mana pun. Link bisa diisi lewat misi yang punya pertanyaan Link GitHub.</div>') +
       (d.err ? '<p class="gh-row-err" style="margin:10px 0 0">' + h(d.err) + '</p>' : '') + '</section>';
     const refs = refSteps();
     if (refs.length) {
@@ -2483,11 +2589,14 @@
     if (saveBtn) saveBtn.onclick = async () => {
       const v = $('ghUrl').value.trim();
       if (v && !parseRepo(v)) { toast('Link harus berbentuk https://github.com/nama/repo', 'err'); return; }
-      const ok = await run('t_set_repo', { p_session: sid, p_step: gs.id, p_url: v }, 'Link repository disimpan.').then(() => true).catch(() => false);
+      const ok = await run('t_set_repo', { p_session: target.session, p_step: target.step, p_url: v }, 'Link repository disimpan.').then(() => true).catch(() => false);
       if (!ok) return;
-      const gq = qsOf(gs).find((x) => x.type === 'github');
-      const ga = r.answers[gs.id] = Object.assign(r.answers[gs.id] || {}, { content: v });
-      ga.data = Object.assign({}, ga.data || {}, { [gq.id]: v });
+      if (target.own) {
+        const gs = ghStep(), gq = qsOf(gs).find((x) => x.type === 'github');
+        const ga = r.answers[gs.id] = Object.assign(r.answers[gs.id] || {}, { content: v });
+        ga.data = Object.assign({}, ga.data || {}, { [gq.id]: v });
+      }
+      await loadRepoLinks();
       delete S.gh.byS[sid]; openGhDetail(sid);
     };
     const one = $('ghOne');
