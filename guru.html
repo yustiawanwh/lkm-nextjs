@@ -2425,6 +2425,7 @@
       catch (e) { $('gTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     }
     if (!S.gh || S.gh.ws !== S.ws) S.gh = { ws: S.ws, byS: {} };
+    try { S.ghStudents = await api('t_students'); } catch { S.ghStudents = S.ghStudents || []; }
     await loadRepoLinks();
     renderGithub();
   }
@@ -2452,14 +2453,27 @@
     $('ghSrc').value = cur;
   }
   // link repo yang dipakai untuk satu murid, beserta asalnya (untuk ditampilkan dan disimpan)
+  // urutan: link yang diisi guru untuk lembar kerja ini > jawaban murid di lembar kerja ini > misi lain
   function resolveRepo(r) {
     const gs = ghStep(), src = $('ghSrc').value || 'auto';
-    const own = gs ? { url: repoText(r), own: true, session_id: r.session_id, step_id: gs.id, title: '' } : null;
-    const others = ((S.repoLinks && S.repoLinks.get(r.student_id)) || []).filter((x) => x.ws_id !== S.ws);
+    const links = (S.repoLinks && S.repoLinks.get(r.student_id)) || [];
+    const ov = links.find((x) => x.override && x.ws_id === S.ws);
+    if (ov) return { url: ov.url, own: true, kind: 'override' };
+    const ans = gs && !r.absent ? repoText(r) : '';
+    const own = ans ? { url: ans, own: true, kind: 'answer' } : null;
+    const others = links.filter((x) => x.ws_id !== S.ws);
     if (src === S.ws) return own || { url: '' };
-    if (src === 'auto') return own && own.url ? own : (others[0] ? Object.assign({ own: false }, others[0]) : own || { url: '' });
+    if (src === 'auto') return own || (others[0] ? Object.assign({ own: false, kind: 'other' }, others[0]) : { url: '' });
     const o = others.find((x) => x.ws_id === src);
-    return o ? Object.assign({ own: false }, o) : { url: '' };
+    return o ? Object.assign({ own: false, kind: 'other' }, o) : { url: '' };
+  }
+  // murid yang belum mulai lembar kerja ini (tertinggal) ikut tampil, agar guru bisa mengisi link repo-nya
+  function ghRows() {
+    const rows = S.results?.rows || [], have = new Set(rows.map((r) => r.student_id));
+    const classes = new Set(rows.map((r) => r.class)); if (S.filters.gClass) classes.add(S.filters.gClass);
+    const extra = (S.ghStudents || []).filter((st) => !have.has(st.id) && classes.has(st.class))
+      .map((st) => ({ session_id: 'absent-' + st.id, student_id: st.id, name: st.name, class: st.class, is_active: st.is_active, answers: {}, absent: true }));
+    return rows.concat(extra);
   }
   $('ghSrc').onchange = () => {
     try { localStorage.setItem(ghSrcKey(), $('ghSrc').value); } catch {}
@@ -2477,7 +2491,7 @@
   const refSteps = () => (S.results?.steps || []).filter((s) => s.ref_code && s.ref_code.trim());
   function ghVisible() {
     const f = S.filters, q = norm(f.gSearch);
-    return (S.results?.rows || []).filter((r) => (!f.gClass || r.class === f.gClass) && (!q || norm(r.name).includes(q)));
+    return ghRows().filter((r) => (!f.gClass || r.class === f.gClass) && (!q || norm(r.name).includes(q)));
   }
   function updateTokenLabel() {
     $('ghTokenLbl').textContent = ghToken() ? 'Token tersimpan' : 'Atur token GitHub';
@@ -2498,7 +2512,7 @@
       : '<div class="notice info"><svg><use href="#i-alert"/></svg><ul style="margin:0;padding-left:18px;display:grid;gap:6px">' + notes.map((n) => '<li>' + n + '</li>').join('') + '</ul></div>';
 
     const rows = ghVisible();
-    if (!(S.results?.rows || []).length) { $('gTable').innerHTML = '<div class="empty"><strong>Belum ada murid yang mengerjakan</strong>Data muncul setelah murid mulai mengerjakan lembar kerja ini.</div>'; return; }
+    if (!ghRows().length) { $('gTable').innerHTML = '<div class="empty"><strong>Belum ada murid yang mengerjakan</strong>Data muncul setelah murid mulai mengerjakan lembar kerja ini.</div>'; return; }
     if (!rows.length) { $('gTable').innerHTML = '<div class="empty">Tidak ada murid yang cocok dengan filter.</div>'; return; }
     // rata-rata kode per murid: tiap langkah berkode acuan diambil nilai terbaik dari GitHub atau jawaban LKM,
     // file yang belum ada / belum dikerjakan dihitung 0%. Kosong (-) bila belum ada data sama sekali.
@@ -2540,10 +2554,11 @@
             (lkmSim ? '<div class="bar-label">Jawaban LKM ' + lkmSim.pct + '%</div>' : '') + (!gitSim && !fileErr && !lkmSim ? '<span class="muted">-</span>' : '') + '</td>';
         }).join('');
         return '<tr data-s="' + r.session_id + '"' + (r.is_active ? '' : ' class="off"') + '>' +
-          '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + '</span></div></div></td>' +
+          '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.absent ? ', belum mulai LKM' : '') + '</span></div></div></td>' +
           '<td>' + (repo ? '<a class="repo-link" href="' + h(repo.url) + '" target="_blank" rel="noopener">' + h(repo.owner + '/' + repo.name) + '</a>'
             : rawLink ? '<span class="gh-row-err">Link tidak valid</span>' : '<span class="muted">Belum diisi</span>') +
-            (rawLink && !src.own ? '<div class="bar-label gh-from" title="Diisi murid di ' + h(src.title) + '">dari ' + h(src.title) + '</div>' : '') +
+            (rawLink && src.kind === 'other' ? '<div class="bar-label gh-from" title="' + (src.override ? 'Diisi guru' : 'Diisi murid') + ' di ' + h(src.title) + '">dari ' + h(src.title) + '</div>' : '') +
+            (rawLink && src.kind === 'override' ? '<div class="bar-label gh-from">diisi guru</div>' : '') +
             (d.status === 'loading' ? '<div class="bar-label"><span class="spinner" style="width:11px;height:11px"></span> mengambil…</div>' : d.err ? '<div class="gh-row-err">' + h(d.err) + '</div>' : '') + '</td>' +
           '<td class="num">' + (commits ? '<strong>' + good + '</strong> <span class="muted">dari ' + commits.length + '</span>' : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (last ? '<div style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + h(last.msg) + '">' + h(last.msg) + '</div><div class="bar-label">' + new Date(last.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div>' : '<span class="muted">-</span>') + '</td>' +
@@ -2612,21 +2627,24 @@
 
   function openGhDetail(sid) {
     dSession = sid; dMode = 'gh'; $('dPrint').hidden = true;
-    const r = S.results.rows.find((x) => x.session_id === sid); if (!r) return;
+    const r = ghRows().find((x) => x.session_id === sid); if (!r) return;
     const d = S.gh.byS[sid] || {};
     const src = resolveRepo(r), rawLink = src.url || '', repo = parseRepo(rawLink);
-    // link disimpan ke tempat asalnya: lembar kerja ini, atau misi lain tempat murid mengisinya
-    const target = src.session_id ? { session: src.session_id, step: src.step_id, own: src.own } : null;
+    // simpan ke jawaban murid hanya bila link memang dari jawaban murid di lembar kerja ini;
+    // selain itu (murid tertinggal, link dari misi lain, belum diisi) disimpan sebagai link isian guru untuk lembar kerja ini
+    const toAnswer = src.kind === 'answer' && !r.absent && ghStep();
     $('dAv').textContent = initials(r.name); $('dName').textContent = r.name;
     $('dMeta').textContent = r.class + (r.started_at ? ', mulai LKM ' + new Date(r.started_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
     drawerNav(ghVisible(), sid);
     const start = r.started_at ? new Date(r.started_at).getTime() : 0, end = r.finished_at ? new Date(r.finished_at).getTime() : Date.now();
     let html = '<section class="g-step"><h3>Repository</h3>' +
       (repo ? '<a class="repo-link" href="' + h(repo.url) + '" target="_blank" rel="noopener">' + h(repo.url) + '</a>' : '<p class="muted" style="margin:0">' + (rawLink ? 'Link dari murid tidak valid: ' + h(rawLink) : 'Murid belum mengisi link repository.') + '</p>') +
-      (rawLink && !src.own ? '<div class="help" style="margin-top:6px">Diambil dari jawaban murid di <strong>' + h(src.title) + '</strong>.</div>' : '') +
-      (target ? '<div style="display:flex;gap:8px;margin-top:12px"><input class="input" id="ghUrl" value="' + h(rawLink) + '" placeholder="https://github.com/nama/repo"><button class="btn" id="ghUrlSave">Simpan link</button></div>' +
-          (!target.own ? '<div class="help">Perubahan disimpan ke jawaban murid di ' + h(src.title) + '.</div>' : '')
-        : '<div class="help" style="margin-top:8px">Murid ini belum mengisi link di misi mana pun. Link bisa diisi lewat misi yang punya pertanyaan Link GitHub.</div>') +
+      '<div style="display:flex;gap:8px;margin-top:12px"><input class="input" id="ghUrl" value="' + h(src.kind === 'other' ? '' : rawLink) + '" placeholder="' + h(src.kind === 'other' ? rawLink : 'https://github.com/nama/repo') + '"><button class="btn" id="ghUrlSave">Simpan link</button></div>' +
+      '<div class="help">' + ({
+        override: 'Link ini diisi guru untuk lembar kerja ini. Kosongkan lalu simpan untuk menghapusnya.',
+        answer: 'Link dari jawaban murid di lembar kerja ini. Perubahan disimpan ke jawaban murid.',
+        other: 'Diambil dari jawaban murid di <strong>' + h(src.title || '') + '</strong>. Mengisi link di sini menyimpannya khusus untuk lembar kerja ini, tanpa mengubah misi lain.',
+      }[src.kind] || (r.absent ? 'Murid ini belum mulai lembar kerja ini. ' : 'Murid ini belum mengisi link. ') + 'Isi link di sini: disimpan khusus untuk lembar kerja ini dan tidak mengubah jawaban murid.') + '</div>' +
       (d.err ? '<p class="gh-row-err" style="margin:10px 0 0">' + h(d.err) + '</p>' : '') + '</section>';
     const refs = refSteps();
     if (refs.length) {
@@ -2662,9 +2680,13 @@
     if (saveBtn) saveBtn.onclick = async () => {
       const v = $('ghUrl').value.trim();
       if (v && !parseRepo(v)) { toast('Link harus berbentuk https://github.com/nama/repo', 'err'); return; }
-      const ok = await run('t_set_repo', { p_session: target.session, p_step: target.step, p_url: v }, 'Link repository disimpan.').then(() => true).catch(() => false);
+      if (!v && src.kind !== 'override' && src.kind !== 'answer') { toast('Isi link repository dulu.', 'err'); return; }
+      const ok = await (toAnswer
+        ? run('t_set_repo', { p_session: r.session_id, p_step: toAnswer.id, p_url: v }, 'Link repository disimpan.')
+        : run('t_set_repo_override', { p_student: r.student_id, p_ws: S.ws, p_url: v ? parseRepo(v).url : '' }, v ? 'Link repository disimpan untuk lembar kerja ini.' : 'Link isian guru dihapus.')
+      ).then(() => true).catch(() => false);
       if (!ok) return;
-      if (target.own) {
+      if (toAnswer) {
         const gs = ghStep(), gq = qsOf(gs).find((x) => x.type === 'github');
         const ga = r.answers[gs.id] = Object.assign(r.answers[gs.id] || {}, { content: v });
         ga.data = Object.assign({}, ga.data || {}, { [gq.id]: v });
