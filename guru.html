@@ -260,6 +260,23 @@
   .seg-ctl label:has(input:checked){background:var(--surface); color:var(--ink); box-shadow:var(--shadow-sm)}
   .qb-paste{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:13px; color:var(--ink-2); cursor:pointer}
   .qb-paste input{accent-color:var(--accent)}
+  #lbox{position:fixed; inset:0; z-index:96; background:rgba(8,11,24,.92); display:none; flex-direction:column}
+  #lbox.on{display:flex}
+  .lb-bar{display:flex; align-items:center; gap:10px; padding:12px 16px; color:#fff; font-weight:600; font-size:14px}
+  .lb-bar .spacer{flex:1}
+  .lb-btn{background:rgba(255,255,255,.12); color:#fff; border-color:transparent}
+  .lb-btn:hover{background:rgba(255,255,255,.22)}
+  .lb-stage{flex:1; min-height:0; overflow:auto; display:grid; place-items:center; padding:0 64px 20px}
+  .lb-stage img{max-width:100%; max-height:calc(100vh - 90px); object-fit:contain; border-radius:6px; background:#fff; cursor:zoom-in}
+  .lb-stage.full{place-items:start center}
+  .lb-stage.full img{max-width:none; max-height:none; cursor:zoom-out}
+  .lb-err{color:#fff}
+  .lb-nav{position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,.14); color:#fff; display:grid; place-items:center; cursor:pointer}
+  .lb-nav:hover{background:rgba(255,255,255,.26)}
+  .lb-nav svg{width:20px; height:20px}
+  .lb-nav.prev{left:12px} .lb-nav.next{right:12px}
+  .lb-nav[hidden]{display:none}
+  @media (max-width:640px){ .lb-stage{padding:0 8px 12px} .lb-nav{top:auto; bottom:16px; transform:none} }
   .g-shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin:0 0 10px}
   .g-shots a{position:relative; display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
   .g-shots img{width:100%; height:100%; object-fit:contain; display:block}
@@ -685,6 +702,15 @@
 </div>
 
 <div class="toast-zone" id="toasts" aria-live="polite"></div>
+<!-- penampil gambar (screenshot murid) -->
+<div id="lbox" role="dialog" aria-modal="true" aria-label="Gambar diperbesar" aria-hidden="true">
+  <div class="lb-bar"><span id="lbCap"></span><span class="spacer"></span>
+    <button class="btn btn-sm lb-btn" id="lbFit" type="button">Ukuran asli</button>
+    <button class="btn btn-sm lb-btn" id="lbClose" type="button">Tutup</button></div>
+  <button class="lb-nav prev" id="lbPrev" type="button" aria-label="Gambar sebelumnya"><svg><use href="#i-left"/></svg></button>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" alt=""><p class="lb-err" id="lbErr" hidden>Gambar tidak bisa dimuat.</p></div>
+  <button class="lb-nav next" id="lbNext" type="button" aria-label="Gambar berikutnya"><svg><use href="#i-right"/></svg></button>
+</div>
 <div id="printArea" aria-hidden="true"></div>
 
 <script src="config.js"></script>
@@ -963,6 +989,42 @@
   document.querySelectorAll('.main .head, .main section[data-v] > :not(.freeze)').forEach((x) => fitObs.observe(x));
   new MutationObserver(fitSoon).observe(document.querySelector('.main'), { childList: true, subtree: false, attributes: true, attributeFilter: ['hidden'], });
   document.querySelectorAll('.main section[data-v]').forEach((x) => new MutationObserver(fitSoon).observe(x, { attributes: true, attributeFilter: ['hidden'] }));
+
+  /* ---------- penampil gambar ----------
+     Server gambar (Nextcloud) mengirim file sebagai unduhan, jadi gambar dibuka di sini, bukan lewat link. */
+  const LB = { list: [], i: 0 };
+  function lbShow() {
+    const u = LB.list[LB.i];
+    $('lbErr').hidden = true; $('lbImg').hidden = false;
+    $('lbImg').src = u; $('lbImg').alt = 'Gambar ' + (LB.i + 1);
+    $('lbStage').classList.remove('full'); $('lbFit').textContent = 'Ukuran asli';
+    $('lbCap').textContent = LB.title + (LB.list.length > 1 ? ' · gambar ' + (LB.i + 1) + ' dari ' + LB.list.length : '');
+    $('lbPrev').hidden = LB.i <= 0; $('lbNext').hidden = LB.i >= LB.list.length - 1;
+  }
+  function openLightbox(list, i, title) {
+    Object.assign(LB, { list, i: i || 0, title: title || 'Screenshot' });
+    lbShow(); $('lbox').classList.add('on'); $('lbox').setAttribute('aria-hidden', 'false'); $('lbClose').focus();
+  }
+  const closeLightbox = () => { $('lbox').classList.remove('on'); $('lbox').setAttribute('aria-hidden', 'true'); $('lbImg').removeAttribute('src'); };
+  const lbFull = () => { const f = $('lbStage').classList.toggle('full'); $('lbFit').textContent = f ? 'Sesuaikan layar' : 'Ukuran asli'; };
+  $('lbImg').addEventListener('error', () => { $('lbImg').hidden = true; $('lbErr').hidden = false; });
+  $('lbImg').onclick = lbFull; $('lbFit').onclick = lbFull;
+  $('lbClose').onclick = closeLightbox;
+  $('lbPrev').onclick = () => { if (LB.i > 0) { LB.i--; lbShow(); } };
+  $('lbNext').onclick = () => { if (LB.i < LB.list.length - 1) { LB.i++; lbShow(); } };
+  $('lbStage').addEventListener('click', (e) => { if (e.target === $('lbStage')) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!$('lbox').classList.contains('on')) return;
+    if (e.key === 'Escape') { e.stopPropagation(); closeLightbox(); }
+    else if (e.key === 'ArrowLeft') $('lbPrev').click();
+    else if (e.key === 'ArrowRight') $('lbNext').click();
+  }, true);
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('.g-shots a'); if (!a) return;
+    e.preventDefault();
+    const box = a.closest('.g-shots'), links = [...box.querySelectorAll('a')];
+    openLightbox(links.map((x) => x.getAttribute('href')), links.indexOf(a), $('dName').textContent || 'Screenshot');
+  });
 
   /* ---------- navigasi ---------- */
   const TITLES = { monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub' };
@@ -1368,7 +1430,7 @@
             (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</span>' + h(o) + '</div>').join('') + '</div>' + (picked.length ? '' : '<p class="muted" style="margin:-4px 0 10px;font-size:13px">Tidak menjawab.</p>');
         } else if (q.type === 'image') {
           const list = Array.isArray(v) ? v : [];
-          ans = list.length ? '<div class="g-shots">' + list.map((u, k) => '<a href="' + h(u) + '" target="_blank" rel="noopener" title="Buka gambar ' + (k + 1) + ' di tab baru"><img src="' + h(u) + '" alt="Screenshot ' + (k + 1) + '" loading="lazy" onerror="this.parentNode.classList.add(\'bad\')"><span>' + (k + 1) + '</span></a>').join('') + '</div>'
+          ans = list.length ? '<div class="g-shots">' + list.map((u, k) => '<a href="' + h(u) + '" target="_blank" rel="noopener" title="Perbesar gambar ' + (k + 1) + '"><img src="' + h(u) + '" alt="Screenshot ' + (k + 1) + '" loading="lazy" onerror="this.parentNode.classList.add(\'bad\')"><span>' + (k + 1) + '</span></a>').join('') + '</div>'
             : '<p class="muted" style="margin:0 0 10px;font-size:13px">Tidak mengunggah gambar.</p>';
         } else if (hasVal(v)) {
           ans = q.type === 'github' ? '<p style="margin:0 0 10px"><a class="repo-link" href="' + h(v) + '" target="_blank" rel="noopener">' + h(v) + '</a></p>' : '<pre class="g-answer">' + h(v) + '</pre>';
