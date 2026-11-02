@@ -251,7 +251,7 @@
   #content{flex:1; overflow:auto; scroll-behavior:smooth}
   .page{
     max-width:760px; margin:0 auto; padding:40px 24px 56px;
-    display:grid; gap:36px; align-items:start;
+    display:grid; gap:36px; align-items:start; grid-template-columns:minmax(0, 1fr);
   }
   .col-media{display:grid; gap:16px}
   .page.has-media .col-text{grid-area:intro}
@@ -342,13 +342,21 @@
   .save-state[data-s="error"]{color:var(--danger)}
   .save-state[data-s="error"]::before{background:var(--danger)}
   /* pertanyaan */
-  .qlist{display:grid; gap:16px}
+  .qlist{display:grid; gap:16px; grid-template-columns:minmax(0, 1fr)}
   .q{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 18px 20px}
   .q-head{display:flex; gap:12px; align-items:flex-start; margin-bottom:12px}
   .q-no{flex:none; min-width:28px; height:28px; padding:0 8px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:13px; display:grid; place-items:center}
   .q-prompt{font-size:16px; color:var(--ink); font-weight:500; padding-top:2px}
   .q-prompt.prose > *{margin-bottom:6px}
   .q-hint{font-size:12.5px; color:var(--muted); margin:0 0 10px}
+  .qtab-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px}
+  .qtab{width:100%; border-collapse:collapse; font-size:14.5px; min-width:420px}
+  .qtab th{background:var(--surface-2); color:var(--ink); font-weight:700; text-align:left; padding:10px 12px; font-size:13.5px; border-bottom:1px solid var(--line)}
+  .qtab td{border-top:1px solid var(--line); padding:8px 12px; vertical-align:top; color:var(--ink)}
+  .qtab th + th, .qtab td + td{border-left:1px solid var(--line)}
+  .qtab td.in{padding:4px; background:color-mix(in srgb, var(--accent-soft) 35%, transparent)}
+  .q .qtab textarea{width:100%; min-height:38px; height:38px; padding:8px 10px; border:1px solid transparent; border-radius:8px; background:var(--surface); color:var(--ink); font:14.5px/1.4 var(--sans); resize:none; overflow:hidden; display:block}
+  .q .qtab textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
   .shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-bottom:10px}
   .shots:empty{display:none}
   .shot{position:relative; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
@@ -1029,7 +1037,7 @@
     if (s.veiled) {
       s = Object.assign({}, s, {
         veiled: false, instruction: unveil(s.instruction),
-        questions: (s.questions || []).map((q) => Object.assign({}, q, { prompt: unveil(q.prompt), options: (q.options || []).map(unveil) })),
+        questions: (s.questions || []).map((q) => Object.assign({}, q, { prompt: unveil(q.prompt), options: (q.options || []).map(unveil), rows: q.rows ? q.rows.map((r) => r.map(unveil)) : q.rows })),
       });
     }
     CODE.clear();
@@ -1211,6 +1219,29 @@
         card.appendChild(inp);
         if (q.type === 'short' && !q.paste) guardNote(card);
         if (q.type === 'github') { const hp = el('div', 'repo-help', REPO_HELP); card.appendChild(hp); checkRepo(inp); }
+      } else if (q.type === 'table') {
+        // isian tabel: sel tetap dari guru, kolom "diisi murid" berupa kotak isian
+        const cols = q.columns || [], ans = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+        const wrap = el('div', 'qtab-wrap'), tb = document.createElement('table'); tb.className = 'qtab';
+        const hr = document.createElement('tr'); cols.forEach((c) => hr.appendChild(el('th', null, c.title || '')));
+        const thead = document.createElement('thead'); thead.appendChild(hr); tb.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        (q.rows || []).forEach((row, r) => {
+          const tr = document.createElement('tr');
+          cols.forEach((c, k) => {
+            if (c.input) {
+              const td = el('td', 'in'), ta = document.createElement('textarea');
+              ta.rows = 1; ta.dataset.cell = r + ',' + k; ta.spellcheck = false;
+              ta.setAttribute('aria-label', (c.title || 'Kolom ' + (k + 1)) + ', baris ' + (r + 1));
+              ta.value = typeof ans[r + ',' + k] === 'string' ? ans[r + ',' + k] : '';
+              td.appendChild(ta); tr.appendChild(td);
+            } else tr.appendChild(el('td', null, row[k] || ''));
+          });
+          tbody.appendChild(tr);
+        });
+        tb.appendChild(tbody); wrap.appendChild(tb); card.appendChild(wrap);
+        if (!q.paste) guardNote(card);
+        requestAnimationFrame(() => card.querySelectorAll('.qtab textarea').forEach(growCell));
       } else if (q.type === 'image') {
         card.dataset.urls = JSON.stringify(Array.isArray(v) ? v : []);
         card.dataset.max = String(q.max || 5);
@@ -1243,6 +1274,9 @@
       box.appendChild(card);
     });
   }
+  window.addEventListener('resize', () => document.querySelectorAll('.qtab textarea').forEach(growCell));
+  // kotak isian tabel tumbuh mengikuti isinya
+  function growCell(ta) { ta.style.height = 'auto'; ta.style.height = Math.max(38, ta.scrollHeight + 2) + 'px'; }
   function guardNote(card) {
     card.dataset.nopaste = '1';
     card.appendChild(el('p', 'q-guard', 'Ketik sendiri. Menempel (paste) dimatikan untuk pertanyaan ini.'));
@@ -1275,6 +1309,10 @@
       } else if (t === 'image') {
         const arr = JSON.parse(c.dataset.urls || '[]');
         if (arr.length) out[id] = arr;
+      } else if (t === 'table') {
+        const o = {};
+        c.querySelectorAll('textarea[data-cell]').forEach((ta) => { if (ta.value.trim()) o[ta.dataset.cell] = ta.value; });
+        if (Object.keys(o).length) out[id] = o;
       } else {
         const f = c.querySelector('textarea, input'); const val = f ? f.value : '';
         if (val.trim()) out[id] = val;
@@ -1289,7 +1327,7 @@
     box.replaceChildren(...urls.map((u, k) => {
       const d = el('div', 'shot'), img = document.createElement('img');
       img.src = u; img.alt = 'Screenshot ' + (k + 1); img.loading = 'lazy';
-      img.onclick = () => window.open(u, '_blank', 'noopener');
+      img.onclick = () => openZoom(u, 'Screenshot ' + (k + 1));
       const del = el('button', null, '\u00d7'); del.type = 'button'; del.setAttribute('aria-label', 'Hapus gambar ' + (k + 1));
       del.onclick = () => {
         const list = JSON.parse(card.dataset.urls || '[]'); list.splice(k, 1);
@@ -1363,7 +1401,7 @@
     uploadShots(target, files.map((f, i) => (f.name && f.name !== 'image.png' ? f : new File([f], 'tempel-' + i + '.png', { type: f.type }))));
   });
   const markDirty = () => { if (JSON.stringify(collect()) !== lastSaved) setSave('dirty'); };
-  $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); markDirty(); });
+  $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); if (e.target.dataset.cell) growCell(e.target); markDirty(); });
   $('qlist').addEventListener('change', markDirty);
   $('qlist').addEventListener('paste', (e) => { logEv('paste'); blockPaste(e); });
   $('qlist').addEventListener('drop', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('text/plain')) { if (blockPaste(e)) logEv('paste'); } });

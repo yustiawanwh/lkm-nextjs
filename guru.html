@@ -287,6 +287,35 @@
   .lb-nav.prev{left:12px} .lb-nav.next{right:12px}
   .lb-nav[hidden]{display:none}
   @media (max-width:640px){ .lb-stage{padding:0 8px 12px} .lb-nav{top:auto; bottom:16px; transform:none} }
+  .tb-ed{margin-top:10px}
+  .tb-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+  .tb-grid{border-collapse:collapse; width:100%; min-width:360px}
+  .tb-grid th, .tb-grid td{border-bottom:1px solid var(--line); padding:6px; vertical-align:top}
+  .tb-grid th + th, .tb-grid td + td{border-left:1px solid var(--line)}
+  .tb-grid th{background:var(--surface-2); min-width:130px}
+  .tb-grid .input{height:34px; font-size:13.5px; padding:0 9px}
+  .tb-grid th .input{font-weight:700}
+  .tb-grid td.in{background:color-mix(in srgb, var(--accent-soft) 45%, transparent); text-align:center; vertical-align:middle}
+  .tb-grid td.in span{font-size:12px; color:var(--accent); font-weight:600}
+  .tb-grid .tb-x{width:40px; min-width:40px; background:none; text-align:center}
+  .tb-colopt{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:6px; font-size:12.5px; font-weight:600; color:var(--ink-2)}
+  .tb-colopt label{display:flex; align-items:center; gap:6px; cursor:pointer}
+  .tb-colopt input{accent-color:var(--accent)}
+  .tb-btns{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .pv-tab-wrap, .g-tab-wrap{overflow-x:auto; margin:4px 0 10px; border:1px solid var(--line); border-radius:10px}
+  .pv-tab, .g-tab{border-collapse:collapse; width:100%; font-size:13.5px}
+  .pv-tab th, .g-tab th{background:var(--surface-2); text-align:left; padding:8px 10px; font-size:12.5px; white-space:nowrap}
+  .pv-tab td, .g-tab td{border-top:1px solid var(--line); padding:8px 10px; vertical-align:top; white-space:pre-wrap}
+  .pv-tab th + th, .pv-tab td + td, .g-tab th + th, .g-tab td + td{border-left:1px solid var(--line)}
+  .pv-tab td.in{background:color-mix(in srgb, var(--accent-soft) 40%, transparent); color:transparent}
+  .g-tab td.in{background:color-mix(in srgb, var(--accent-soft) 40%, transparent); color:var(--accent); font-weight:600}
+  .g-tab td.in.empty{color:var(--muted); font-weight:400}
+  .pr-tab-wrap{margin:5px 0 0 20px}
+  .pr-tab{border-collapse:collapse; width:100%; font-size:9.5pt}
+  .pr-tab th, .pr-tab td{border:1px solid #888; padding:4px 6px; text-align:left; vertical-align:top; white-space:pre-wrap}
+  .pr-tab th{background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .pr-tab td.in{font-weight:700}
+  .pr-tab td.in.empty{color:#999 !important; font-weight:400}
   .g-shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin:0 0 10px}
   .g-shots a{position:relative; display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
   .g-shots img{width:100%; height:100%; object-fit:contain; display:block}
@@ -358,7 +387,8 @@
   .pr-fb .line{border-bottom:1px solid #999; height:16pt}
   .pr-fb .given{border:1px solid #999; border-radius:4px; padding:4px 8px; white-space:pre-wrap}
   .pr-head, .pr-step h2, .pr-qh, .pr-grade{break-inside:avoid}
-  .pr-q:not(:has(.pr-shots)){break-inside:avoid}
+  .pr-q:not(:has(.pr-shots)):not(:has(.pr-tab)){break-inside:avoid}
+  .pr-tab tr{break-inside:avoid}
   .pr-step h2{break-after:avoid}
   .pr-foot{margin-top:10px; font-size:8.5pt; color:#555 !important; display:flex; justify-content:space-between; border-top:1px solid #ccc; padding-top:4px}
   details.more{border:1px solid var(--line); border-radius:12px; padding:0 14px; margin-bottom:14px}
@@ -366,8 +396,8 @@
   details.more[open]{padding-bottom:14px}
 
   /* penyusun pertanyaan */
-  .qb-list{display:grid; gap:12px; margin-bottom:12px}
-  .qb{border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:14px}
+  .qb-list{display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-bottom:12px}
+  .qb{border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:14px; min-width:0}
   .qb-top{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
   .qb-no{width:28px; height:28px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:13px; display:grid; place-items:center; flex:none}
   .qb-top .select{width:auto; height:34px; font-size:13.5px; font-weight:600; padding-left:10px}
@@ -1227,7 +1257,18 @@
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
 
   /* ---------- pertanyaan: jenis & nilai ---------- */
-  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub', image: 'Screenshot / bukti' };
+  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub', image: 'Screenshot / bukti', table: 'Isian tabel' };
+  const newTable = () => ({ columns: [{ title: 'Nama', input: false }, { title: 'Tebakanku', input: true }, { title: 'Hasil sebenarnya', input: true }], rows: [['', '', ''], ['', '', ''], ['', '', '']] });
+  // tabel HTML untuk laci penilaian dan cetak: sel tetap + isian murid
+  function tableHtml(q, v, cls) {
+    const cols = q.columns || [], ans = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+    return '<div class="' + cls + '-wrap"><table class="' + cls + '"><thead><tr>' + cols.map((c) => '<th' + (c.input ? ' class="in"' : '') + '>' + h(c.title) + '</th>').join('') + '</tr></thead><tbody>' +
+      (q.rows || []).map((row, r) => '<tr>' + cols.map((c, k) => {
+        if (!c.input) return '<td>' + h(row[k] || '') + '</td>';
+        const a = ans[r + ',' + k];
+        return '<td class="in' + (a ? '' : ' empty') + '">' + (a ? h(a) : '-') + '</td>';
+      }).join('') + '</tr>').join('') + '</tbody></table></div>';
+  }
   const isAuto = (q) => q.type === 'single' || q.type === 'multi' || q.type === 'tf' || (q.type === 'short' && ((q.accept || []).length || String(q.acceptText || '').trim()));
   const qsOf = (st) => st.questions || [];
   const hasVal = (v) => v != null && !(typeof v === 'string' && !v.trim()) && !(Array.isArray(v) && !v.length);
@@ -1440,6 +1481,8 @@
           const key = q.type === 'multi' ? (q.correct || []) : [q.correct];
           ans = '<div class="gq-opts">' + (q.options || []).map((o, k) => '<div class="gq-opt' + (picked.includes(k) ? ' pick' : '') + (key.includes(k) ? ' ok-key' : '') + '"><span class="m">' +
             (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</span>' + h(o) + '</div>').join('') + '</div>' + (picked.length ? '' : '<p class="muted" style="margin:-4px 0 10px;font-size:13px">Tidak menjawab.</p>');
+        } else if (q.type === 'table') {
+          ans = tableHtml(q, v, 'g-tab') + (hasVal(v) ? '' : '<p class="muted" style="margin:-4px 0 10px;font-size:13px">Tabel belum diisi.</p>');
         } else if (q.type === 'image') {
           const list = Array.isArray(v) ? v : [];
           ans = list.length ? '<div class="g-shots">' + list.map((u, k) => '<a href="' + h(u) + '" target="_blank" rel="noopener" title="Perbesar gambar ' + (k + 1) + '"><img src="' + h(u) + '" alt="Screenshot ' + (k + 1) + '" loading="lazy" onerror="this.parentNode.classList.add(\'bad\')"><span>' + (k + 1) + '</span></a>').join('') + '</div>'
@@ -1620,6 +1663,8 @@
         '<div class="pr-opt' + (picked.includes(k) ? ' pick' : '') + '"><span class="pr-box">' + (picked.includes(k) ? '&#10003;' : '') + '</span><span>' +
         (q.type === 'tf' ? '' : String.fromCharCode(65 + k) + '. ') + h(t) + (o.key && key.includes(k) ? '<span class="pr-key">KUNCI</span>' : '') + '</span></div>').join('') + '</div>' +
         (picked.length ? '' : '<div class="pr-help"><em>Tidak memilih jawaban.</em></div>');
+    } else if (q.type === 'table') {
+      body = tableHtml(q, v, 'pr-tab') + (hasVal(v) ? '' : '<div class="pr-help"><em>Tabel belum diisi.</em></div>');
     } else if (q.type === 'image') {
       const list = Array.isArray(v) ? v : [];
       body = !list.length ? '<div class="pr-ans empty">Tidak mengunggah gambar.</div>'
@@ -1898,7 +1943,7 @@
       $('pvQs').innerHTML = QS.map((q, i) => '<div class="pv-q">' + (QS.length > 1 ? '<span class="q-no">' + (i + 1) + '</span> ' : '') +
         '<span class="prose" style="font-size:14.5px">' + (fmt(q.prompt || '') || '<span class="muted">(tanpa teks soal)</span>') + '</span>' +
         (q.type === 'multi' ? '<div class="help">Pilih semua jawaban yang benar.</div>' : '') +
-        (q.type === 'single' || q.type === 'multi' || q.type === 'tf'
+        (q.type === 'table' ? tableHtml(q, {}, 'pv-tab') : q.type === 'single' || q.type === 'multi' || q.type === 'tf'
           ? (q.type === 'tf' ? ['Benar', 'Salah'] : q.options || []).map((o, k) => '<div class="pv-opt"><b>' + (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</b>' + h(o || '…') + '</div>').join('')
           : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' || q.type === 'image' ? ' tall' : '') + '"' + (q.type === 'image' ? ' style="border-style:dashed;text-align:center;display:grid;place-items:center"' : '') + '>' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…', image: 'Pilih gambar, Ctrl+V, atau seret ke sini (maks. ' + (q.max || 5) + ')' })[q.type] + '</div>') +
         '</div>').join('');
@@ -1920,6 +1965,21 @@
         } else if (q.type === 'short') {
           body += '<textarea class="textarea code" rows="2" data-i="' + i + '" data-f="accept" placeholder="Jawaban yang diterima, satu per baris" style="margin-top:8px">' + h(q.acceptText || '') + '</textarea>' +
             '<div class="qb-key">Huruf besar-kecil dan spasi berlebih tidak dibedakan. Kosongkan bila ingin dinilai sendiri.</div>' + '<label class="qb-paste"><input type="checkbox" data-i="' + i + '" data-f="paste"' + (q.paste ? ' checked' : '') + '> Izinkan murid menempel (paste) jawaban</label>';
+        } else if (q.type === 'table') {
+          const cols = q.columns || [], rows = q.rows || [];
+          body += '<div class="tb-ed"><div class="tb-scroll"><table class="tb-grid"><thead><tr>' +
+            cols.map((c, k) => '<th><input class="input" data-i="' + i + '" data-c="' + k + '" data-f="tcol" value="' + h(c.title) + '" placeholder="Judul kolom ' + (k + 1) + '">' +
+              '<div class="tb-colopt"><label><input type="checkbox" data-i="' + i + '" data-c="' + k + '" data-f="tin"' + (c.input ? ' checked' : '') + '> Diisi murid</label>' +
+              '<button type="button" class="btn btn-ghost btn-sm btn-icon" data-a="tcoldel" data-i="' + i + '" data-c="' + k + '" aria-label="Hapus kolom"' + (cols.length <= 1 ? ' disabled' : '') + '><svg><use href="#i-trash"/></svg></button></div></th>').join('') +
+            '<th class="tb-x"></th></tr></thead><tbody>' +
+            rows.map((row, r) => '<tr>' + cols.map((c, k) => c.input ? '<td class="in"><span>diisi murid</span></td>'
+              : '<td><input class="input" data-i="' + i + '" data-r="' + r + '" data-c="' + k + '" data-f="tcell" value="' + h(row[k] || '') + '"></td>').join('') +
+              '<td class="tb-x"><button type="button" class="btn btn-ghost btn-sm btn-icon" data-a="trowdel" data-i="' + i + '" data-r="' + r + '" aria-label="Hapus baris"' + (rows.length <= 1 ? ' disabled' : '') + '><svg><use href="#i-trash"/></svg></button></td></tr>').join('') +
+            '</tbody></table></div><div class="tb-btns">' +
+            (rows.length < 30 ? '<button type="button" class="btn btn-ghost btn-sm" data-a="trowadd" data-i="' + i + '"><svg><use href="#i-plus"/></svg>Tambah baris</button>' : '') +
+            (cols.length < 8 ? '<button type="button" class="btn btn-ghost btn-sm" data-a="tcoladd" data-i="' + i + '"><svg><use href="#i-plus"/></svg>Tambah kolom</button>' : '') + '</div></div>' +
+            '<div class="qb-key">Isi sel yang sudah diketahui (misalnya nama dan jumlah). Kolom yang dicentang <strong>Diisi murid</strong> menjadi kotak isian. Dinilai guru.</div>' +
+            '<label class="qb-paste"><input type="checkbox" data-i="' + i + '" data-f="paste"' + (q.paste ? ' checked' : '') + '> Izinkan murid menempel (paste) jawaban</label>';
         } else if (q.type === 'image') {
           body += '<label class="qb-pts" style="margin-top:8px">Maksimal <input class="input" type="number" min="1" max="10" data-i="' + i + '" data-f="max" value="' + (q.max ?? 5) + '"> gambar</label>' +
             '<div class="qb-key">Murid mengunggah screenshot sebagai bukti (pilih file, tempel dengan Ctrl+V, atau seret). Gambar disimpan di server gambar Nextcloud. Dinilai guru.' +
@@ -1946,12 +2006,15 @@
       else if (f === 'opt') q.options[+t.dataset.k] = t.value;
       else if (f === 'accept') q.acceptText = t.value;
       else if (f === 'max') q.max = t.value === '' ? '' : Number(t.value);
+      else if (f === 'tcol') q.columns[+t.dataset.c].title = t.value;
+      else if (f === 'tcell') q.rows[+t.dataset.r][+t.dataset.c] = t.value;
       pvQs();
     });
     $('qbList').addEventListener('change', (e) => {
       const t = e.target, i = +t.dataset.i, f = t.dataset.f; if (!f || isNaN(i)) return;
       const q = QS[i];
       if (f === 'paste') { q.paste = t.checked; return; }
+      if (f === 'tin') { q.columns[+t.dataset.c].input = t.checked; renderQB(); return; }
       if (f === 'key') {
         const k = +t.dataset.k;
         if (q.type === 'multi') { q.correct = (q.correct || []).filter((x) => x !== k); if (t.checked) q.correct.push(k); q.correct.sort(); }
@@ -1962,6 +2025,7 @@
         if (t2 === 'single') q.correct = typeof q.correct === 'number' ? q.correct : null;
         if (t2 === 'multi') q.correct = Array.isArray(q.correct) ? q.correct : (typeof q.correct === 'number' ? [q.correct] : []);
         if (t2 === 'tf') q.correct = q.correct === 0 || q.correct === 1 ? q.correct : null;
+        if (t2 === 'table' && !q.columns) Object.assign(q, newTable());
         renderQB();
       }
     });
@@ -1972,6 +2036,10 @@
       if (a === 'down' && i < QS.length - 1) [QS[i + 1], QS[i]] = [QS[i], QS[i + 1]];
       if (a === 'del') QS.splice(i, 1);
       if (a === 'addopt') q.options.push('');
+      if (a === 'trowadd') q.rows.push(q.columns.map(() => ''));
+      if (a === 'trowdel') q.rows.splice(+b.dataset.r, 1);
+      if (a === 'tcoladd') { q.columns.push({ title: '', input: true }); q.rows.forEach((r) => r.push('')); }
+      if (a === 'tcoldel') { const c = +b.dataset.c; q.columns.splice(c, 1); q.rows.forEach((r) => r.splice(c, 1)); }
       if (a === 'delopt') {
         const k = +b.dataset.k; q.options.splice(k, 1);
         if (q.type === 'single') q.correct = q.correct === k ? null : q.correct > k ? q.correct - 1 : q.correct;
@@ -1981,7 +2049,7 @@
     });
     $('qbAdd').onclick = () => {
       const t = $('qbType').value;
-      QS.push({ id: newId(), type: t, prompt: '', points: 10, options: t === 'single' || t === 'multi' ? ['', '', '', ''] : [], correct: t === 'multi' ? [] : null });
+      QS.push(Object.assign({ id: newId(), type: t, prompt: '', points: 10, options: t === 'single' || t === 'multi' ? ['', '', '', ''] : [], correct: t === 'multi' ? [] : null }, t === 'table' ? newTable() : {}));
       renderQB();
       const all = $('qbList').querySelectorAll('textarea[data-f="prompt"]'); if (all.length) all[all.length - 1].focus();
     };
@@ -2024,6 +2092,10 @@
       for (let i = 0; i < QS.length; i++) {
         const q = QS[i], no = 'Pertanyaan ' + (i + 1) + ': ';
         if (!(Number(q.points) > 0)) { toast(no + 'bobot harus lebih dari 0.', 'err'); return; }
+        if (q.type === 'table') {
+          if (!(q.columns || []).some((c) => c.input)) { toast(no + 'centang minimal satu kolom "Diisi murid".', 'err'); return; }
+          if ((q.columns || []).some((c) => !String(c.title).trim())) { toast(no + 'ada judul kolom tabel yang masih kosong.', 'err'); return; }
+        }
         if (q.type === 'single' || q.type === 'multi') {
           if ((q.options || []).some((o) => !String(o).trim())) { toast(no + 'ada pilihan yang masih kosong.', 'err'); return; }
           if (q.type === 'single' && typeof q.correct !== 'number') { toast(no + 'tandai jawaban yang benar.', 'err'); return; }
@@ -2037,7 +2109,8 @@
         if (q.type === 'tf') o.correct = q.correct;
         if (q.type === 'short') o.accept = String(q.acceptText || '').split('\n').map((x) => x.trim()).filter(Boolean);
         if (q.type === 'image') o.max = Math.min(10, Math.max(1, Number(q.max) || 5));
-        if (q.type === 'essay' || q.type === 'code' || q.type === 'short') o.paste = !!q.paste;
+        if (q.type === 'essay' || q.type === 'code' || q.type === 'short' || q.type === 'table') o.paste = !!q.paste;
+        if (q.type === 'table') { o.columns = q.columns.map((c) => ({ title: String(c.title).trim(), input: !!c.input })); o.rows = q.rows.map((r) => r.map((x, k) => (q.columns[k].input ? '' : String(x).trim()))); }
         return o;
       });
       const id = await run('t_save_step', {
