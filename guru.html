@@ -380,6 +380,12 @@
 
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
+  /* kolom rata-rata selalu terlihat di kanan */
+  .tbl .gh-avg{position:sticky; right:0; z-index:2; background:var(--surface); box-shadow:inset 1px 0 0 var(--line), -8px 0 10px -8px rgba(15,20,40,.28); min-width:170px}
+  .tbl th.gh-avg{z-index:3; color:var(--ink)}
+  .freeze .tbl th.gh-avg{box-shadow:inset 1px 0 0 var(--line), inset 0 -1px 0 var(--line), -8px 0 10px -8px rgba(15,20,40,.28)}
+  .tbl tbody tr:hover td.gh-avg{background:color-mix(in srgb, var(--surface-2) 55%, var(--surface))}
+  tr.off td.gh-avg{opacity:1}
   .sim-bar{flex:1; height:8px; border-radius:99px; background:var(--line); overflow:hidden; min-width:60px; max-width:120px}
   .sim-bar i{display:block; height:100%; border-radius:99px; background:var(--ok)}
   .sim-bar i.mid{background:var(--warn)} .sim-bar i.low{background:var(--danger)}
@@ -2259,8 +2265,30 @@
     const rows = ghVisible();
     if (!(S.results?.rows || []).length) { $('gTable').innerHTML = '<div class="empty"><strong>Belum ada murid yang mengerjakan</strong>Data muncul setelah murid mulai mengerjakan lembar kerja ini.</div>'; return; }
     if (!rows.length) { $('gTable').innerHTML = '<div class="empty">Tidak ada murid yang cocok dengan filter.</div>'; return; }
+    // rata-rata kode per murid: tiap langkah berkode acuan diambil nilai terbaik dari GitHub atau jawaban LKM,
+    // file yang belum ada / belum dikerjakan dihitung 0%. Kosong (-) bila belum ada data sama sekali.
+    const avgOf = (r) => {
+      if (!refs.length) return null;
+      const d = S.gh.byS[r.session_id] || {};
+      let sum = 0, any = !!d.status && d.status !== 'loading', doneN = 0;   // sudah diambil dari GitHub: tanpa repo = 0%
+      refs.forEach((st) => {
+        const ans = lkmText(st, r.answers[st.id]);
+        const f = d.files && d.files[st.id];
+        const g = f && f.text != null ? codeSimilarity(st.ref_code, f.text) : null;
+        const l = ans ? codeSimilarity(st.ref_code, ans) : null;
+        if (g || l || f) any = true;
+        const p = Math.max(g ? g.pct : 0, l ? l.pct : 0);
+        sum += p; if (p > 0) doneN++;
+      });
+      return any ? { pct: Math.round(sum / refs.length), done: doneN } : null;
+    };
+    const avgs = new Map(rows.map((r) => [r.session_id, avgOf(r)]));
+    const known = [...avgs.values()].filter(Boolean);
+    const classAvg = known.length ? Math.round(known.reduce((t, a) => t + a.pct, 0) / known.length) : null;
     const refCols = refs.map((s) => '<th>L' + s.no + (s.ref_path ? ' <span class="muted" style="font-weight:500">' + h(s.ref_path) + '</span>' : '') + '</th>').join('');
-    $('gTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th><th>Repository</th><th class="num">Commit bermakna</th><th>Commit terakhir</th>' + refCols + '<th class="act"></th></tr></thead><tbody>' +
+    $('gTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th><th>Repository</th><th class="num">Commit bermakna</th><th>Commit terakhir</th>' + refCols + '<th class="act"></th>' +
+      (refs.length ? '<th class="gh-avg" title="Rata-rata kecocokan semua langkah berkode acuan. Tiap langkah memakai nilai terbaik dari kode di GitHub atau jawaban LKM; file yang belum ada dihitung 0%.">Rata-rata kode' + (classAvg != null ? '<div class="bar-label" style="font-weight:500">kelas ' + classAvg + '%</div>' : '') + '</th>' : '') +
+      '</tr></thead><tbody>' +
       rows.map((r) => {
         const d = S.gh.byS[r.session_id] || {};
         const repo = gs ? parseRepo(repoText(r)) : null;
@@ -2283,7 +2311,9 @@
             (d.status === 'loading' ? '<div class="bar-label"><span class="spinner" style="width:11px;height:11px"></span> mengambil…</div>' : d.err ? '<div class="gh-row-err">' + h(d.err) + '</div>' : '') + '</td>' +
           '<td class="num">' + (commits ? '<strong>' + good + '</strong> <span class="muted">dari ' + commits.length + '</span>' : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (last ? '<div style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + h(last.msg) + '">' + h(last.msg) + '</div><div class="bar-label">' + new Date(last.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div>' : '<span class="muted">-</span>') + '</td>' +
-          simCells + '<td class="act"><button class="btn btn-sm" data-a="detail">Detail</button></td></tr>';
+          simCells + '<td class="act"><button class="btn btn-sm" data-a="detail">Detail</button></td>' +
+          (refs.length ? (() => { const a = avgs.get(r.session_id); return '<td class="gh-avg">' + (a ? simHtml({ pct: a.pct }, 'Rata-rata kode') + '<div class="bar-label">' + a.done + ' dari ' + refs.length + ' langkah dikerjakan</div>' : '<span class="muted">-</span>') + '</td>'; })() : '') +
+          '</tr>';
       }).join('') + '</tbody></table>';
     $('gTable').querySelectorAll('tr[data-s]').forEach((tr) => (tr.querySelector('[data-a="detail"]').onclick = () => openGhDetail(tr.dataset.s)));
   }
