@@ -551,6 +551,52 @@
 
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
+  .why-btn{display:inline-block; margin-top:4px; padding:2px 8px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--accent); font-size:11.5px; font-weight:700; cursor:pointer}
+  .why-btn:hover{background:var(--accent-soft); border-color:var(--accent)}
+  .db-heat td[data-why]{cursor:help; position:relative}
+  .db-heat td[data-alt]::after{content:'!'; position:absolute; top:-5px; right:-5px; width:15px; height:15px; border-radius:50%; background:var(--viz-warn); color:#0b0b0b; font:800 10px/15px var(--sans); box-shadow:0 0 0 2px var(--surface)}
+  .bar-label.alt-warn{color:var(--warn); font-weight:700}
+  .db-heat td[data-why]:hover{box-shadow:inset 0 0 0 2px var(--accent)}
+  .modal.why{max-width:880px}
+  .why-head{display:flex; justify-content:space-between; gap:16px; align-items:flex-start}
+  .why-head h2{margin-top:4px}
+  .why-score{flex:none; text-align:center; padding:10px 16px; border-radius:14px; min-width:96px}
+  .why-score b{display:block; font-size:30px; font-weight:800; line-height:1.1}
+  .why-score span{font-size:12.5px; font-weight:700}
+  .why-score.ok{background:var(--ok-soft); color:var(--ok)} .why-score.warn{background:var(--warn-soft); color:var(--warn)} .why-score.danger{background:var(--danger-soft); color:var(--danger)}
+  .why-meter{margin:16px 0 10px; display:grid; gap:6px}
+  .why-meter > div{display:grid; grid-template-columns:120px 1fr 44px; gap:10px; align-items:center; font-size:13px; color:var(--ink-2)}
+  .why-meter i{height:8px; border-radius:6px; background:var(--viz-grid); overflow:hidden; display:block}
+  .why-meter em{display:block; height:100%; background:var(--viz-1); border-radius:6px}
+  .why-meter b{text-align:right; color:var(--ink)}
+  .why-reasons{list-style:none; padding:0; margin:14px 0; display:grid; gap:6px}
+  .why-reasons li{padding:9px 12px 9px 34px; border-radius:10px; font-size:13.5px; position:relative; background:var(--surface-2)}
+  .why-reasons li::before{content:'i'; position:absolute; left:11px; top:9px; width:16px; height:16px; border-radius:50%; background:var(--accent); color:#fff; font:800 11px/16px var(--sans); text-align:center}
+  .why-reasons li.warn{background:var(--warn-soft)} .why-reasons li.warn::before{content:'!'; background:var(--warn)}
+  .why-reasons li .btn{margin-left:6px; height:26px}
+  .why-h{font-size:14.5px; margin:18px 0 8px}
+  .why-h .muted{font-weight:500; font-size:12.5px}
+  .why-lines{list-style:none; margin:0; padding:0; display:grid; gap:4px; max-height:340px; overflow:auto; border:1px solid var(--line); border-radius:12px; padding:8px}
+  .wl{display:grid; grid-template-columns:22px 1fr; gap:8px; padding:5px 6px; border-radius:8px; font-size:13px}
+  .wl.miss{background:var(--danger-soft)} .wl.near{background:var(--warn-soft)}
+  .wl code{font-family:var(--mono); font-size:12.5px; white-space:pre-wrap; word-break:break-word}
+  .wl-ic{width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:12px; color:#fff}
+  .wl-ic.ok{background:var(--ok)} .wl-ic.warn{background:var(--warn)} .wl-ic.danger{background:var(--danger)}
+  .wl-near{font-size:12.5px; color:var(--ink-2); margin-top:3px}
+  .wl-diff{margin-top:3px; font-size:12px; color:var(--ink-2)}
+  .wl-diff b{font-family:var(--mono); font-weight:700; padding:0 4px; border-radius:4px}
+  .wl-diff b.minus{background:var(--danger-soft); color:var(--danger)} .wl-diff b.plus{background:var(--accent-soft); color:var(--accent)}
+  .why-hist{list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .why-hist li{display:grid; grid-template-columns:14px 1fr 54px auto; gap:10px; align-items:center; padding:9px 12px; border-top:1px solid var(--line); font-size:13px}
+  .why-hist li:first-child{border-top:0}
+  .why-hist li.cur{background:var(--accent-soft)}
+  .wh-dot{width:10px; height:10px; border-radius:50%; background:var(--muted)}
+  .wh-dot.mission{background:var(--viz-1)} .wh-dot.after{background:var(--warn)} .wh-dot.before{background:var(--viz-other)}
+  .wh-main b{display:block; font-weight:700} .wh-main span{font-size:12px; color:var(--muted)} .wh-main em.ok{color:var(--ok); font-style:normal; font-weight:700}
+  .wh-pct{font-weight:800; text-align:right}
+  .why-code{margin-top:14px} .why-code summary{cursor:pointer; font-weight:700; font-size:13.5px}
+  .why-code pre{max-height:300px; overflow:auto; background:var(--code-bg); color:var(--code-ink); padding:12px; border-radius:10px; font:12px/1.55 var(--mono); margin:8px 0 0}
+  .why-code pre span{display:inline-block; width:30px; color:#6f7aa6; user-select:none}
   .bar-label.ver-clear{color:var(--ok); font-weight:700}
   .bar-label.ver-after{color:var(--warn)}
   .gh-from{max-width:200px; min-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -1032,18 +1078,97 @@
     for (let i = 0; i + k <= tokens.length; i++) set.add(tokens.slice(i, i + k).join('\u0001'));
     return set;
   }
-  function codeSimilarity(ref, student) {
-    const tr = codeTokens(ref);
+  // Penyamaan token yang tidak mengubah arti kode, supaya perbedaan gaya tidak menurunkan nilai:
+  //  - titik koma dibuang, koma terakhir sebelum } ] ) dibuang
+  //  - alamat import/berkas dibandingkan dari nama berkasnya saja ("../components/Card.tsx" = "@/components/Card")
+  //  - (p) => sama dengan p =>
+  //  - kurung pembungkus JSX: return ( <div> ) dan => ( <div> ) sama dengan tanpa kurung
+  function normTokens(t) {
+    const out = [], stack = [];
+    for (let i = 0; i < t.length; i++) {
+      const x = t[i];
+      if (x === '(') {
+        const prev = out[out.length - 1], prev2 = out[out.length - 2];
+        const wrap = prev === 'return' || (prev === '>' && prev2 === '=' && t[i + 1] === '<');
+        stack.push(wrap);
+        if (wrap) continue;
+      } else if (x === ')') {
+        if (stack.pop()) continue;
+      }
+      if (x === ';') continue;
+      if (x === ',' && /^[}\])]$/.test(t[i + 1] || '')) continue;
+      if (x === '(' && /^[a-z_$][\w$]*$/.test(t[i + 1] || '') && t[i + 2] === ')' && t[i + 3] === '=' && t[i + 4] === '>') { out.push(t[i + 1]); i += 2; continue; }
+      if (/^"[^" ]*\/[^" ]*"$/.test(x)) { const seg = x.slice(1, -1).split('/').pop().replace(/\.(tsx?|jsx?|mjs|css)$/, ''); out.push('"' + seg + '"'); continue; }
+      out.push(x);
+    }
+    return out;
+  }
+  const PUNCT = /^[^a-z0-9_$"]+$/;
+  // Kecocokan = nilai tertinggi dari (a) urutan kode: potongan 4 token acuan yang juga ada di kode murid, dan
+  // (b) baris: baris acuan yang ada persis (1) atau mirip/berbeda sedikit (0,5). Baris yang hanya tanda baca tidak dihitung.
+  // explain = true: ikut mencarikan baris murid yang paling mirip untuk penjelasan guru.
+  function codeSimilarity(ref, student, explain) {
+    const tr = normTokens(codeTokens(ref));
     if (!tr.length) return null;
-    const ts = codeTokens(student);
+    const ts = normTokens(codeTokens(student));
     const k = Math.min(4, tr.length);
     const sr = shingles(tr, k), ss = shingles(ts, k);
     let hit = 0;
     sr.forEach((x) => { if (ss.has(x)) hit++; });
-    const flat = '\u0001' + ts.join('\u0001') + '\u0001';
-    const lines = String(ref).split('\n').map((l) => l.trim()).filter((l) => codeTokens(l).length);
-    const missing = lines.filter((l) => !flat.includes('\u0001' + codeTokens(l).join('\u0001') + '\u0001'));
-    return { pct: Math.round((hit / sr.size) * 100), missing, lines: lines.length };
+    const seq = Math.round((hit / sr.size) * 100);
+    const flat = '\u0001' + ts.join('\u0001') + '\u0001', bi = shingles(ts, 2);
+    const studentLines = explain ? String(student || '').split('\n').map((l, i) => ({ no: i + 1, text: l, tok: trimWrap(normTokens(codeTokens(l))) })).filter((l) => l.tok.length) : null;
+    const detail = [];
+    String(ref).split('\n').forEach((raw) => {
+      const line = raw.trim();
+      // kurung pembungkus yang terbelah di akhir/awal baris (=> ( ... ) ) tidak ikut dibandingkan
+      const tok = trimWrap(normTokens(codeTokens(line)));
+      if (tok.filter((x) => !PUNCT.test(x)).length < 1 || tok.length < 2) return;
+      let status = 'miss', share = 0;
+      // baris yang diakhiri koma juga cocok tanpa koma itu (koma terakhir sebelum ] atau } dibuang)
+      const has = (tk) => flat.includes('\u0001' + tk.join('\u0001') + '\u0001');
+      if (has(tok) || (tok[tok.length - 1] === ',' && has(tok.slice(0, -1)))) status = 'ok';
+      else {
+        const b = shingles(tok, 2); let n = 0; b.forEach((x) => { if (bi.has(x)) n++; });
+        share = b.size ? n / b.size : 0;
+        if (share >= 0.6) status = 'near';
+      }
+      const it = { line, status, share };
+      if (explain && status !== 'ok' && studentLines.length) {
+        let best = null, bs = 0;
+        studentLines.forEach((sl) => { const sc = lcsRatio(tok, sl.tok); if (sc > bs) { bs = sc; best = sl; } });
+        if (best && bs >= 0.45) { it.near = best; it.nearScore = bs; it.diff = tokenDiff(tok, best.tok); }
+      }
+      detail.push(it);
+    });
+    const ok = detail.filter((d) => d.status === 'ok').length, near = detail.filter((d) => d.status === 'near').length;
+    const linePct = detail.length ? Math.round(((ok + near * 0.5) / detail.length) * 100) : seq;
+    return { pct: Math.max(seq, linePct), seq, linePct, ok, near, missing: detail.filter((d) => d.status !== 'ok').map((d) => d.line), lines: detail.length, detail,
+      refTok: tr.length, stuTok: ts.length };
+  }
+  function trimWrap(tok) {
+    while (tok.length > 1 && tok[tok.length - 1] === '(' && ['>', 'return'].includes(tok[tok.length - 2])) tok = tok.slice(0, -1);
+    while (tok.length > 1 && tok[0] === ')') tok = tok.slice(1);
+    return tok;
+  }
+  function lcsRatio(a, b) {
+    if (!a.length || !b.length) return 0;
+    let prev = new Array(b.length + 1).fill(0);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [0];
+      for (let j = 1; j <= b.length; j++) cur[j] = a[i - 1] === b[j - 1] ? prev[j - 1] + 1 : Math.max(prev[j], cur[j - 1]);
+      prev = cur;
+    }
+    return (2 * prev[b.length]) / (a.length + b.length);
+  }
+  // token yang hilang dari baris acuan dan token yang berbeda di baris murid
+  function tokenDiff(a, b) {
+    const ca = {}, cb = {};
+    a.forEach((x) => (ca[x] = (ca[x] || 0) + 1)); b.forEach((x) => (cb[x] = (cb[x] || 0) + 1));
+    const lack = [], extra = [];
+    Object.keys(ca).forEach((x) => { for (let i = 0; i < ca[x] - (cb[x] || 0); i++) lack.push(x); });
+    Object.keys(cb).forEach((x) => { for (let i = 0; i < cb[x] - (ca[x] || 0); i++) extra.push(x); });
+    return { lack: lack.filter((x) => !PUNCT.test(x)).concat(lack.filter((x) => PUNCT.test(x))), extra: extra.filter((x) => !PUNCT.test(x)).concat(extra.filter((x) => PUNCT.test(x))) };
   }
   function simHtml(r, label) {
     if (!r) return '';
@@ -1319,6 +1444,7 @@
       if (done && code && code.pct < 50 && (d && d.status)) why.push('Kode ' + code.pct + '%');
       if (d && d.status === 'norepo' && st.status !== 'not_started') why.push('Belum ada repo');
       if (commits === 0 && (done || longRun)) why.push('Tanpa commit bermakna');
+      if (files.some((x) => x && x.alt)) why.push('Cek versi kode');
       if (st.hidden >= 3) why.push('Sering pindah tab');
       if ((st.paste || 0) + (st.copy || 0) + (st.devtools || 0) > 0) why.push('Coba salin/inspect');
       return { st, row, step, av, code, files, d, commits, commitList, why };
@@ -1458,7 +1584,7 @@
         const prog = p.st.status === 'finished' ? 100 : (p.step / Math.max(1, md.total)) * 100;
         return '<tr data-s="' + h(p.row.session_id) + '" style="--r:' + Math.min(k, 30) + '"><td><div class="who"><span class="avatar">' + h(initials(p.st.name)) + '</span><div><strong>' + h(p.st.name) + '</strong><span>' + h(p.st.class) + '</span></div></div></td>' +
           '<td><div class="hm-prog"' + tipAttr(p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'Langkah ' + p.step + ' dari ' + md.total) + '><i class="grow-x" style="width:' + prog + '%;--d:' + (300 + Math.min(k, 30) * 25) + (p.st.status === 'finished' ? ';background:var(--viz-good)' : '') + '"></i></div><span class="hm-sub">' + (p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'L' + p.step + '/' + md.total) + '</span></td>' +
-          heat(p.av && p.av.avg != null ? Math.round(p.av.avg) : null) + p.files.map((f) => heat(f ? f.pct : null)).join('') + heat(p.code ? p.code.pct : null) +
+          heat(p.av && p.av.avg != null ? Math.round(p.av.avg) : null) + p.files.map((f, j) => f ? heatCell(f.pct, md.refs[j].ref_path + ': ' + f.pct + '%' + (f.alt ? ' · ada versi ' + f.alt.pct + '% selama misi' : '') + ' · klik untuk penjelasan', ' data-why="' + h(p.row.session_id) + '|' + md.refs[j].id + '"' + (f.alt ? ' data-alt="1"' : '')) : heat(null)).join('') + heat(p.code ? p.code.pct : null) +
           '<td class="c">' + (p.commits == null ? '<span class="muted">-</span>' : '<b>' + p.commits + '</b>') + '</td>' +
           '<td>' + (p.why.length ? p.why.map((x) => '<span class="pill warn">' + h(x) + '</span>').join(' ') : '<span class="pill ok">Aman</span>') + '</td></tr>';
       }).join('') + '</tbody></table></div>');
@@ -3116,7 +3242,7 @@
     const g = f && f.text != null ? codeSimilarity(st.ref_code, f.text) : null;
     const l = ans ? codeSimilarity(st.ref_code, ans) : null;
     if (!g && !l && !f && !(d.status && d.status !== 'loading')) return null;
-    return { pct: Math.max(g ? g.pct : 0, l ? l.pct : 0), ver: f && f.ver, git: !!g };
+    return { pct: Math.max(g ? g.pct : 0, l ? l.pct : 0), ver: f && f.ver, git: !!g, alt: g && f.alt && f.ver && f.ver.kind !== 'manual' && f.alt.pct > g.pct ? f.alt : null };
   }
   function codeAvgOf(r, refs, G) {
     if (!refs.length) return null;
@@ -3175,7 +3301,9 @@
           const fileErr = d.files && d.files[st.id] && d.files[st.id].err;
           const ver = gitSim && d.files[st.id].ver;
           return '<td>' + (gitSim ? simHtml(gitSim, 'Kode di GitHub') + (ver ? '<div class="bar-label ver-' + ver.kind + '" title="' + h(verText(ver)) + '">' + VER_LABEL[ver.kind] + '</div>' : '') : fileErr ? '<span class="gh-row-err">' + h(fileErr) + '</span>' : '') +
-            (lkmSim ? '<div class="bar-label">Jawaban LKM ' + lkmSim.pct + '%</div>' : '') + (!gitSim && !fileErr && !lkmSim ? '<span class="muted">-</span>' : '') + '</td>';
+            (lkmSim ? '<div class="bar-label">Jawaban LKM ' + lkmSim.pct + '%</div>' : '') + (!gitSim && !fileErr && !lkmSim ? '<span class="muted">-</span>' : '') +
+            (gitSim && d.files[st.id].alt && d.files[st.id].ver.kind !== 'manual' && d.files[st.id].alt.pct > gitSim.pct ? '<div class="bar-label alt-warn" title="' + h('Versi "' + d.files[st.id].alt.msg + '" selama misi') + '">⚠ ada versi ' + d.files[st.id].alt.pct + '% selama misi</div>' : '') +
+            (gitSim || lkmSim ? '<button class="why-btn" type="button" data-why="' + r.session_id + '|' + st.id + '">Kenapa?</button>' : '') + '</td>';
         }).join('');
         return '<tr data-s="' + r.session_id + '"' + (r.is_active ? '' : ' class="off"') + '>' +
           '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.absent ? ', belum mulai LKM' : '') + '</span></div></div></td>' +
@@ -3204,7 +3332,11 @@
        4. setelah misi  : file baru dibuat setelah misi, jadi dipakai versi terbaru
      Murid tanpa sesi LKM (tertinggal) memakai versi terbaru. Perubahan dari misi berikutnya tidak ikut dinilai. */
   const GH_GRACE_MS = 60 * 60000, GH_EARLY_MS = 15 * 60000;
-  const VER_LABEL = { clear: 'commit jelas', mission: 'akhir misi', before: 'sebelum misi', after: 'setelah misi', head: 'versi terbaru' };
+  const VER_LABEL = { clear: 'commit jelas', mission: 'akhir misi', before: 'sebelum misi', after: 'setelah misi', head: 'versi terbaru', manual: 'dipilih guru' };
+  // versi yang dipilih guru lewat penjelasan "Kenapa?": disimpan di browser ini, kunci = sesi + langkah
+  const PIN_KEY = 'lkm_verpin';
+  const pinGet = () => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || '{}'); } catch { return {}; } };
+  const pinSet = (k, sha) => { const o = pinGet(); if (sha) o[k] = sha; else delete o[k]; try { localStorage.setItem(PIN_KEY, JSON.stringify(o)); } catch {} };
   const GENERIC_FILE = /^(page|index|layout|app|main|style|styles|globals?|route|utils?|data)$/i;
   function mentionsStep(msg, st) {
     const m = ' ' + String(msg || '').toLowerCase().replace(/[_\-]+/g, ' ') + ' ';
@@ -3220,10 +3352,13 @@
     const enc = st.ref_path.split('/').map(encodeURIComponent).join('/');
     const hist = (await gh(base + '/commits?path=' + encodeURIComponent(st.ref_path) + '&per_page=50')).map((c) => ({
       sha: c.sha, msg: (c.commit?.message || '').split('\n')[0], date: c.commit?.author?.date || c.commit?.committer?.date, parents: c.parents || [] }));
-    if (!hist.length) return { text: null, err: 'File ' + st.ref_path + ' belum ada', changes: 0 };
+    if (!hist.length) return { text: null, err: 'File ' + st.ref_path + ' belum ada', changes: 0, hist: [] };
     const t = (c) => new Date(c.date).getTime();
     const start = r.started_at ? new Date(r.started_at).getTime() : null;
     const end = (r.finished_at ? new Date(r.finished_at).getTime() : Date.now()) + GH_GRACE_MS;
+    hist.forEach((c) => { c.when = start == null ? 'head' : t(c) < start - GH_EARLY_MS ? 'before' : t(c) > end ? 'after' : 'mission'; c.clear = c.when === 'mission' && commitKind(c) === 'ok' && mentionsStep(c.msg, st); });
+    const extra = { hist, win: start == null ? null : { start: start - GH_EARLY_MS, end }, repo };
+    const pin = pinGet()[r.session_id + ':' + st.id];
     let order;
     if (start == null) order = hist.map((c) => ({ kind: 'head', c }));
     else {
@@ -3236,19 +3371,169 @@
         .concat(hist.map((c) => ({ kind: 'after', c })));
       order.forEach((o) => { if (o.kind === 'before' && inWin.includes(o.c)) o.kind = 'mission'; });
     }
+    const pinned = pin && hist.find((c) => c.sha === pin);
+    if (pinned) order.unshift({ kind: 'manual', c: pinned });
     // commit yang menghapus file tidak punya isi: coba versi berikutnya dalam urutan
     const tried = new Set();
     for (const o of order) {
       if (tried.has(o.c.sha)) continue; tried.add(o.c.sha);
       if (tried.size > 3) break;
-      try {
-        const text = await gh(base + '/contents/' + enc + '?ref=' + o.c.sha, true);
-        return { text, ver: { kind: o.kind, sha: o.c.sha, msg: o.c.msg, date: o.c.date }, changes: start == null ? null : hist.filter((c) => t(c) >= start - GH_EARLY_MS && t(c) <= end).length, total: hist.length };
-      } catch (e) { if (e.kind !== '404') throw e; }
+      let text;
+      try { text = await gh(base + '/contents/' + enc + '?ref=' + o.c.sha, true); } catch (e) { if (e.kind !== '404') throw e; continue; }
+      const res = Object.assign({ text, ver: { kind: o.kind, sha: o.c.sha, msg: o.c.msg, date: o.c.date }, changes: start == null ? null : hist.filter((c) => t(c) >= start - GH_EARLY_MS && t(c) <= end).length, total: hist.length, texts: { [o.c.sha]: text } }, extra);
+      // periksa juga versi lain selama misi (paling banyak 5): tandai bila ada yang nilainya jelas lebih tinggi
+      if (start != null && o.kind !== 'manual') {
+        const cur = codeSimilarity(st.ref_code, text); res.curPct = cur ? cur.pct : 0;
+        for (const c of hist.filter((x) => x.when === 'mission' && x.sha !== o.c.sha).slice(0, 5)) {
+          try { res.texts[c.sha] = await gh(base + '/contents/' + enc + '?ref=' + c.sha, true); }
+          catch (e) { if (e.kind === '404') { res.texts[c.sha] = null; continue; } break; }
+          const sc = codeSimilarity(st.ref_code, res.texts[c.sha]);
+          if (sc && sc.pct > res.curPct + 4 && (!res.alt || sc.pct > res.alt.pct)) res.alt = { sha: c.sha, msg: c.msg, date: c.date, pct: sc.pct };
+        }
+      }
+      return res;
     }
-    return { text: null, err: 'File ' + st.ref_path + ' sudah dihapus', changes: 0 };
+    return Object.assign({ text: null, err: 'File ' + st.ref_path + ' sudah dihapus', changes: 0 }, extra);
   }
   const verText = (v) => v ? VER_LABEL[v.kind] + (v.kind === 'clear' ? ': "' + v.msg + '"' : '') + ', ' + new Date(v.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+
+  /* ---------- penjelasan persentase kode ("Kenapa?") ---------- */
+  const WHEN_LABEL = { mission: 'selama misi', before: 'sebelum misi', after: 'setelah misi', head: '' };
+  const fmtWhen = (d) => new Date(d).toLocaleString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  function verdictOf(p) { return p >= 80 ? ['ok', 'Bagus'] : p >= 50 ? ['warn', 'Cukup'] : ['danger', 'Kurang']; }
+  function whyContext(sid, stid) {
+    const r = ghRows().find((x) => x.session_id === sid); if (!r) return null;
+    const st = (S.results?.steps || []).find((x) => x.id === stid); if (!st) return null;
+    const d = (S.gh && S.gh.byS[sid]) || {}, f = d.files && d.files[stid];
+    const ans = lkmText(st, (r.answers || {})[st.id]);
+    const git = f && f.text != null ? codeSimilarity(st.ref_code, f.text, true) : null;
+    const lkm = ans ? codeSimilarity(st.ref_code, ans, true) : null;
+    const used = git && (!lkm || git.pct >= lkm.pct) ? 'git' : lkm ? 'lkm' : null;
+    return { r, st, d, f, ans, git, lkm, used, A: used === 'git' ? git : lkm, code: used === 'git' ? f.text : ans };
+  }
+  function whyReasons(c) {
+    const A = c.A, out = [], f = c.f;
+    const miss = A.lines - A.ok - A.near;
+    out.push(['info', A.ok + ' dari ' + A.lines + ' baris kode acuan ada persis' + (A.near ? ', ' + A.near + ' mirip (berbeda sedikit, dihitung setengah)' : '') + (miss ? ', ' + miss + ' tidak ditemukan' : '') + '.']);
+    if (A.stuTok < A.refTok * 0.5) out.push(['warn', 'Kode murid jauh lebih pendek dari kode acuan (' + A.stuTok + ' banding ' + A.refTok + ' token). Kemungkinan belum selesai, atau yang dicek bukan file yang dimaksud.']);
+    // nama yang diganti: baris mirip yang hanya berbeda satu nama
+    const ren = {};
+    A.detail.forEach((x) => { if (x.diff) { const l = x.diff.lack.filter((t) => !PUNCT.test(t)), e = x.diff.extra.filter((t) => !PUNCT.test(t)); if (l.length && e.length && new Set(l).size === 1 && new Set(e).size === 1) ren[l[0] + ' → ' + e[0]] = 1; } });
+    const rn = Object.keys(ren);
+    if (rn.length) out.push(['info', 'Ada nama yang berbeda dari acuan: ' + rn.slice(0, 4).join(', ') + '. Kalau dipakai konsisten, kodenya tetap benar; baris itu dihitung setengah. Periksa sendiri bila perlu.']);
+    if (c.used === 'git' && f.ver) {
+      const v = f.ver;
+      out.push([v.kind === 'after' ? 'warn' : 'info', {
+        clear: 'Yang dicek versi dari commit yang menyebut langkah ini: "' + v.msg + '" (' + fmtWhen(v.date) + ').',
+        mission: 'Yang dicek versi terakhir selama misi: "' + v.msg + '" (' + fmtWhen(v.date) + ').',
+        before: 'File tidak diubah selama misi, jadi yang dicek versi terakhir sebelum misi selesai: "' + v.msg + '" (' + fmtWhen(v.date) + ').',
+        after: 'File baru ada setelah misi berakhir, jadi yang dicek versi terbaru: "' + v.msg + '" (' + fmtWhen(v.date) + '). Kode ini tidak dibuat selama misi.',
+        head: 'Murid tidak punya sesi LKM, jadi yang dicek versi terbaru: "' + v.msg + '" (' + fmtWhen(v.date) + ').',
+        manual: 'Versi ini dipilih guru: "' + v.msg + '" (' + fmtWhen(v.date) + ').',
+      }[v.kind]]);
+    }
+    if (f && f.hist) {
+      const inM = f.hist.filter((h0) => h0.when === 'mission').length, aft = f.hist.filter((h0) => h0.when === 'after').length;
+      if (inM > 1) out.push(['info', 'File diubah ' + inM + ' kali selama misi. Persentase tiap versi ada di Riwayat file di bawah.']);
+      if (aft) out.push(['info', aft + ' perubahan setelah misi tidak ikut dinilai.']);
+    }
+    if (c.used === 'git' && f.alt && f.ver && f.ver.kind !== 'manual' && f.alt.pct > c.git.pct) out.push(['warn', 'Versi "' + f.alt.msg + '" (' + fmtWhen(f.alt.date) + ') selama misi mendapat ' + f.alt.pct + '%, lebih tinggi dari versi yang dicek (' + c.git.pct + '%). Mungkin kode sempat lengkap lalu terhapus atau berubah. Pilih versi yang dinilai di Riwayat file.']);
+    if (c.git && c.lkm) out.push(['info', 'Kode di GitHub ' + c.git.pct + '%, jawaban yang diketik di LKM ' + c.lkm.pct + '%. Yang dipakai nilai yang lebih tinggi.']);
+    else if (!c.git && c.lkm) out.push(['info', 'Dinilai dari jawaban yang diketik di LKM' + (f && f.err ? ', karena di GitHub: ' + f.err.toLowerCase() : f ? '' : '. GitHub belum dianalisa') + '.']);
+    return out;
+  }
+  function openWhy(sid, stid) {
+    const c = whyContext(sid, stid); if (!c) return;
+    const { r, st, f, A } = c;
+    if (!A) {
+      openModal('<h2>' + h(r.name) + ' · L' + st.no + '</h2><p class="sub">' + (f && f.err ? h(f.err) + '. ' : '') + 'Belum ada kode untuk dibandingkan: file belum ada di GitHub dan murid tidak mengetik jawaban kode di LKM.</p>' +
+        (f && f.hist && f.hist.length ? '' : '') + '<div class="modal-actions"><button class="btn btn-primary" data-x="no">Tutup</button></div>', true).querySelector('[data-x="no"]').onclick = () => closeModal(false);
+      return;
+    }
+    const [tone, word] = verdictOf(A.pct);
+    const reasons = whyReasons(c);
+    const lineRow = (x) => {
+      const ic = x.status === 'ok' ? ['ok', '✓', 'Ada persis'] : x.status === 'near' ? ['warn', '≈', 'Mirip'] : ['danger', '✗', 'Tidak ditemukan'];
+      return '<li class="wl ' + x.status + '"><span class="wl-ic ' + ic[0] + '" title="' + ic[2] + '">' + ic[1] + '</span><div><code>' + h(x.line) + '</code>' +
+        (x.status !== 'ok' ? (x.near ? '<div class="wl-near">Paling mirip di kode murid, baris ' + x.near.no + ': <code>' + h(x.near.text.trim()) + '</code>' +
+          ((x.diff.lack.length || x.diff.extra.length) ? '<div class="wl-diff">' + (x.diff.lack.length ? 'Kurang: ' + x.diff.lack.slice(0, 8).map((t) => '<b class="minus">' + h(t) + '</b>').join(' ') : '') +
+            (x.diff.extra.length ? (x.diff.lack.length ? ' · ' : '') + 'Berbeda/lebih: ' + x.diff.extra.slice(0, 8).map((t) => '<b class="plus">' + h(t) + '</b>').join(' ') : '') + '</div>' : '') + '</div>'
+          : '<div class="wl-near">Tidak ada baris yang mirip di kode murid.</div>') : '') + '</div></li>';
+    };
+    const order = { miss: 0, near: 1, ok: 2 };
+    const lines = A.detail.slice().sort((a, b) => order[a.status] - order[b.status]);
+    const pinKey = r.session_id + ':' + st.id;
+    const html = '<div class="why-head"><div><span class="db-eyebrow">L' + st.no + ' · ' + h(st.ref_path || st.title) + '</span><h2>' + h(r.name) + '</h2>' +
+      '<p class="sub" style="margin:4px 0 0">Dinilai dari ' + (c.used === 'git' ? 'kode di GitHub' + (c.f.ver ? ' (' + VER_LABEL[c.f.ver.kind] + ')' : '') : 'jawaban yang diketik di LKM') + '</p></div>' +
+      '<div class="why-score ' + tone + '"><b>' + A.pct + '%</b><span>' + word + '</span></div></div>' +
+      '<div class="why-meter"><div><span>Urutan kode</span><i><em style="width:' + A.seq + '%"></em></i><b>' + A.seq + '%</b></div><div><span>Baris yang ada</span><i><em style="width:' + A.linePct + '%"></em></i><b>' + A.linePct + '%</b></div>' +
+      '<p class="help" style="margin:4px 0 0">Persentase akhir = yang lebih tinggi dari keduanya. Spasi, komentar, huruf besar-kecil, jenis tanda petik, titik koma, koma terakhir, kurung pembungkus JSX, dan alamat import (../ atau @/) tidak dibedakan.</p></div>' +
+      '<ul class="why-reasons">' + reasons.map(([t, x]) => '<li class="' + t + '">' + h(x) + '</li>').join('') + '</ul>' +
+      '<h3 class="why-h">Baris kode acuan <span class="muted">(' + A.ok + ' ada · ' + A.near + ' mirip · ' + (A.lines - A.ok - A.near) + ' tidak ditemukan)</span></h3><ul class="why-lines">' + lines.map(lineRow).join('') + '</ul>' +
+      (c.used === 'git' && f.hist && f.hist.length ? '<h3 class="why-h">Riwayat file selama misi <span class="muted">(' + f.hist.length + ' commit mengubah file ini)</span></h3>' +
+        '<ul class="why-hist">' + f.hist.map((x) => '<li data-sha="' + x.sha + '" class="' + (f.ver && f.ver.sha === x.sha ? 'cur' : '') + '"><span class="wh-dot ' + x.when + '"></span><div class="wh-main"><b>' + h(x.msg || '(tanpa pesan)') + '</b>' +
+          '<span>' + fmtWhen(x.date) + (WHEN_LABEL[x.when] ? ' · ' + WHEN_LABEL[x.when] : '') + (x.clear ? ' · <em class="ok">commit jelas</em>' : '') + '</span></div>' +
+          '<span class="wh-pct">' + (f.texts && f.texts[x.sha] != null ? codeSimilarity(st.ref_code, f.texts[x.sha]).pct + '%' : '<span class="spinner" style="width:12px;height:12px"></span>') + '</span>' +
+          '<span class="wh-act">' + (f.ver && f.ver.sha === x.sha ? '<span class="pill ok">dipakai</span>' : '<button class="btn btn-sm btn-ghost" data-pin="' + x.sha + '">Pakai versi ini</button>') + '</span></li>').join('') + '</ul>' +
+        (pinGet()[pinKey] ? '<p class="help">Versi ini dipilih guru. <button class="btn btn-sm" id="whyAuto">Kembalikan ke pilihan otomatis</button></p>' : '<p class="help">Pilihan otomatis: commit jelas selama misi, lalu versi terakhir selama misi, lalu versi sebelum misi. Pilihan guru disimpan di browser ini.</p>') : '') +
+      '<details class="why-code"><summary>Lihat kode yang dicek (' + String(c.code).split('\n').length + ' baris)</summary><pre>' + String(c.code).split('\n').map((l, i) => '<span>' + (i + 1) + '</span>' + h(l)).join('\n') + '</pre></details>' +
+      '<div class="modal-actions"><button class="btn btn-primary" data-x="no">Tutup</button></div>';
+    const box = openModal(html, true);
+    box.classList.add('why');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelectorAll('[data-pin]').forEach((b) => (b.onclick = () => usePin(c, b.dataset.pin)));
+    const auto = box.querySelector('#whyAuto');
+    if (auto) auto.onclick = async () => {
+      pinSet(pinKey, null); auto.disabled = true;
+      try { c.d.files[st.id] = await smartFile(f.repo, st, r); } catch (e) { toast(ghErr(e), 'err'); }
+      afterPin(); openWhy(sid, stid);
+    };
+    if (c.used === 'git' && f.alt && f.ver && f.ver.kind !== 'manual' && f.alt.pct > c.git.pct) {
+      const li = [...box.querySelectorAll('.why-reasons li.warn')].find((x) => x.textContent.includes('lebih tinggi dari versi'));
+      if (li) { li.insertAdjacentHTML('beforeend', ' <button class="btn btn-sm" data-pin2="' + f.alt.sha + '">Pakai versi itu</button>'); li.querySelector('[data-pin2]').onclick = () => usePin(c, f.alt.sha); }
+    }
+    if (c.used === 'git' && f.hist) loadHistTexts(c, box);
+  }
+  // ambil isi versi lain (paling banyak 12) untuk menghitung persentase tiap versi
+  async function loadHistTexts(c, box) {
+    const { f, st } = c; f.texts = f.texts || {};
+    const enc = st.ref_path.split('/').map(encodeURIComponent).join('/');
+    const todo = f.hist.filter((x) => f.texts[x.sha] === undefined).sort((a, b) => (a.when === 'mission' ? 0 : 1) - (b.when === 'mission' ? 0 : 1)).slice(0, 12);
+    for (const x of todo) {
+      try { f.texts[x.sha] = await gh('/repos/' + f.repo.owner + '/' + f.repo.name + '/contents/' + enc + '?ref=' + x.sha, true); }
+      catch (e) { if (e.kind === '404') f.texts[x.sha] = null; else break; }
+      const li = box.isConnected && box.querySelector('li[data-sha="' + x.sha + '"] .wh-pct');
+      if (li) li.innerHTML = f.texts[x.sha] == null ? '<span class="muted">dihapus</span>' : codeSimilarity(st.ref_code, f.texts[x.sha]).pct + '%';
+    }
+    if (!box.isConnected) return;
+    box.querySelectorAll('li[data-sha] .wh-pct .spinner').forEach((sp) => (sp.parentNode.innerHTML = '<span class="muted">-</span>'));
+    // beri tahu bila ada versi selama misi yang nilainya lebih tinggi dari versi yang dipakai
+    const cur = c.git ? c.git.pct : 0;
+    const best = f.hist.filter((x) => x.when === 'mission' && f.texts[x.sha]).map((x) => ({ x, p: codeSimilarity(st.ref_code, f.texts[x.sha]).pct })).sort((a, b) => b.p - a.p)[0];
+    if (best && best.p > cur + 4 && f.ver && best.x.sha !== f.ver.sha && !(f.alt && f.alt.sha === best.x.sha && f.ver.kind !== 'manual')) {
+      const ul = box.querySelector('.why-reasons');
+      if (ul) ul.insertAdjacentHTML('beforeend', '<li class="warn">Versi "' + h(best.x.msg) + '" (' + fmtWhen(best.x.date) + ') selama misi mendapat ' + best.p + '%, lebih tinggi dari versi yang dicek (' + cur + '%). Mungkin kode sempat lengkap lalu terhapus atau berubah. <button class="btn btn-sm" data-pin2="' + best.x.sha + '">Pakai versi itu</button></li>');
+      const b = box.querySelector('[data-pin2]'); if (b) b.onclick = () => usePin(c, best.x.sha);
+    }
+  }
+  function usePin(c, sha) {
+    const { f, st, r } = c, x = f.hist.find((h0) => h0.sha === sha);
+    if (!x || !f.texts || f.texts[sha] == null) { toast('Isi versi itu belum terambil atau file dihapus di versi itu.', 'err'); return; }
+    pinSet(r.session_id + ':' + st.id, sha);
+    f.text = f.texts[sha]; f.ver = { kind: 'manual', sha, msg: x.msg, date: x.date }; delete f.err;
+    afterPin(); openWhy(r.session_id, st.id);
+    toast('Versi "' + x.msg + '" dipakai untuk penilaian kode.', 'ok');
+  }
+  function afterPin() {
+    if (S.view === 'github' && S.gh) renderGithub();
+    else if (S.view === 'dash') renderDash(false);
+  }
+  // tombol / sel dengan data-why="sesi|langkah" membuka penjelasan
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest && e.target.closest('[data-why]'); if (!el) return;
+    e.preventDefault(); e.stopPropagation();
+    const [sid, stid] = el.dataset.why.split('|'); openWhy(sid, stid);
+  }, true);
 
   async function fetchRow(r, ctx) {
     const repo = parseRepo(resolveRepo(r, ctx).url || '');
@@ -3335,7 +3620,8 @@
           (st.ref_path ? (f && f.text != null ? simDetail(codeSimilarity(st.ref_code, f.text), 'File ' + st.ref_path + ' di GitHub') +
               (f.ver ? '<div class="help">Versi yang dicek: <strong>' + h(verText(f.ver)) + '</strong>' + (f.changes != null ? '. File ini diubah ' + f.changes + ' kali selama misi' : '') + '.</div>' : '')
             : '<div class="help">' + (f && f.err ? h(f.err) : 'File ' + h(st.ref_path) + ' belum diambil. Klik Ambil ulang data GitHub.') + '</div>') : '') +
-          (ans ? simDetail(codeSimilarity(st.ref_code, ans), 'Jawaban yang diketik di LKM') : '') + '</div>';
+          (ans ? simDetail(codeSimilarity(st.ref_code, ans), 'Jawaban yang diketik di LKM') : '') +
+          ((f && f.text != null) || ans ? '<button class="btn btn-sm" type="button" style="margin-top:8px" data-why="' + r.session_id + '|' + st.id + '">Kenapa persentasenya segini?</button>' : '') + '</div>';
       }).join('') + '<p class="help" style="margin:0">Persentase = bagian kode acuan yang juga ada di kode murid. Spasi, komentar, huruf besar-kecil, dan jenis tanda petik diabaikan. Kode tambahan milik murid tidak mengurangi nilai. Ini petunjuk untuk guru, bukan nilai otomatis.</p></section>';
     }
     const cs = d.commits;
