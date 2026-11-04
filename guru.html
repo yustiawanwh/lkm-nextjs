@@ -15,6 +15,7 @@
     --line:#E0E4EE; --accent:#2747E6; --accent-hover:#1E3AD0; --accent-ink:#FFFFFF; --accent-soft:#E6EBFF;
     --warn:#B86200; --warn-soft:#FFF1DC; --danger:#D02B2B; --danger-soft:#FFE6E6; --ok:#0F8257; --ok-soft:#E1F5EC;
     --code-bg:#111733; --code-ink:#E2E8FF; --scrim:rgba(14,18,34,.55);
+    --viz-1:#2a78d6; --viz-good:#0ca30c; --viz-warn:#fab219; --viz-crit:#d03b3b; --viz-none:#d6d5cf; --viz-other:#b9b8b0; --viz-grid:#e1e0d9;
     --shadow-sm:0 1px 2px rgba(20,26,46,.06);
     --shadow-lg:0 1px 2px rgba(20,26,46,.05), 0 24px 48px -20px rgba(20,26,46,.28);
     --sans:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -26,6 +27,7 @@
       --line:#262D46; --accent:#7D93FF; --accent-hover:#97A8FF; --accent-ink:#0D1120; --accent-soft:#1E2852;
       --warn:#F2A93B; --warn-soft:#33260F; --danger:#FF6B6B; --danger-soft:#3A191D; --ok:#3CD397; --ok-soft:#12301F;
       --code-bg:#090D1B; --scrim:rgba(4,6,14,.7); --shadow-lg:0 24px 48px -20px rgba(0,0,0,.6);
+      --viz-1:#3987e5; --viz-none:#3a3f55; --viz-other:#5b6078; --viz-grid:#262D46;
     }
   }
   *{box-sizing:border-box}
@@ -316,6 +318,118 @@
   .pr-tab th{background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
   .pr-tab td.in{font-weight:700}
   .pr-tab td.in.empty{color:#999 !important; font-weight:400}
+  /* ---------- dashboard ---------- */
+  .dash{display:grid; gap:16px}
+  .db-card{background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-sm)}
+  .db-hero{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 26px;
+    background:radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 16%, var(--surface)) 0%, var(--surface) 58%)}
+  .db-hero h2{font-size:24px; font-weight:800; margin:4px 0 6px}
+  .db-hero p{margin:0; color:var(--ink-2); font-size:14px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  .db-eyebrow{font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--accent)}
+  .db-ring{position:relative; width:112px; height:112px; flex:none}
+  .db-ring svg{width:100%; height:100%; transform:rotate(-90deg)}
+  .db-ring circle{fill:none; stroke-width:10}
+  .db-ring .trk{stroke:var(--viz-grid)}
+  .db-ring .val{stroke:var(--viz-good); stroke-linecap:round; stroke-dasharray:calc(var(--p) * 1) 100}
+  .db-ring > div{position:absolute; inset:0; display:grid; place-content:center; text-align:center; line-height:1}
+  .db-ring .rv{margin:0; display:flex; align-items:baseline; justify-content:center; gap:1px}
+  .db-ring b{font-size:28px; font-weight:800}
+  .db-ring small{font-size:14px; font-weight:700; color:var(--ink-2)}
+  .db-ring span{display:block; font-size:11.5px; color:var(--muted); margin-top:4px; font-weight:600}
+  .db-kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px}
+  .kpi{padding:16px 18px; display:flex; flex-direction:column; gap:4px; min-height:118px}
+  .kpi-label{font-size:12.5px; font-weight:700; color:var(--ink-2)}
+  .kpi-val{font-size:30px; font-weight:800; letter-spacing:-.02em; line-height:1.15}
+  .kpi-val small{font-size:15px; font-weight:700; color:var(--ink-2); margin-left:2px}
+  .kpi-bar{height:6px; border-radius:6px; background:var(--viz-grid); overflow:hidden; margin-top:4px}
+  .kpi-bar i{display:block; height:100%; border-radius:6px; background:var(--viz-1)}
+  .kpi-sub{font-size:12px; color:var(--muted); margin-top:auto}
+  .db-grid{display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px}
+  .db-panel{padding:18px 20px 20px; min-width:0}
+  .db-panel header{display:flex; justify-content:space-between; gap:12px; margin-bottom:14px}
+  .db-panel h3{font-size:15.5px; font-weight:800}
+  .db-panel header p{margin:3px 0 0; font-size:12.5px; color:var(--muted); max-width:62ch}
+  .db-legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2); margin:0 0 12px}
+  .db-legend span{display:inline-flex; align-items:center; gap:6px}
+  .db-legend i{width:10px; height:10px; border-radius:3px; display:inline-block}
+  .db-empty{display:grid; place-items:center; min-height:150px; color:var(--muted); font-size:13.5px; border:1.5px dashed var(--line); border-radius:12px}
+  .db-seg{display:flex; gap:2px; height:44px; border-radius:10px; overflow:hidden; margin-bottom:12px}
+  .db-seg > div{display:flex; align-items:center; justify-content:center; min-width:22px; transform-origin:left; outline-offset:-3px}
+  .db-seg span{color:#fff; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:clip; padding:0 8px}
+  .db-seg span.dark{color:var(--ink)}
+  .db-funnel{display:grid; gap:9px}
+  .fn-row{display:grid; grid-template-columns:minmax(120px, 34%) 1fr 74px; align-items:center; gap:12px; border-radius:8px; padding:2px 4px; outline-offset:0}
+  .fn-row:hover{background:var(--surface-2)}
+  .fn-lbl{font-size:13px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .fn-lbl b{color:var(--ink); margin-right:6px}
+  .fn-track{position:relative; height:12px; border-radius:6px; background:var(--viz-grid)}
+  .fn-track i{position:absolute; inset:0 auto 0 0; border-radius:6px; background:var(--viz-1); transform-origin:left}
+  .fn-track em{position:absolute; top:50%; width:22px; height:22px; margin-top:-11px; border-radius:50%; background:var(--surface); border:2px solid var(--viz-1); font:800 10.5px/18px var(--sans); text-align:center; color:var(--ink); font-style:normal; box-shadow:0 0 0 2px var(--surface)}
+  .fn-val{font-size:13.5px; font-weight:800; text-align:right; font-variant-numeric:tabular-nums}
+  .fn-val small{font-weight:600; color:var(--muted)}
+  .db-cols{display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; height:210px; align-items:end; padding-top:6px}
+  .db-cols .col{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; border-radius:8px; outline-offset:2px}
+  .db-cols .col i{width:min(46px, 70%); border-radius:6px 6px 2px 2px; background:var(--viz-1); min-height:3px; transform-origin:bottom}
+  .db-cols .cv{font-size:14px; font-weight:800}
+  .db-cols .cl{font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap}
+  .db-files{display:grid; gap:14px}
+  .fl-top{display:flex; justify-content:space-between; gap:10px; font-size:13px; color:var(--ink-2); margin-bottom:6px}
+  .fl-top b{color:var(--ink)}
+  .fl-top span:first-child{font-family:var(--mono); font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .fl-avg{font-weight:800; color:var(--ink); font-size:14px}
+  .fl-bar{display:flex; gap:2px; height:16px; border-radius:6px; overflow:hidden}
+  .fl-bar i{transform-origin:left; outline-offset:-2px}
+  .fl-sub{font-size:11.5px; color:var(--muted); margin-top:5px}
+  .db-tl{display:grid; grid-template-columns:auto 1fr; gap:8px; height:220px}
+  .tl-grid{display:flex; flex-direction:column; justify-content:space-between; font-size:11px; color:var(--muted); padding-bottom:22px; text-align:right; font-variant-numeric:tabular-nums}
+  .tl-cols{display:flex; align-items:stretch; gap:2px; border-bottom:1px solid var(--viz-grid);
+    background:linear-gradient(var(--viz-grid), var(--viz-grid)) 0 0 / 100% 1px no-repeat, linear-gradient(var(--viz-grid), var(--viz-grid)) 0 50% / 100% 1px no-repeat; margin-bottom:22px; position:relative}
+  .tl-col{flex:1; position:relative; display:flex; align-items:flex-end; border-radius:4px; outline-offset:1px}
+  .tl-col:hover{background:color-mix(in srgb, var(--viz-1) 8%, transparent)}
+  .tl-stack{width:100%; display:flex; flex-direction:column; gap:2px; transform-origin:bottom; min-height:0}
+  .tl-stack i{display:block; border-radius:3px 3px 1px 1px; min-height:3px}
+  .tl-x{position:absolute; top:100%; left:0; margin-top:6px; font-size:10.5px; color:var(--muted); white-space:nowrap}
+  .db-heat-wrap{overflow-x:auto; margin:0 -6px}
+  .db-heat{width:100%; border-collapse:separate; border-spacing:0 4px; font-size:13.5px}
+  .db-heat th{font-size:12px; font-weight:700; color:var(--muted); text-align:left; padding:4px 8px; white-space:nowrap}
+  .db-heat th.c, .db-heat td.c{text-align:center}
+  .db-heat td{padding:6px 8px; vertical-align:middle}
+  .db-heat tbody tr{cursor:pointer}
+  .db-heat tbody tr:hover td{background:var(--surface-2)}
+  .db-heat tbody tr td:first-child{border-radius:10px 0 0 10px} .db-heat tbody tr td:last-child{border-radius:0 10px 10px 0}
+  .db-heat .who strong{font-size:13.5px}
+  .db-heat td.hm{width:52px; min-width:52px; text-align:center; font-weight:800; font-size:12.5px; border-radius:8px; background:color-mix(in srgb, var(--viz-1) var(--a), var(--surface)) !important; box-shadow:inset 0 0 0 2px var(--surface)}
+  .db-heat td.hm.na{background:transparent !important; color:var(--muted); font-weight:500}
+  .hm-prog{width:120px; height:8px; border-radius:6px; background:var(--viz-grid); overflow:hidden}
+  .hm-prog i{display:block; height:100%; border-radius:6px; background:var(--viz-1); transform-origin:left}
+  .hm-sub{font-size:11.5px; color:var(--muted)}
+  .db-heat .pill{margin:1px 0}
+  .db-heat td[data-gows]{cursor:pointer}
+  .db-heat td.hm.off{background:repeating-linear-gradient(135deg, transparent 0 5px, var(--viz-grid) 5px 6px) !important}
+  .db-heat td[data-gows]:hover{box-shadow:inset 0 0 0 2px var(--accent)}
+  .db-misi{display:grid; gap:10px}
+  .ms-row{display:grid; grid-template-columns:minmax(140px, 38%) 1fr 92px; align-items:center; gap:12px}
+  .ms-lbl{border:0; background:none; padding:4px 6px; margin:-4px -6px; border-radius:8px; text-align:left; font-size:13px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .ms-lbl:hover{background:var(--surface-2); color:var(--accent)}
+  .ms-lbl b{color:var(--ink); margin-right:6px}
+  .ms-bar{height:14px}
+  @media (max-width:640px){ .ms-row{grid-template-columns:1fr 80px} .ms-lbl{grid-column:1 / -1} }
+  #vizTip{position:fixed; z-index:120; max-width:280px; padding:7px 10px; border-radius:8px; background:var(--ink); color:var(--surface); font-size:12.5px; font-weight:600; pointer-events:none; box-shadow:var(--shadow-lg)}
+  /* animasi masuk saat dashboard dibuka */
+  @keyframes dbUp{from{opacity:0; transform:translateY(16px) scale(.985)} to{opacity:1; transform:none}}
+  @keyframes dbGrowX{from{transform:scaleX(0)}}
+  @keyframes dbGrowY{from{transform:scaleY(0)}}
+  @keyframes dbRing{from{stroke-dasharray:0 100}}
+  @keyframes dbRow{from{opacity:0; transform:translateX(-10px)}}
+  .dash.anim .db-card{animation:dbUp .6s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--i, 0) * 70ms)}
+  .dash.anim .grow-x{animation:dbGrowX 1s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--d, 0) * 1ms + 380ms)}
+  .dash.anim .grow-y{animation:dbGrowY .9s cubic-bezier(.2,.8,.2,1) both; animation-delay:calc(var(--d, 0) * 1ms + 450ms)}
+  .dash.anim .db-ring .val{animation:dbRing 1.3s cubic-bezier(.2,.8,.2,1) both; animation-delay:.25s}
+  .dash.anim .db-heat tbody tr{animation:dbRow .45s ease-out both; animation-delay:calc(var(--r, 0) * 30ms + 700ms)}
+  .grow-x{transform-origin:left} .grow-y{transform-origin:bottom}
+  @media (prefers-reduced-motion: reduce){ .dash.anim *{animation:none !important} }
+  @media (max-width:1100px){ .db-grid > .db-panel{grid-column:span 12 !important} }
+  @media (max-width:640px){ .db-hero{flex-direction:column; align-items:flex-start} .fn-row{grid-template-columns:1fr 64px} .fn-lbl{grid-column:1 / -1} }
   .g-shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; margin:0 0 10px}
   .g-shots a{position:relative; display:block; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
   .g-shots img{width:100%; height:100%; object-fit:contain; display:block}
@@ -437,6 +551,8 @@
 
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
+  .bar-label.ver-clear{color:var(--ok); font-weight:700}
+  .bar-label.ver-after{color:var(--warn)}
   .gh-from{max-width:200px; min-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   /* kolom rata-rata selalu terlihat di kanan */
   .tbl .gh-avg{position:sticky; right:0; z-index:2; background:var(--surface); box-shadow:inset 1px 0 0 var(--line), -8px 0 10px -8px rgba(15,20,40,.28); min-width:170px}
@@ -559,6 +675,7 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
   <symbol id="i-live" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
   <symbol id="i-grade" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></symbol>
   <symbol id="i-sheet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
@@ -608,6 +725,7 @@
       <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span>
       <span>Ruang Guru</span>
     </div>
+    <button class="nav-btn" data-view="dash"><svg><use href="#i-chart"/></svg><span>Dashboard</span></button>
     <button class="nav-btn" data-view="monitor"><svg><use href="#i-live"/></svg><span>Pantau</span></button>
     <button class="nav-btn" data-view="results"><svg><use href="#i-grade"/></svg><span>Hasil &amp; nilai</span></button>
     <button class="nav-btn" data-view="sheets"><svg><use href="#i-sheet"/></svg><span>Lembar kerja</span></button>
@@ -628,6 +746,24 @@
         <span id="wsBadge"></span>
       </div>
     </div>
+
+    <!-- DASHBOARD -->
+    <section data-v="dash" hidden>
+      <div class="toolbar">
+        <div class="seg-ctl" role="radiogroup" aria-label="Cakupan dashboard">
+          <label><input type="radio" name="dbScope" value="misi">Per misi</label>
+          <label><input type="radio" name="dbScope" value="day">Per hari</label>
+          <label><input type="radio" name="dbScope" value="all">Semua</label>
+        </div>
+        <select class="select" id="dbDay" aria-label="Pilih hari" hidden></select>
+        <select class="select" id="dbClass" aria-label="Filter kelas"></select>
+        <span class="spacer"></span>
+        <span class="stamp" id="dbStamp"></span>
+        <button class="btn btn-ghost" id="dbRefresh" type="button">Perbarui</button>
+        <button class="btn btn-primary" id="dbGh" type="button"><svg><use href="#i-download"/></svg>Analisa GitHub</button>
+      </div>
+      <div id="dbRoot" class="dash"></div>
+    </section>
 
     <!-- PANTAU -->
     <section data-v="monitor" hidden>
@@ -754,6 +890,7 @@
   <button class="lb-nav next" id="lbNext" type="button" aria-label="Gambar berikutnya"><svg><use href="#i-right"/></svg></button>
 </div>
 <div id="printArea" aria-hidden="true"></div>
+<div id="vizTip" role="tooltip" hidden></div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
@@ -796,13 +933,13 @@
   });
 
   const S = {
-    me: null, view: ss.get('g_view') || 'monitor', ws: ss.get('g_ws'),
+    me: null, view: ss.get('g_view') || 'dash', ws: ss.get('g_ws'),
     overview: { worksheets: [], classes: [] },
     monitor: null, results: null, students: [], steps: null,
     codes: ss.get('g_codes') || {},
-    filters: { mClass: '', mSearch: '', mState: '', rClass: '', rSearch: '', sClass: '', sSearch: '', gClass: '', gSearch: '' },
+    filters: { dbClass: '', mClass: '', mSearch: '', mState: '', rClass: '', rSearch: '', sClass: '', sSearch: '', gClass: '', gSearch: '' },
     gh: null, ghRate: null,
-    rMode: ss.get('g_rmode') || 'ws', rSort: ss.get('g_rsort') || 'name', rDir: ss.get('g_rdir') || 'asc', resAll: null,
+    dbScope: ss.get('g_dbscope') || 'misi', dbDay: ss.get('g_dbday') || '', rMode: ss.get('g_rmode') || 'ws', rSort: ss.get('g_rsort') || 'name', rDir: ss.get('g_rdir') || 'asc', resAll: null,
   };
 
   /* ---------- util ---------- */
@@ -1069,21 +1206,497 @@
   });
 
   /* ---------- navigasi ---------- */
-  const TITLES = { monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub' };
+  const TITLES = { dash: 'Dashboard progres', monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub' };
   function go(view) {
     S.view = view; ss.set('g_view', view);
     document.querySelectorAll('.nav-btn').forEach((b) => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
     document.querySelectorAll('[data-v]').forEach((s) => (s.hidden = s.dataset.v !== view));
     $('viewTitle').textContent = TITLES[view];
-    $('wsPick').hidden = !(view === 'monitor' || (view === 'results' && S.rMode !== 'student') || view === 'github');
+    $('wsPick').hidden = !((view === 'dash' && S.dbScope === 'misi') || view === 'monitor' || (view === 'results' && S.rMode !== 'student') || view === 'github');
     stopPoll();
-    ({ monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub })[view]();
+    ({ dash: () => loadDash(true), monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub })[view]();
   }
   document.querySelectorAll('.nav-btn').forEach((b) => (b.onclick = () => go(b.dataset.view)));
 
   function noSheet(el) {
     el.innerHTML = '<div class="empty"><strong>Belum ada lembar kerja</strong>Buat lembar kerja dan langkah-langkahnya lebih dulu.<br><button class="btn btn-primary" data-go="sheets">Buka menu Lembar kerja</button></div>';
     el.querySelector('[data-go]').onclick = () => go('sheets');
+  }
+
+  /* =========================================================
+     DASHBOARD PROGRES
+     ========================================================= */
+  const DB_POLL_MS = 20000;
+  // cakupan: 'misi' (lembar kerja terpilih), 'day' (semua misi di satu hari), 'all' (semua lembar kerja)
+  function scopeIds() {
+    if (S.dbScope === 'misi') return S.ws ? [S.ws] : [];
+    const list = S.overview.worksheets.filter((w) => w.steps > 0 && (S.dbScope === 'all' || dayOf(w) === S.dbDay));
+    // urut kronologis: hari terlama dulu, misi menurut nomornya
+    return wsGroups(list).reverse().flatMap((g) => g.items.map((w) => w.id));
+  }
+  function syncDbScope() {
+    document.querySelectorAll('input[name="dbScope"]').forEach((r) => (r.checked = r.value === S.dbScope));
+    const days = wsGroups(S.overview.worksheets).filter((g) => g.day);
+    if (!days.some((g) => g.day === S.dbDay)) S.dbDay = dayOf(S.overview.worksheets.find((w) => w.id === S.ws) || {}) || (days[0] || {}).day || '';
+    $('dbDay').innerHTML = days.map((g) => '<option' + (g.day === S.dbDay ? ' selected' : '') + '>' + h(g.day) + '</option>').join('');
+    $('dbDay').hidden = S.dbScope !== 'day';
+    $('wsPick').hidden = S.view === 'dash' && S.dbScope !== 'misi';
+  }
+  async function loadDash(animate) {
+    classOptions($('dbClass'), S.filters.dbClass);
+    syncDbScope(); updateDbGhBtn();
+    const ids = scopeIds();
+    if (!ids.length) { $('dbStamp').textContent = ''; if (S.dbScope === 'misi') noSheet($('dbRoot')); else $('dbRoot').innerHTML = '<div class="empty"><strong>Belum ada lembar kerja</strong>Tidak ada lembar kerja berlangkah untuk cakupan ini.</div>'; return; }
+    const fresh = S.dbScope === 'misi' ? (!S.monitor || S.monitor._ws !== S.ws || !S.results || S.results._ws !== S.ws) : ids.some((id) => !(S.dbData || {})[id]);
+    if (fresh) $('dbRoot').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
+    const ok = await refreshDashData();
+    if (!ok) return;
+    if (S.ws && (!S.gh || S.gh.ws !== S.ws)) S.gh = ghFor(S.ws);
+    renderDash(animate);
+    stopPoll();
+    pollTimer = setInterval(async () => { if (document.hidden || S.view !== 'dash') return; if (await refreshDashData()) renderDash(false); }, S.dbScope === 'misi' ? DB_POLL_MS : DB_POLL_MS * 3);
+    // data pendukung untuk analisa GitHub (link repo dari misi lain, murid tertinggal)
+    try { S.ghStudents = await api('t_students'); } catch {}
+    loadRepoLinks().catch(() => {});
+  }
+  async function refreshDashData() {
+    const scope = S.dbScope, ids = scopeIds();
+    try {
+      if (scope === 'misi') {
+        const ws = S.ws;
+        const [m, r] = await Promise.all([api('t_monitor', { p_ws: ws }), api('t_results', { p_ws: ws })]);
+        if (ws !== S.ws || scope !== S.dbScope) return false;
+        S.monitor = m; S.monitor._ws = ws;
+        S.results = r; S.results._ws = ws; S.results.steps.forEach((st, i) => (st.no = i + 1));
+        S.results.title = (S.overview.worksheets.find((w) => w.id === ws) || {}).title || '';
+      } else {
+        const got = await Promise.all(ids.map((id) => Promise.all([api('t_monitor', { p_ws: id }), api('t_results', { p_ws: id })])));
+        if (scope !== S.dbScope) return false;
+        S.dbData = S.dbData || {};
+        got.forEach(([m, r], k) => { r.steps.forEach((st, i) => (st.no = i + 1)); r.title = (S.overview.worksheets.find((w) => w.id === ids[k]) || {}).title || ''; S.dbData[ids[k]] = { m, r }; });
+      }
+      $('dbStamp').textContent = 'Diperbarui ' + clock(new Date());
+      return true;
+    } catch (e) { $('dbRoot').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return false; }
+  }
+  function updateDbGhBtn() {
+    const at = S.dbScope === 'misi' ? S.gh && S.gh.ws === S.ws && S.gh.at : Math.max(0, ...scopeIds().map((id) => (S.ghCache && S.ghCache[id] && S.ghCache[id].at) || 0)) || null;
+    $('dbGh').title = at ? 'Terakhir dianalisa ' + clock(at) : 'Ambil commit dan file dari GitHub semua murid (cek cerdas)';
+  }
+
+  // ----- model data: satu baris per murid -----
+  function dashModel() {
+    const f = S.filters.dbClass, M = S.monitor, R = S.results;
+    const refs = refSteps(), steps = R.steps || [];
+    const resBy = new Map(R.rows.map((r) => [r.student_id, r]));
+    const ghBy = new Map(ghRows().map((r) => [r.student_id, r]));
+    const list = M.students.filter((st) => st.is_active && (!f || st.class === f));
+    const startedSteps = list.filter((st) => st.status !== 'not_started').map((st) => (st.status === 'finished' ? M.total : st.step_index)).sort((a, b) => a - b);
+    const median = startedSteps.length ? startedSteps[Math.floor(startedSteps.length / 2)] : 0;
+    let wStart = Infinity, wEnd = 0;
+    const people = list.map((st) => {
+      const res = resBy.get(st.student_id), row = res || ghBy.get(st.student_id) || { session_id: 'absent-' + st.student_id, student_id: st.student_id, answers: {}, absent: true };
+      const av = res ? average(res) : null;
+      const code = codeAvgOf(row, refs);
+      const files = refs.map((s) => fileBest(row, s));
+      const d = (S.gh && S.gh.byS[row.session_id]) || null;
+      const t0 = st.started_at ? new Date(st.started_at).getTime() : null;
+      const t1 = (st.finished_at ? new Date(st.finished_at).getTime() : Date.now()) + GH_GRACE_MS;
+      if (t0) { wStart = Math.min(wStart, t0 - GH_EARLY_MS); wEnd = Math.max(wEnd, Math.min(Date.now(), t1)); }
+      let commits = null, commitList = [];
+      if (d && d.status === 'ok' && d.commits) {
+        commitList = d.commits.filter((c) => { const t = new Date(c.date).getTime(); return t0 ? t >= t0 - GH_EARLY_MS && t <= t1 : true; });
+        commits = commitList.filter((c) => commitKind(c) === 'ok').length;
+      }
+      const step = st.status === 'finished' ? M.total : st.status === 'not_started' ? 0 : st.step_index;
+      const why = [];
+      if (st.locked) why.push('Terkunci');
+      if (st.status === 'not_started' && startedSteps.length) why.push('Belum mulai');
+      if (st.status === 'running' && median - st.step_index >= 2) why.push('Tertinggal ' + (median - st.step_index) + ' langkah');
+      // nilai dan kode baru dinilai rendah setelah murid selesai (yang masih mengerjakan memang belum lengkap)
+      const done = st.status === 'finished', longRun = t0 && Date.now() - t0 > 45 * 60000;
+      if (done && av && av.avg != null && av.avg < 60) why.push('Nilai < 60');
+      if (done && code && code.pct < 50 && (d && d.status)) why.push('Kode ' + code.pct + '%');
+      if (d && d.status === 'norepo' && st.status !== 'not_started') why.push('Belum ada repo');
+      if (commits === 0 && (done || longRun)) why.push('Tanpa commit bermakna');
+      if (st.hidden >= 3) why.push('Sering pindah tab');
+      if ((st.paste || 0) + (st.copy || 0) + (st.devtools || 0) > 0) why.push('Coba salin/inspect');
+      return { st, row, step, av, code, files, d, commits, commitList, why };
+    });
+    return { people, refs, steps, total: M.total, median, wStart, wEnd, analysed: people.some((p) => p.d && p.d.status) };
+  }
+
+  // ----- komponen grafik -----
+  const tipAttr = (t) => ' data-tip="' + h(t) + '" tabindex="0"';
+  const pctTxt = (n, of) => (of ? Math.round((n / of) * 100) : 0) + '%';
+  function kpi(i, label, val, opts) {
+    const o = opts || {};
+    return '<div class="db-card kpi" style="--i:' + i + '"><span class="kpi-label">' + label + '</span>' +
+      '<b class="kpi-val">' + (val == null ? '<span class="muted">-</span>' : '<span data-count="' + val + '" data-dec="' + (o.dec || 0) + '">' + fmtNum(val) + '</span>' + (o.unit ? '<small>' + o.unit + '</small>' : '')) + '</b>' +
+      (o.ratio != null ? '<div class="kpi-bar"><i class="grow-x" style="width:' + Math.max(0, Math.min(100, o.ratio)) + '%;--d:' + (i * 70) + (o.tone ? ';background:var(--viz-' + o.tone + ')' : '') + '"></i></div>' : '') +
+      '<span class="kpi-sub">' + (o.sub || '') + '</span></div>';
+  }
+  function card(i, span, title, sub, body, extra) {
+    return '<section class="db-card db-panel" style="--i:' + i + ';grid-column:span ' + span + '"><header><div><h3>' + title + '</h3>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>' + (extra || '') + '</header>' + body + '</section>';
+  }
+  function legend(items) {
+    return '<div class="db-legend">' + items.map(([c, t]) => '<span><i style="background:' + c + '"></i>' + t + '</span>').join('') + '</div>';
+  }
+
+  function renderDash(animate) {
+    if (S.dbScope === 'misi') renderDashMisi(animate); else renderDashMulti(animate);
+    const root = $('dbRoot');
+    root.querySelectorAll('[data-gows]').forEach((el) => (el.onclick = (e) => { e.stopPropagation(); openMisi(el.dataset.gows); }));
+  }
+  // dari tampilan gabungan: buka satu misi di cakupan "Per misi"
+  function openMisi(ws) {
+    S.ws = ws; ss.set('g_ws', ws); if ($('wsSel')) $('wsSel').value = ws;
+    S.dbScope = 'misi'; ss.set('g_dbscope', 'misi'); loadDash(true);
+  }
+  function finishRender(root, html, animate) {
+    root.classList.toggle('anim', !!animate && !matchMedia('(prefers-reduced-motion: reduce)').matches);
+    root.innerHTML = html;
+    if (root.classList.contains('anim')) countUp(root);
+    updateDbGhBtn();
+  }
+  // grafik aktivitas commit: kolom bertumpuk per rentang waktu
+  function timelineHtml(allC, wStart, wEnd) {
+    if (!allC.length || !isFinite(wStart)) return '';
+    const H = 3600000, D = 24 * H, span = Math.max(30 * 60000, wEnd - wStart);
+    const bucket = span > 4 * D ? D : span > 30 * H ? 6 * H : span > 12 * H ? 2 * H : span > 6 * H ? 30 * 60000 : span > 3 * H ? 15 * 60000 : 10 * 60000;
+    const off = new Date().getTimezoneOffset() * 60000;
+    const t0 = Math.floor((wStart - off) / bucket) * bucket + off, nb = Math.min(60, Math.ceil((wEnd - t0) / bucket) + 1);
+    const B = Array.from({ length: nb }, (_, k) => ({ t: t0 + k * bucket, ok: 0, other: 0 }));
+    allC.forEach((c) => { const k = Math.floor((new Date(c.date).getTime() - t0) / bucket); if (k >= 0 && k < nb) B[k][commitKind(c) === 'ok' ? 'ok' : 'other']++; });
+    const mx = Math.max(1, ...B.map((b) => b.ok + b.other)), every = Math.ceil(nb / 8);
+    const lbl = (t) => bucket >= D ? new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : bucket >= 2 * H ? new Date(t).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit' }) : clock(t);
+    const rng = (t) => bucket >= D ? new Date(t).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }) : lbl(t) + '–' + clock(t + bucket);
+    return legend([['var(--viz-1)', 'Commit bermakna'], ['var(--viz-other)', 'Lainnya']]) +
+      '<div class="db-tl"><div class="tl-grid"><span>' + mx + '</span><span>' + Math.round(mx / 2) + '</span><span>0</span></div><div class="tl-cols">' + B.map((b, k) =>
+        '<div class="tl-col"' + tipAttr(rng(b.t) + ': ' + b.ok + ' bermakna, ' + b.other + ' lainnya') + '><div class="tl-stack grow-y" style="height:' + ((b.ok + b.other) / mx) * 100 + '%;--d:' + (k * 18) + '">' +
+        (b.other ? '<i style="flex:' + b.other + ';background:var(--viz-other)"></i>' : '') + (b.ok ? '<i style="flex:' + b.ok + ';background:var(--viz-1)"></i>' : '') + '</div>' +
+        '<span class="tl-x">' + (k % every === 0 ? lbl(b.t) : '') + '</span></div>').join('') + '</div></div>';
+  }
+  const heatCell = (pct, tip, extra) => pct == null ? '<td class="hm na"' + (tip ? tipAttr(tip) : '') + (extra || '') + '>-</td>'
+    : '<td class="hm" style="--a:' + Math.round(12 + pct * 0.78) + '%' + (pct >= 60 ? ';color:#fff' : '') + '"' + tipAttr(tip || pct + '%') + (extra || '') + '>' + pct + '</td>';
+  function renderDashMisi(animate) {
+    const root = $('dbRoot');
+    if (!S.monitor || !S.results) return;
+    const md = dashModel(), P = md.people, n = P.length;
+    if (!n) { root.innerHTML = '<div class="empty"><strong>Belum ada murid</strong>Pilih kelas lain atau tambahkan murid di menu Murid.</div>'; return; }
+    const started = P.filter((p) => p.st.status !== 'not_started').length, finished = P.filter((p) => p.st.status === 'finished').length;
+    const avs = P.map((p) => p.av && p.av.avg).filter((x) => x != null);
+    const codes = P.map((p) => p.code && p.code.pct).filter((x) => x != null);
+    const cm = P.map((p) => p.commits).filter((x) => x != null);
+    const watch = P.filter((p) => p.why.length);
+    const mean = (a) => (a.length ? a.reduce((t, x) => t + x, 0) / a.length : null);
+    const avgScore = mean(avs), avgCode = mean(codes);
+    const w = S.overview.worksheets.find((x) => x.id === S.ws) || {};
+
+    let html = '<div class="db-hero db-card" style="--i:0"><div><span class="db-eyebrow">' + h(dayOf(w) || 'Lembar kerja') + (S.filters.dbClass ? ' · ' + h(S.filters.dbClass) : ' · semua kelas') + '</span>' +
+      '<h2>' + h(shortTitle(w) || '') + '</h2><p>' + n + ' murid · ' + md.total + ' langkah' + (w.is_active ? ' · <span class="pill ok">Dibuka</span>' : ' · <span class="pill">Ditutup</span>') + '</p></div>' +
+      '<div class="db-ring" style="--p:' + (n ? Math.round((finished / n) * 100) : 0) + '"' + tipAttr(finished + ' dari ' + n + ' murid selesai') + '><svg viewBox="0 0 120 120"><circle class="trk" cx="60" cy="60" r="50"/><circle class="val" cx="60" cy="60" r="50" pathLength="100"/></svg><div><p class="rv"><b data-count="' + (n ? Math.round((finished / n) * 100) : 0) + '">' + (n ? Math.round((finished / n) * 100) : 0) + '</b><small>%</small></p><span>selesai</span></div></div></div>';
+
+    html += '<div class="db-kpis">' +
+      kpi(1, 'Mulai mengerjakan', started, { sub: 'dari ' + n + ' murid', ratio: (started / n) * 100 }) +
+      kpi(2, 'Selesai', finished, { sub: pctTxt(finished, n) + ' kelas', ratio: (finished / n) * 100, tone: 'good' }) +
+      kpi(3, 'Rata-rata nilai', avgScore == null ? null : Math.round(avgScore * 10) / 10, { dec: 1, sub: avs.length ? avs.length + ' murid sudah dinilai' : 'Belum ada nilai', ratio: avgScore }) +
+      kpi(4, 'Rata-rata kode', avgCode == null ? null : Math.round(avgCode), { unit: '%', sub: md.refs.length ? (md.analysed ? 'GitHub (cek cerdas) + LKM' : 'Dari LKM. Klik Analisa GitHub') : 'Belum ada kode acuan', ratio: avgCode }) +
+      kpi(5, 'Commit bermakna', cm.length ? cm.reduce((t, x) => t + x, 0) : null, { sub: cm.length ? 'rata-rata ' + fmtNum(Math.round((mean(cm)) * 10) / 10) + ' per murid selama misi' : 'Belum dianalisa' }) +
+      kpi(6, 'Perlu perhatian', watch.length, { sub: watch.length ? 'lihat daftar di bawah' : 'semua aman', ratio: (watch.length / n) * 100, tone: watch.length ? 'crit' : 'good' }) +
+      '</div>';
+
+    html += '<div class="db-grid">';
+    // status kelas: batang tersegmen
+    const seg = [['var(--viz-good)', 'Selesai', finished], ['var(--viz-1)', 'Mengerjakan', started - finished], ['var(--viz-none)', 'Belum mulai', n - started]].filter((x) => x[2] > 0);
+    html += card(7, 12, 'Status kelas', 'Berapa murid yang sudah selesai, masih mengerjakan, dan belum mulai.',
+      '<div class="db-seg">' + seg.map(([c, t, v], k) => '<div class="grow-x" style="flex:' + v + ';background:' + c + ';--d:' + (k * 120) + '"' + tipAttr(t + ': ' + v + ' murid (' + pctTxt(v, n) + ')') + '><span' + (c.includes('none') ? ' class="dark"' : '') + '>' + (v / n >= 0.25 ? t + ' · ' + v : v) + '</span></div>').join('') + '</div>' + legend(seg.map(([c, t, v]) => [c, t + ' (' + v + ')'])));
+
+    // progres langkah
+    const funnel = md.steps.map((st, k) => { const reached = P.filter((p) => p.step >= k + 1 || p.st.status === 'finished').length; const here = P.filter((p) => p.st.status === 'running' && p.step === k + 1).length; return { st, k, reached, here }; });
+    html += card(8, 7, 'Progres per langkah', 'Jumlah murid yang sudah sampai di tiap langkah. Titik menunjukkan murid yang sedang berada di langkah itu.',
+      '<div class="db-funnel">' + funnel.map((f) => '<div class="fn-row"' + tipAttr('L' + (f.k + 1) + ' ' + f.st.title + ': ' + f.reached + ' murid sudah sampai, ' + f.here + ' sedang di sini') + '>' +
+        '<span class="fn-lbl"><b>L' + (f.k + 1) + '</b>' + h(f.st.title) + '</span>' +
+        '<span class="fn-track"><i class="grow-x" style="width:' + (f.reached / n) * 100 + '%;--d:' + (f.k * 60) + '"></i>' + (f.here ? '<em style="left:calc(' + (f.reached / n) * 100 + '% - 6px)" title="">' + f.here + '</em>' : '') + '</span>' +
+        '<span class="fn-val">' + f.reached + '<small> · ' + pctTxt(f.reached, n) + '</small></span></div>').join('') + '</div>');
+
+    // sebaran nilai
+    const bins = [['< 60', 0, 60], ['60–69', 60, 70], ['70–79', 70, 80], ['80–89', 80, 90], ['90–100', 90, 101]].map(([l, a, b]) => [l, avs.filter((x) => x >= a && x < b).length]);
+    const bmax = Math.max(1, ...bins.map((b) => b[1]));
+    html += card(9, 5, 'Sebaran nilai akhir', avs.length ? avs.length + ' murid sudah punya nilai. Rata-rata ' + fmtNum(Math.round(avgScore * 10) / 10) + '.' : 'Nilai muncul setelah jawaban dinilai di menu Hasil & nilai.',
+      avs.length ? '<div class="db-cols">' + bins.map(([l, v], k) => '<div class="col"' + tipAttr('Nilai ' + l + ': ' + v + ' murid') + '><span class="cv">' + v + '</span><i class="grow-y" style="height:' + (v / bmax) * 100 + '%;--d:' + (k * 70) + '"></i><span class="cl">' + l + '</span></div>').join('') + '</div>'
+        : '<div class="db-empty">Belum ada nilai</div>');
+
+    // kecocokan kode per file
+    if (md.refs.length) {
+      const LV = [['var(--viz-good)', '≥ 80%', (x) => x >= 80], ['var(--viz-warn)', '50–79%', (x) => x >= 50 && x < 80], ['var(--viz-crit)', '1–49%', (x) => x > 0 && x < 50], ['var(--viz-none)', 'Belum ada', (x) => !x]];
+      html += card(10, 7, 'Kecocokan kode per file', md.analysed ? 'Kode di GitHub dicek dengan cek cerdas (versi akhir misi atau commit yang menyebut langkahnya), dibandingkan jawaban LKM, lalu diambil yang terbaik.' : 'Baru dari jawaban LKM. Klik <strong>Analisa GitHub</strong> untuk memeriksa repository murid.',
+        legend(LV.map(([c, t]) => [c, t])) + '<div class="db-files">' + md.refs.map((st, k) => {
+          const vals = P.map((p) => p.files[k]).filter(Boolean), pcts = vals.map((v) => v.pct);
+          const cnt = LV.map(([, , fn]) => pcts.filter(fn).length), tot = pcts.length;
+          const vers = {}; vals.forEach((v) => { if (v.ver) vers[v.ver.kind] = (vers[v.ver.kind] || 0) + 1; });
+          const vtxt = Object.entries(vers).map(([kk, c]) => VER_LABEL[kk] + ' ' + c).join(' · ');
+          const avg = tot ? Math.round(pcts.reduce((t, x) => t + x, 0) / tot) : null;
+          return '<div class="fl-row"><div class="fl-top"><span><b>L' + st.no + '</b> ' + h(st.ref_path || st.title) + '</span><span class="fl-avg">' + (avg == null ? '-' : avg + '%') + '</span></div>' +
+            '<div class="fl-bar">' + (tot ? cnt.map((c, j) => c ? '<i class="grow-x" style="flex:' + c + ';background:' + LV[j][0] + ';--d:' + (k * 80 + j * 60) + '"' + tipAttr('L' + st.no + ' · ' + LV[j][1] + ': ' + c + ' murid') + '></i>' : '').join('') : '<i style="flex:1;background:var(--viz-grid)"></i>') + '</div>' +
+            '<div class="fl-sub">' + (tot ? tot + ' murid ber-data' : 'Belum ada data') + (vtxt ? ' · ' + vtxt : '') + '</div></div>';
+        }).join('') + '</div>');
+    }
+
+    // aktivitas commit
+    const allC = P.flatMap((p) => p.commitList);
+    const tl = md.analysed ? timelineHtml(allC, md.wStart, md.wEnd) : '';
+    html += card(11, md.refs.length ? 5 : 12, 'Aktivitas commit selama misi', md.analysed ? allC.length + ' commit dari ' + P.filter((p) => p.commits != null).length + ' murid selama misi.' : 'Klik <strong>Analisa GitHub</strong> untuk melihat kapan murid melakukan commit.',
+      tl || '<div class="db-empty">' + (md.analysed ? 'Tidak ada commit selama misi' : 'Belum dianalisa') + '</div>');
+
+    // peta murid
+    const order = P.slice().sort((a, b) => b.why.length - a.why.length || collator.compare(a.st.name, b.st.name));
+    const heat = (pct) => heatCell(pct);
+    html += card(12, 12, 'Peta progres murid', 'Murid yang perlu perhatian ada di atas. Warna sel makin pekat = makin tinggi. Klik baris untuk melihat detail GitHub.',
+      '<div class="db-heat-wrap"><table class="db-heat"><thead><tr><th>Murid</th><th>Progres</th><th class="c">Nilai</th>' + md.refs.map((st) => '<th class="c" title="' + h(st.ref_path || st.title) + '">L' + st.no + '</th>').join('') +
+      '<th class="c">Kode</th><th class="c">Commit</th><th>Catatan</th></tr></thead><tbody>' + order.map((p, k) => {
+        const prog = p.st.status === 'finished' ? 100 : (p.step / Math.max(1, md.total)) * 100;
+        return '<tr data-s="' + h(p.row.session_id) + '" style="--r:' + Math.min(k, 30) + '"><td><div class="who"><span class="avatar">' + h(initials(p.st.name)) + '</span><div><strong>' + h(p.st.name) + '</strong><span>' + h(p.st.class) + '</span></div></div></td>' +
+          '<td><div class="hm-prog"' + tipAttr(p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'Langkah ' + p.step + ' dari ' + md.total) + '><i class="grow-x" style="width:' + prog + '%;--d:' + (300 + Math.min(k, 30) * 25) + (p.st.status === 'finished' ? ';background:var(--viz-good)' : '') + '"></i></div><span class="hm-sub">' + (p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'L' + p.step + '/' + md.total) + '</span></td>' +
+          heat(p.av && p.av.avg != null ? Math.round(p.av.avg) : null) + p.files.map((f) => heat(f ? f.pct : null)).join('') + heat(p.code ? p.code.pct : null) +
+          '<td class="c">' + (p.commits == null ? '<span class="muted">-</span>' : '<b>' + p.commits + '</b>') + '</td>' +
+          '<td>' + (p.why.length ? p.why.map((x) => '<span class="pill warn">' + h(x) + '</span>').join(' ') : '<span class="pill ok">Aman</span>') + '</td></tr>';
+      }).join('') + '</tbody></table></div>');
+    html += '</div>';
+
+    finishRender(root, html, animate);
+    root.querySelectorAll('.db-heat tbody tr').forEach((tr) => (tr.onclick = () => openGhDetail(tr.dataset.s)));
+  }
+  // ----- tampilan gabungan: per hari / semua misi -----
+  function multiModel() {
+    const f = S.filters.dbClass, ids = scopeIds().filter((id) => S.dbData && S.dbData[id]);
+    const W = ids.map((id, k) => {
+      const { m, r } = S.dbData[id], w = S.overview.worksheets.find((x) => x.id === id) || {};
+      // kelas yang mengerjakan misi ini (minimal satu murid sudah mulai)
+      const classes = new Set(m.students.filter((st) => st.status !== 'not_started').map((st) => st.class));
+      return { id, w, m, R: r, G: (S.ghCache || {})[id], refs: refsOf(r), classes, byStudent: new Map(m.students.map((st) => [st.student_id, st])), rows: new Map(r.rows.map((x) => [x.student_id, x])) };
+    }).filter((x) => (f ? x.classes.has(f) : x.classes.size)).map((x, k) => Object.assign(x, { k }));
+    // murid: kelas terpilih, atau semua kelas yang sudah pernah mengerjakan salah satu misi
+    const active = new Set();
+    W.forEach((x) => x.m.students.forEach((st) => { if (st.status !== 'not_started') active.add(st.class); }));
+    const base = W.length ? W[0].m.students : [];
+    const people = base.filter((st) => st.is_active && (f ? st.class === f : active.has(st.class))).map((st0) => {
+      const per = W.map((x) => {
+        const st = x.byStudent.get(st0.student_id) || { status: 'not_started', step_index: 0 };
+        const res = x.rows.get(st0.student_id);
+        const row = res || { session_id: 'absent-' + st0.student_id, student_id: st0.student_id, answers: {}, absent: true };
+        const av = res ? average(res, x.R) : null;
+        const code = codeAvgOf(row, x.refs, x.G);
+        const d = (x.G && x.G.byS[row.session_id]) || null;
+        const t0 = st.started_at ? new Date(st.started_at).getTime() : null;
+        const t1 = (st.finished_at ? new Date(st.finished_at).getTime() : Date.now()) + GH_GRACE_MS;
+        let commits = null, commitList = [];
+        if (d && d.status === 'ok' && d.commits) {
+          commitList = d.commits.filter((c) => { const t = new Date(c.date).getTime(); return t0 ? t >= t0 - GH_EARLY_MS && t <= t1 : false; });
+          commits = commitList.filter((c) => commitKind(c) === 'ok').length;
+        }
+        return { x, st, av, code, d, commits, commitList, t0, t1, on: x.classes.has(st0.class) };
+      });
+      // hanya misi yang dikerjakan kelas murid ini yang dihitung
+      return { st: st0, per, on: per.filter((e) => e.on) };
+    });
+    // ringkasan per misi
+    W.forEach((x) => {
+      const es = people.map((p) => p.per[x.k]).filter((e) => e.on);
+      x.pop = es.length;
+      x.fin = es.filter((e) => e.st.status === 'finished').length;
+      x.run = es.filter((e) => e.st.status === 'running').length;
+      x.none = es.length - x.fin - x.run;
+      const sc = es.map((e) => e.av && e.av.avg).filter((v) => v != null);
+      x.avg = sc.length ? sc.reduce((t, v) => t + v, 0) / sc.length : null;
+      x.codes = es.map((e) => e.code && e.code.pct).filter((v) => v != null);
+      x.analysed = !!(x.G && x.G.at);
+    });
+    // alasan perlu perhatian per murid
+    people.forEach((p) => {
+      const why = [];
+      const missed = p.on.filter((e) => e.st.status === 'not_started' && e.x.fin + e.x.run >= e.x.pop / 2).length;
+      const behind = p.on.filter((e) => e.st.status === 'running' && e.x.fin >= e.x.pop / 2).length;
+      const fin = p.on.filter((e) => e.st.status === 'finished');
+      const sc = fin.map((e) => e.av && e.av.avg).filter((v) => v != null);
+      const cd = fin.filter((e) => e.d && e.d.status).map((e) => e.code && e.code.pct).filter((v) => v != null);
+      p.done = fin.length; p.started = p.on.filter((e) => e.st.status !== 'not_started').length; p.of = p.on.length;
+      p.avg = sc.length ? sc.reduce((t, v) => t + v, 0) / sc.length : null;
+      const allSc = p.per.map((e) => e.av && e.av.avg).filter((v) => v != null);
+      p.avgAll = allSc.length ? allSc.reduce((t, v) => t + v, 0) / allSc.length : null;
+      const allCd = p.per.map((e) => e.code && e.code.pct).filter((v) => v != null);
+      p.code = allCd.length ? Math.round(allCd.reduce((t, v) => t + v, 0) / allCd.length) : null;
+      const cm = p.per.map((e) => e.commits).filter((v) => v != null);
+      p.commits = cm.length ? cm.reduce((t, v) => t + v, 0) : null;
+      if (missed) why.push('Belum mulai ' + missed + ' misi');
+      if (behind) why.push('Tertinggal ' + behind + ' misi');
+      if (p.avg != null && p.avg < 60) why.push('Nilai < 60');
+      if (cd.length && cd.reduce((t, v) => t + v, 0) / cd.length < 50) why.push('Kode < 50%');
+      if (fin.some((e) => e.d && e.d.status === 'norepo')) why.push('Belum ada repo');
+      if (fin.some((e) => e.commits === 0)) why.push('Tanpa commit bermakna');
+      if (p.per.reduce((t, e) => t + (e.st.hidden || 0), 0) >= 5) why.push('Sering pindah tab');
+      if (p.per.reduce((t, e) => t + (e.st.paste || 0) + (e.st.copy || 0) + (e.st.devtools || 0), 0) > 0) why.push('Coba salin/inspect');
+      p.why = why;
+    });
+    let wStart = Infinity, wEnd = 0;
+    people.forEach((p) => p.per.forEach((e) => { if (e.t0 && e.commitList.length) { wStart = Math.min(wStart, e.t0 - GH_EARLY_MS); wEnd = Math.max(wEnd, Math.min(Date.now(), e.t1)); } }));
+    return { W, people, wStart, wEnd };
+  }
+  const misiLabel = (x) => 'M' + (x.k + 1);
+  function renderDashMulti(animate) {
+    const root = $('dbRoot'), md = multiModel(), P = md.people, W = md.W, n = P.length, k = W.length;
+    if (!k) return;
+    if (!n) { root.innerHTML = '<div class="empty"><strong>Belum ada murid yang mengerjakan</strong>Data muncul setelah murid mulai mengerjakan salah satu misi di cakupan ini.</div>'; return; }
+    const mean = (a) => (a.length ? a.reduce((t, x) => t + x, 0) / a.length : null);
+    const slots = P.reduce((t, p) => t + p.of, 0) || 1, fin = W.reduce((t, x) => t + x.fin, 0), active = P.filter((p) => p.started).length;
+    const scores = P.flatMap((p) => p.per.map((e) => e.av && e.av.avg)).filter((v) => v != null);
+    const codes = W.flatMap((x) => x.codes), commits = P.map((p) => p.commits).filter((v) => v != null);
+    const analysed = W.filter((x) => x.analysed).length, watch = P.filter((p) => p.why.length);
+    const ring = Math.round((fin / slots) * 100);
+    const scopeName = S.dbScope === 'day' ? S.dbDay : 'Semua lembar kerja';
+
+    let html = '<div class="db-hero db-card" style="--i:0"><div><span class="db-eyebrow">' + (S.dbScope === 'day' ? 'Per hari' : 'Semua misi') + (S.filters.dbClass ? ' · ' + h(S.filters.dbClass) : ' · semua kelas') + '</span>' +
+      '<h2>' + h(scopeName) + '</h2><p>' + n + ' murid · ' + k + ' misi · ' + W.reduce((t, x) => t + x.R.steps.length, 0) + ' langkah' + (analysed ? ' · GitHub dianalisa di ' + analysed + ' dari ' + k + ' misi' : '') + '</p></div>' +
+      '<div class="db-ring" style="--p:' + ring + '"' + tipAttr(fin + ' dari ' + slots + ' pengerjaan misi selesai') + '><svg viewBox="0 0 120 120"><circle class="trk" cx="60" cy="60" r="50"/><circle class="val" cx="60" cy="60" r="50" pathLength="100"/></svg><div><p class="rv"><b data-count="' + ring + '">' + ring + '</b><small>%</small></p><span>misi selesai</span></div></div></div>';
+
+    html += '<div class="db-kpis">' +
+      kpi(1, 'Murid aktif', active, { sub: 'dari ' + n + ' murid pernah mulai', ratio: (active / n) * 100 }) +
+      kpi(2, 'Misi diselesaikan', fin, { sub: 'dari ' + slots + ' pengerjaan (misi kelas masing-masing)', ratio: (fin / slots) * 100, tone: 'good' }) +
+      kpi(3, 'Rata-rata nilai', scores.length ? Math.round(mean(scores) * 10) / 10 : null, { dec: 1, sub: scores.length ? 'dari ' + scores.length + ' pengerjaan bernilai' : 'Belum ada nilai', ratio: mean(scores) }) +
+      kpi(4, 'Rata-rata kode', codes.length ? Math.round(mean(codes)) : null, { unit: '%', sub: analysed ? 'GitHub (cek cerdas) + LKM' : 'Dari LKM. Klik Analisa GitHub', ratio: mean(codes) }) +
+      kpi(5, 'Commit bermakna', commits.length ? commits.reduce((t, x) => t + x, 0) : null, { sub: analysed ? analysed + ' dari ' + k + ' misi sudah dianalisa' : 'Belum dianalisa' }) +
+      kpi(6, 'Perlu perhatian', watch.length, { sub: watch.length ? 'lihat daftar di bawah' : 'semua aman', ratio: (watch.length / n) * 100, tone: watch.length ? 'crit' : 'good' }) +
+      '</div><div class="db-grid">';
+
+    // progres per misi
+    const SEG = [['var(--viz-good)', 'Selesai', 'fin'], ['var(--viz-1)', 'Mengerjakan', 'run'], ['var(--viz-none)', 'Belum mulai', 'none']];
+    html += card(7, 7, 'Progres per misi', 'Status murid di setiap misi. Klik nama misi untuk membuka dashboard misi itu.',
+      legend(SEG.map(([c, t]) => [c, t])) + '<div class="db-misi">' + W.map((x) =>
+        '<div class="ms-row"><button class="ms-lbl" type="button" data-gows="' + x.id + '" title="' + h(x.w.title) + '"><b>' + misiLabel(x) + '</b>' + h(S.dbScope === 'all' && dayOf(x.w) ? dayOf(x.w) + ' · ' + shortTitle(x.w) : shortTitle(x.w)) + '</button>' +
+        '<span class="fl-bar ms-bar">' + SEG.map(([c, t, key], j) => x[key] ? '<i class="grow-x" style="flex:' + x[key] + ';background:' + c + ';--d:' + (x.k * 70 + j * 60) + '"' + tipAttr(misiLabel(x) + ' · ' + t + ': ' + x[key] + ' murid') + '></i>' : '').join('') + '</span>' +
+        '<span class="fn-val">' + pctTxt(x.fin, x.pop) + '<small> selesai</small></span></div>').join('') + '</div>');
+
+    // nilai rata-rata per misi
+    const mx = 100;
+    html += card(8, 5, 'Nilai rata-rata per misi', scores.length ? 'Rata-rata nilai akhir murid yang sudah dinilai di tiap misi.' : 'Nilai muncul setelah jawaban dinilai di menu Hasil & nilai.',
+      scores.length ? '<div class="db-cols" style="grid-template-columns:repeat(' + k + ', 1fr)">' + W.map((x) => '<div class="col"' + tipAttr(x.w.title + ': ' + (x.avg == null ? 'belum ada nilai' : 'rata-rata ' + fmtNum(Math.round(x.avg * 10) / 10))) + '><span class="cv">' + (x.avg == null ? '-' : Math.round(x.avg)) + '</span><i class="grow-y" style="height:' + ((x.avg || 0) / mx) * 100 + '%;--d:' + (x.k * 70) + '"></i><span class="cl">' + misiLabel(x) + '</span></div>').join('') + '</div>'
+        : '<div class="db-empty">Belum ada nilai</div>');
+
+    // kecocokan kode per misi
+    if (W.some((x) => x.refs.length)) {
+      const LV = [['var(--viz-good)', '≥ 80%', (v) => v >= 80], ['var(--viz-warn)', '50–79%', (v) => v >= 50 && v < 80], ['var(--viz-crit)', '1–49%', (v) => v > 0 && v < 50], ['var(--viz-none)', 'Belum ada', (v) => !v]];
+      html += card(9, 7, 'Kecocokan kode per misi', 'Rata-rata kecocokan kode tiap murid di setiap misi. ' + (analysed ? 'Misi yang sudah dianalisa memakai GitHub (cek cerdas) + LKM.' : 'Baru dari jawaban LKM. Klik <strong>Analisa GitHub</strong> untuk memeriksa repository.'),
+        legend(LV.map(([c, t]) => [c, t])) + '<div class="db-files">' + W.filter((x) => x.refs.length).map((x) => {
+          const cnt = LV.map(([, , fn]) => x.codes.filter(fn).length), tot = x.codes.length, avg = tot ? Math.round(x.codes.reduce((t, v) => t + v, 0) / tot) : null;
+          return '<div class="fl-row"><div class="fl-top"><span style="font-family:var(--sans)"><b>' + misiLabel(x) + '</b> ' + h(shortTitle(x.w)) + '</span><span class="fl-avg">' + (avg == null ? '-' : avg + '%') + '</span></div>' +
+            '<div class="fl-bar">' + (tot ? cnt.map((c, j) => c ? '<i class="grow-x" style="flex:' + c + ';background:' + LV[j][0] + ';--d:' + (x.k * 80 + j * 60) + '"' + tipAttr(misiLabel(x) + ' · ' + LV[j][1] + ': ' + c + ' murid') + '></i>' : '').join('') : '<i style="flex:1;background:var(--viz-grid)"></i>') + '</div>' +
+            '<div class="fl-sub">' + x.refs.length + ' file acuan · ' + (x.analysed ? 'GitHub dianalisa ' + clock(x.G.at) : 'belum dianalisa GitHub') + '</div></div>';
+        }).join('') + '</div>');
+    }
+
+    // sebaran nilai murid (rata-rata semua misi)
+    const avs = P.map((p) => p.avgAll).filter((v) => v != null);
+    const bins = [['< 60', 0, 60], ['60–69', 60, 70], ['70–79', 70, 80], ['80–89', 80, 90], ['90–100', 90, 101]].map(([l, a, b]) => [l, avs.filter((v) => v >= a && v < b).length]);
+    const bmax = Math.max(1, ...bins.map((b) => b[1]));
+    html += card(10, W.some((x) => x.refs.length) ? 5 : 12, 'Sebaran nilai murid', avs.length ? 'Rata-rata nilai tiap murid dari semua misi yang sudah dinilai.' : 'Nilai muncul setelah jawaban dinilai.',
+      avs.length ? '<div class="db-cols">' + bins.map(([l, v], j) => '<div class="col"' + tipAttr('Rata-rata ' + l + ': ' + v + ' murid') + '><span class="cv">' + v + '</span><i class="grow-y" style="height:' + (v / bmax) * 100 + '%;--d:' + (j * 70) + '"></i><span class="cl">' + l + '</span></div>').join('') + '</div>'
+        : '<div class="db-empty">Belum ada nilai</div>');
+
+    // aktivitas commit
+    const allC = P.flatMap((p) => p.per.flatMap((e) => e.commitList));
+    html += card(11, 12, 'Aktivitas commit selama misi', analysed ? allC.length + ' commit selama misi dari ' + analysed + ' misi yang sudah dianalisa.' : 'Klik <strong>Analisa GitHub</strong> untuk melihat kapan murid melakukan commit.',
+      timelineHtml(allC, md.wStart, md.wEnd) || '<div class="db-empty">' + (analysed ? 'Tidak ada commit selama misi' : 'Belum dianalisa') + '</div>');
+
+    // peta murid × misi
+    const order = P.slice().sort((a, b) => b.why.length - a.why.length || collator.compare(a.st.name, b.st.name));
+    html += card(12, 12, 'Peta progres murid', 'Satu kolom per misi berisi nilai akhir (makin pekat = makin tinggi). ▸ = sedang mengerjakan, - = belum mulai. Klik sel untuk membuka misi itu.',
+      '<div class="db-heat-wrap"><table class="db-heat"><thead><tr><th>Murid</th><th>Misi selesai</th>' + W.map((x) => '<th class="c" title="' + h(x.w.title) + '">' + misiLabel(x) + '</th>').join('') +
+      '<th class="c">Nilai</th><th class="c">Kode</th><th class="c">Commit</th><th>Catatan</th></tr></thead><tbody>' + order.map((p, r) =>
+        '<tr style="--r:' + Math.min(r, 30) + '"><td><div class="who"><span class="avatar">' + h(initials(p.st.name)) + '</span><div><strong>' + h(p.st.name) + '</strong><span>' + h(p.st.class) + '</span></div></div></td>' +
+        '<td><div class="hm-prog"' + tipAttr(p.done + ' dari ' + p.of + ' misi selesai') + '><i class="grow-x" style="width:' + (p.done / Math.max(1, p.of)) * 100 + '%;--d:' + (300 + Math.min(r, 30) * 25) + ';background:var(--viz-good)"></i></div><span class="hm-sub">' + p.done + '/' + p.of + ' misi</span></td>' +
+        p.per.map((e) => {
+          if (!e.on) return '<td class="hm na off"' + tipAttr(misiLabel(e.x) + ': bukan misi kelas ' + p.st.class) + '></td>';
+          const tip = misiLabel(e.x) + ' ' + e.x.w.title + ': ' + (e.st.status === 'finished' ? 'selesai' : e.st.status === 'running' ? 'langkah ' + e.st.step_index + ' dari ' + e.x.m.total : 'belum mulai') +
+            (e.av && e.av.avg != null ? ', nilai ' + fmtNum(Math.round(e.av.avg * 10) / 10) : '') + (e.code ? ', kode ' + e.code.pct + '%' : '');
+          const go = ' data-gows="' + e.x.id + '"';
+          if (e.av && e.av.avg != null) return heatCell(Math.round(e.av.avg), tip, go);
+          return '<td class="hm na"' + tipAttr(tip) + go + '>' + (e.st.status === 'running' ? '▸' : e.st.status === 'finished' ? '✓' : '-') + '</td>';
+        }).join('') +
+        heatCell(p.avgAll == null ? null : Math.round(p.avgAll)) + heatCell(p.code) +
+        '<td class="c">' + (p.commits == null ? '<span class="muted">-</span>' : '<b>' + p.commits + '</b>') + '</td>' +
+        '<td>' + (p.why.length ? p.why.map((x) => '<span class="pill warn">' + h(x) + '</span>').join(' ') : '<span class="pill ok">Aman</span>') + '</td></tr>').join('') + '</tbody></table></div>');
+    html += '</div>';
+    finishRender(root, html, animate);
+  }
+
+  function countUp(root) {
+    root.querySelectorAll('[data-count]').forEach((el, k) => {
+      const to = Number(el.dataset.count), dec = Number(el.dataset.dec || 0), t0 = performance.now() + 200 + k * 60, dur = 1100;
+      el.textContent = fmtNum(0);
+      const step = (now) => {
+        const x = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - x, 3);
+        el.textContent = fmtNum(Math.round(to * e * Math.pow(10, dec)) / Math.pow(10, dec));
+        if (x < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  // tooltip grafik (mouse dan keyboard)
+  (() => {
+    const tip = $('vizTip');
+    const show = (el, x, y) => { tip.textContent = el.dataset.tip; tip.hidden = false; const r = tip.getBoundingClientRect(); tip.style.left = Math.min(innerWidth - r.width - 8, Math.max(8, x - r.width / 2)) + 'px'; tip.style.top = Math.max(8, y - r.height - 12) + 'px'; };
+    document.addEventListener('mouseover', (e) => { const el = e.target.closest && e.target.closest('#dbRoot [data-tip]'); if (el) show(el, e.clientX, e.clientY); else tip.hidden = true; });
+    document.addEventListener('mousemove', (e) => { if (!tip.hidden) { const el = e.target.closest && e.target.closest('#dbRoot [data-tip]'); if (el) show(el, e.clientX, e.clientY); } });
+    document.addEventListener('focusin', (e) => { const el = e.target.closest && e.target.closest('#dbRoot [data-tip]'); if (el) { const r = el.getBoundingClientRect(); show(el, r.left + r.width / 2, r.top); } });
+    document.addEventListener('focusout', () => (tip.hidden = true));
+    document.addEventListener('scroll', () => (tip.hidden = true), true);
+  })();
+  $('dbClass').onchange = () => { S.filters.dbClass = $('dbClass').value; renderDash(true); };
+  document.querySelectorAll('input[name="dbScope"]').forEach((r) => r.addEventListener('change', () => { S.dbScope = r.value; ss.set('g_dbscope', S.dbScope); loadDash(true); }));
+  $('dbDay').onchange = () => { S.dbDay = $('dbDay').value; ss.set('g_dbday', S.dbDay); loadDash(true); };
+  $('dbRefresh').onclick = async () => { if (await refreshDashData()) renderDash(false); };
+  $('dbGh').onclick = async () => {
+    const b = $('dbGh'); if (b.disabled) return;
+    b.disabled = true;
+    try { await runDbAnalysis(b); } finally { b.disabled = false; b.innerHTML = '<svg><use href="#i-download"/></svg>Analisa GitHub'; }
+  };
+  async function runDbAnalysis(b) {
+    const f = S.filters.dbClass;
+    // daftar pekerjaan: [{ ctx, rows }] per misi dalam cakupan
+    let jobs;
+    if (S.dbScope === 'misi') {
+      if (!S.results || S.results._ws !== S.ws) return;
+      if (!S.gh || S.gh.ws !== S.ws) S.gh = ghFor(S.ws);
+      jobs = [{ ctx: { ws: S.ws, R: S.results }, title: S.results.title }];
+    } else jobs = scopeIds().filter((id) => S.dbData && S.dbData[id]).map((id) => ({ ctx: { ws: id, R: S.dbData[id].r }, title: S.dbData[id].r.title }));
+    if (!S.ghStudents) { try { S.ghStudents = await api('t_students'); } catch {} }
+    if (!S.repoLinks) await loadRepoLinks();
+    jobs.forEach((j) => { const cls = new Set(j.ctx.R.rows.map((r) => r.class)); j.rows = ghRows(j.ctx.R, f).filter((r) => (!f || r.class === f) && cls.has(r.class) && refsOf(j.ctx.R).some((s) => s.ref_path)); });
+    jobs = jobs.filter((j) => j.rows.length);
+    const total = jobs.reduce((t, j) => t + j.rows.length, 0);
+    if (!total) { toast('Tidak ada murid atau file acuan untuk dianalisa.'); return; }
+    const calls = jobs.reduce((t, j) => t + j.rows.length * (1 + 2 * refsOf(j.ctx.R).filter((s) => s.ref_path).length), 0);
+    if (!ghToken() && calls > 55) toast('Tanpa token GitHub kuotanya hanya 60 permintaan per jam. Pasang token di menu Kode & GitHub.', 'warn');
+    else if (jobs.length > 1 && !(await confirmBox('Analisa ' + jobs.length + ' misi?', 'Repository ' + total + ' data murid akan diperiksa dengan cek cerdas, kira-kira ' + calls + ' permintaan ke GitHub' + (S.ghRate ? ' (sisa kuota ' + S.ghRate.rem + ')' : '') + '.', 'Mulai analisa'))) return;
+    let stop = null, done = 0, last = 0;
+    for (const j of jobs) {
+      if (stop) break;
+      let i = 0;
+      const worker = async () => {
+        while (!stop && i < j.rows.length) {
+          const r = j.rows[i++];
+          try { await fetchRow(r, j.ctx); } catch (e) { stop = e; }
+          done++; b.innerHTML = '<span class="spinner"></span>' + (jobs.length > 1 ? 'Misi ' + (jobs.indexOf(j) + 1) + '/' + jobs.length + ' · ' : '') + done + ' dari ' + total;
+          if (Date.now() - last > 1500) { last = Date.now(); renderDash(false); }
+        }
+      };
+      await Promise.all([worker(), worker(), worker()]);
+      const G = ghFor(j.ctx.ws); G.at = Date.now();
+      j.rows.forEach((r) => { const d = G.byS[r.session_id]; if (d && d.status === 'loading') { d.status = 'err'; d.err = 'Dilewati'; } });
+    }
+    renderDash(false);
+    if (stop) toast(ghErr(stop) + (stop.kind === 'rate' ? ' Pasang token GitHub atau coba lagi setelah ' + (S.ghRate ? clock(S.ghRate.reset) : 'beberapa saat') + '.' : ''), 'err');
+    else toast('Analisa GitHub selesai: ' + total + ' data murid' + (jobs.length > 1 ? ' dari ' + jobs.length + ' misi' : '') + '.', 'ok');
   }
 
   /* =========================================================
@@ -2424,7 +3037,7 @@
       try { S.results = await api('t_results', { p_ws: S.ws }); S.results._ws = S.ws; S.results.steps.forEach((s, i) => (s.no = i + 1)); S.results.title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || ''; }
       catch (e) { $('gTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     }
-    if (!S.gh || S.gh.ws !== S.ws) S.gh = { ws: S.ws, byS: {} };
+    if (!S.gh || S.gh.ws !== S.ws) S.gh = ghFor(S.ws);
     try { S.ghStudents = await api('t_students'); } catch { S.ghStudents = S.ghStudents || []; }
     await loadRepoLinks();
     renderGithub();
@@ -2438,8 +3051,8 @@
     } catch { S.repoLinks = S.repoLinks || new Map(); }
     syncGhSrc();
   }
-  const ghSrcKey = () => 'lkm_ghsrc_' + S.ws;
-  function ghSrc() { try { return localStorage.getItem(ghSrcKey()) || 'auto'; } catch { return 'auto'; } }
+  const ghSrcKey = (ws) => 'lkm_ghsrc_' + (ws || S.ws);
+  function ghSrc(ws) { try { return localStorage.getItem(ghSrcKey(ws)) || 'auto'; } catch { return 'auto'; } }
   function syncGhSrc() {
     const gs = ghStep(), wsMap = new Map();
     (S.repoLinks ? [...S.repoLinks.values()] : []).forEach((arr) => {
@@ -2454,23 +3067,25 @@
   }
   // link repo yang dipakai untuk satu murid, beserta asalnya (untuk ditampilkan dan disimpan)
   // urutan: link yang diisi guru untuk lembar kerja ini > jawaban murid di lembar kerja ini > misi lain
-  function resolveRepo(r) {
-    const gs = ghStep(), src = $('ghSrc').value || 'auto';
+  // ctx (opsional) = { ws, R }: lembar kerja lain selain yang sedang dipilih (dipakai dashboard gabungan)
+  function resolveRepo(r, ctx) {
+    const ws = ctx ? ctx.ws : S.ws, R = ctx ? ctx.R : S.results;
+    const gs = ghStepOf(R), src = ctx ? ghSrc(ws) : ($('ghSrc').value || 'auto');
     const links = (S.repoLinks && S.repoLinks.get(r.student_id)) || [];
-    const ov = links.find((x) => x.override && x.ws_id === S.ws);
+    const ov = links.find((x) => x.override && x.ws_id === ws);
     if (ov) return { url: ov.url, own: true, kind: 'override' };
-    const ans = gs && !r.absent ? repoText(r) : '';
+    const ans = gs && !r.absent ? repoText(r, R) : '';
     const own = ans ? { url: ans, own: true, kind: 'answer' } : null;
-    const others = links.filter((x) => x.ws_id !== S.ws);
-    if (src === S.ws) return own || { url: '' };
+    const others = links.filter((x) => x.ws_id !== ws);
+    if (src === ws) return own || { url: '' };
     if (src === 'auto') return own || (others[0] ? Object.assign({ own: false, kind: 'other' }, others[0]) : { url: '' });
     const o = others.find((x) => x.ws_id === src);
     return o ? Object.assign({ own: false, kind: 'other' }, o) : { url: '' };
   }
   // murid yang belum mulai lembar kerja ini (tertinggal) ikut tampil, agar guru bisa mengisi link repo-nya
-  function ghRows() {
-    const rows = S.results?.rows || [], have = new Set(rows.map((r) => r.student_id));
-    const classes = new Set(rows.map((r) => r.class)); if (S.filters.gClass) classes.add(S.filters.gClass);
+  function ghRows(R, cls) {
+    const rows = (R || S.results)?.rows || [], have = new Set(rows.map((r) => r.student_id));
+    const classes = new Set(rows.map((r) => r.class)); const fc = R ? cls : S.filters.gClass; if (fc) classes.add(fc);
     const extra = (S.ghStudents || []).filter((st) => !have.has(st.id) && classes.has(st.class))
       .map((st) => ({ session_id: 'absent-' + st.id, student_id: st.id, name: st.name, class: st.class, is_active: st.is_active, answers: {}, absent: true }));
     return rows.concat(extra);
@@ -2480,15 +3095,37 @@
     if (S.gh) S.gh.byS = {};   // data GitHub lama mungkin dari repo lain
     renderGithub();
   };
-  const ghStep = () => (S.results?.steps || []).find((s) => qsOf(s).some((q) => q.type === 'github'));
+  const ghStepOf = (R) => (R?.steps || []).find((s) => qsOf(s).some((q) => q.type === 'github'));
+  const ghStep = () => ghStepOf(S.results);
   // link repository murid: jawaban pertanyaan Link GitHub (atau isi lama untuk data versi sebelumnya)
-  function repoText(r) {
-    const gs = ghStep(); if (!gs) return '';
+  function repoText(r, R) {
+    const gs = ghStepOf(R || S.results); if (!gs) return '';
     const a = r.answers[gs.id] || {}, q = qsOf(gs).find((x) => x.type === 'github');
     const v = (a.data || {})[q.id];
     return String(typeof v === 'string' ? v : (a.content || '')).trim();
   }
-  const refSteps = () => (S.results?.steps || []).filter((s) => s.ref_code && s.ref_code.trim());
+  const refsOf = (R) => (R?.steps || []).filter((s) => s.ref_code && s.ref_code.trim());
+  const refSteps = () => refsOf(S.results);
+  // kecocokan terbaik satu langkah (GitHub atau jawaban LKM); null = belum ada data
+  // hasil GitHub disimpan per lembar kerja, agar tampilan gabungan (per hari / semua) bisa memakainya
+  function ghFor(ws) { S.ghCache = S.ghCache || {}; return (S.ghCache[ws] = S.ghCache[ws] || { ws, byS: {} }); }
+  function fileBest(r, st, G) {
+    G = G || S.gh;
+    const d = (G && G.byS[r.session_id]) || {}, f = d.files && d.files[st.id];
+    const ans = lkmText(st, (r.answers || {})[st.id]);
+    const g = f && f.text != null ? codeSimilarity(st.ref_code, f.text) : null;
+    const l = ans ? codeSimilarity(st.ref_code, ans) : null;
+    if (!g && !l && !f && !(d.status && d.status !== 'loading')) return null;
+    return { pct: Math.max(g ? g.pct : 0, l ? l.pct : 0), ver: f && f.ver, git: !!g };
+  }
+  function codeAvgOf(r, refs, G) {
+    if (!refs.length) return null;
+    G = G || S.gh;
+    const d = (G && G.byS[r.session_id]) || {};
+    let sum = 0, any = !!d.status && d.status !== 'loading', doneN = 0;   // sudah diambil dari GitHub: tanpa repo = 0%
+    refs.forEach((st) => { const b = fileBest(r, st, G); if (b) { any = true; sum += b.pct; if (b.pct > 0) doneN++; } });
+    return any ? { pct: Math.round(sum / refs.length), done: doneN } : null;
+  }
   function ghVisible() {
     const f = S.filters, q = norm(f.gSearch);
     return ghRows().filter((r) => (!f.gClass || r.class === f.gClass) && (!q || norm(r.name).includes(q)));
@@ -2516,21 +3153,7 @@
     if (!rows.length) { $('gTable').innerHTML = '<div class="empty">Tidak ada murid yang cocok dengan filter.</div>'; return; }
     // rata-rata kode per murid: tiap langkah berkode acuan diambil nilai terbaik dari GitHub atau jawaban LKM,
     // file yang belum ada / belum dikerjakan dihitung 0%. Kosong (-) bila belum ada data sama sekali.
-    const avgOf = (r) => {
-      if (!refs.length) return null;
-      const d = S.gh.byS[r.session_id] || {};
-      let sum = 0, any = !!d.status && d.status !== 'loading', doneN = 0;   // sudah diambil dari GitHub: tanpa repo = 0%
-      refs.forEach((st) => {
-        const ans = lkmText(st, r.answers[st.id]);
-        const f = d.files && d.files[st.id];
-        const g = f && f.text != null ? codeSimilarity(st.ref_code, f.text) : null;
-        const l = ans ? codeSimilarity(st.ref_code, ans) : null;
-        if (g || l || f) any = true;
-        const p = Math.max(g ? g.pct : 0, l ? l.pct : 0);
-        sum += p; if (p > 0) doneN++;
-      });
-      return any ? { pct: Math.round(sum / refs.length), done: doneN } : null;
-    };
+    const avgOf = (r) => codeAvgOf(r, refs);
     const avgs = new Map(rows.map((r) => [r.session_id, avgOf(r)]));
     const known = [...avgs.values()].filter(Boolean);
     const classAvg = known.length ? Math.round(known.reduce((t, a) => t + a.pct, 0) / known.length) : null;
@@ -2550,7 +3173,8 @@
           const gitSim = d.files && d.files[st.id] && d.files[st.id].text != null ? codeSimilarity(st.ref_code, d.files[st.id].text) : null;
           const lkmSim = ans ? codeSimilarity(st.ref_code, ans) : null;
           const fileErr = d.files && d.files[st.id] && d.files[st.id].err;
-          return '<td>' + (gitSim ? simHtml(gitSim, 'Kode di GitHub') : fileErr ? '<span class="gh-row-err">' + h(fileErr) + '</span>' : '') +
+          const ver = gitSim && d.files[st.id].ver;
+          return '<td>' + (gitSim ? simHtml(gitSim, 'Kode di GitHub') + (ver ? '<div class="bar-label ver-' + ver.kind + '" title="' + h(verText(ver)) + '">' + VER_LABEL[ver.kind] + '</div>' : '') : fileErr ? '<span class="gh-row-err">' + h(fileErr) + '</span>' : '') +
             (lkmSim ? '<div class="bar-label">Jawaban LKM ' + lkmSim.pct + '%</div>' : '') + (!gitSim && !fileErr && !lkmSim ? '<span class="muted">-</span>' : '') + '</td>';
         }).join('');
         return '<tr data-s="' + r.session_id + '"' + (r.is_active ? '' : ' class="off"') + '>' +
@@ -2571,20 +3195,76 @@
   $('gClass').onchange = () => { S.filters.gClass = $('gClass').value; if (S.results) renderGithub(); };
   $('gSearch').oninput = () => { S.filters.gSearch = $('gSearch').value; if (S.results) renderGithub(); };
 
-  async function fetchRow(r) {
-    const repo = parseRepo(resolveRepo(r).url || '');
-    const d = S.gh.byS[r.session_id] = { status: 'loading', files: {} };
+  /* ---------- cek GitHub cerdas ----------
+     Untuk tiap file acuan, versi yang dinilai dipilih dari riwayat commit file itu:
+       1. commit jelas  : commit bermakna selama misi yang pesannya menyebut langkah/file ini
+                          (misalnya "L4 next.config", "langkah 4", "next.config.ts", atau judul langkah)
+       2. akhir misi    : versi terakhir yang di-commit selama misi (dari mulai LKM sampai selesai + 60 menit)
+       3. sebelum misi  : file tidak diubah selama misi, jadi dipakai versi terakhir sebelum misi selesai
+       4. setelah misi  : file baru dibuat setelah misi, jadi dipakai versi terbaru
+     Murid tanpa sesi LKM (tertinggal) memakai versi terbaru. Perubahan dari misi berikutnya tidak ikut dinilai. */
+  const GH_GRACE_MS = 60 * 60000, GH_EARLY_MS = 15 * 60000;
+  const VER_LABEL = { clear: 'commit jelas', mission: 'akhir misi', before: 'sebelum misi', after: 'setelah misi', head: 'versi terbaru' };
+  const GENERIC_FILE = /^(page|index|layout|app|main|style|styles|globals?|route|utils?|data)$/i;
+  function mentionsStep(msg, st) {
+    const m = ' ' + String(msg || '').toLowerCase().replace(/[_\-]+/g, ' ') + ' ';
+    if (new RegExp('(^|[^a-z0-9])(l|langkah|step|lk)\\s*0?' + st.no + '([^0-9]|$)').test(m)) return true;
+    const path = String(st.ref_path || '').toLowerCase(), base = path.split('/').pop(), stem = base.replace(/\.[a-z0-9]+$/, '');
+    if (path && m.includes(path.replace(/[_\-]+/g, ' '))) return true;
+    if (base && !GENERIC_FILE.test(stem) && stem.length >= 4 && (m.includes(base) || m.includes(stem.replace(/[_\-]+/g, ' ')))) return true;
+    const title = String(st.title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    return title.length >= 6 && m.includes(title);
+  }
+  async function smartFile(repo, st, r) {
+    const base = '/repos/' + repo.owner + '/' + repo.name;
+    const enc = st.ref_path.split('/').map(encodeURIComponent).join('/');
+    const hist = (await gh(base + '/commits?path=' + encodeURIComponent(st.ref_path) + '&per_page=50')).map((c) => ({
+      sha: c.sha, msg: (c.commit?.message || '').split('\n')[0], date: c.commit?.author?.date || c.commit?.committer?.date, parents: c.parents || [] }));
+    if (!hist.length) return { text: null, err: 'File ' + st.ref_path + ' belum ada', changes: 0 };
+    const t = (c) => new Date(c.date).getTime();
+    const start = r.started_at ? new Date(r.started_at).getTime() : null;
+    const end = (r.finished_at ? new Date(r.finished_at).getTime() : Date.now()) + GH_GRACE_MS;
+    let order;
+    if (start == null) order = hist.map((c) => ({ kind: 'head', c }));
+    else {
+      const inWin = hist.filter((c) => t(c) >= start - GH_EARLY_MS && t(c) <= end);
+      const clear = inWin.filter((c) => commitKind(c) === 'ok' && mentionsStep(c.msg, st));
+      const before = hist.filter((c) => t(c) <= end);
+      order = clear.map((c) => ({ kind: 'clear', c }))
+        .concat(inWin.map((c) => ({ kind: 'mission', c })))
+        .concat(before.map((c) => ({ kind: 'before', c })))
+        .concat(hist.map((c) => ({ kind: 'after', c })));
+      order.forEach((o) => { if (o.kind === 'before' && inWin.includes(o.c)) o.kind = 'mission'; });
+    }
+    // commit yang menghapus file tidak punya isi: coba versi berikutnya dalam urutan
+    const tried = new Set();
+    for (const o of order) {
+      if (tried.has(o.c.sha)) continue; tried.add(o.c.sha);
+      if (tried.size > 3) break;
+      try {
+        const text = await gh(base + '/contents/' + enc + '?ref=' + o.c.sha, true);
+        return { text, ver: { kind: o.kind, sha: o.c.sha, msg: o.c.msg, date: o.c.date }, changes: start == null ? null : hist.filter((c) => t(c) >= start - GH_EARLY_MS && t(c) <= end).length, total: hist.length };
+      } catch (e) { if (e.kind !== '404') throw e; }
+    }
+    return { text: null, err: 'File ' + st.ref_path + ' sudah dihapus', changes: 0 };
+  }
+  const verText = (v) => v ? VER_LABEL[v.kind] + (v.kind === 'clear' ? ': "' + v.msg + '"' : '') + ', ' + new Date(v.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+
+  async function fetchRow(r, ctx) {
+    const repo = parseRepo(resolveRepo(r, ctx).url || '');
+    const G = ctx ? ghFor(ctx.ws) : S.gh, refs = ctx ? refsOf(ctx.R) : refSteps();
+    const d = G.byS[r.session_id] = { status: 'loading', files: {} };
     if (!repo) { d.status = 'norepo'; return; }
     try {
       const list = await gh('/repos/' + repo.owner + '/' + repo.name + '/commits?per_page=100');
       d.commits = list.map((c) => ({ sha: c.sha, msg: (c.commit?.message || '').split('\n')[0], full: c.commit?.message || '',
         date: c.commit?.author?.date || c.commit?.committer?.date, author: c.commit?.author?.name || c.author?.login || '', parents: c.parents || [] }));
-      for (const st of refSteps()) {
+      for (const st of refs) {
         if (!st.ref_path) continue;
-        try { d.files[st.id] = { text: await gh('/repos/' + repo.owner + '/' + repo.name + '/contents/' + st.ref_path.split('/').map(encodeURIComponent).join('/'), true) }; }
+        try { d.files[st.id] = await smartFile(repo, st, r); }
         catch (e) { if (e.kind === 'rate' || e.kind === 'auth') throw e; d.files[st.id] = { text: null, err: e.kind === '404' ? 'File ' + st.ref_path + ' belum ada' : ghErr(e) }; }
       }
-      d.status = 'ok';
+      d.status = 'ok'; d.at = Date.now();
     } catch (e) { d.status = 'err'; d.err = ghErr(e); if (e.kind === 'rate' || e.kind === 'auth') throw e; }
   }
   $('ghFetch').onclick = async () => {
@@ -2652,7 +3332,8 @@
         const f = d.files && d.files[st.id];
         const ans = lkmText(st, r.answers[st.id]);
         return '<div style="margin-bottom:14px"><strong>Langkah ' + st.no + ': ' + h(st.title) + '</strong>' +
-          (st.ref_path ? (f && f.text != null ? simDetail(codeSimilarity(st.ref_code, f.text), 'File ' + st.ref_path + ' di GitHub')
+          (st.ref_path ? (f && f.text != null ? simDetail(codeSimilarity(st.ref_code, f.text), 'File ' + st.ref_path + ' di GitHub') +
+              (f.ver ? '<div class="help">Versi yang dicek: <strong>' + h(verText(f.ver)) + '</strong>' + (f.changes != null ? '. File ini diubah ' + f.changes + ' kali selama misi' : '') + '.</div>' : '')
             : '<div class="help">' + (f && f.err ? h(f.err) : 'File ' + h(st.ref_path) + ' belum diambil. Klik Ambil ulang data GitHub.') + '</div>') : '') +
           (ans ? simDetail(codeSimilarity(st.ref_code, ans), 'Jawaban yang diketik di LKM') : '') + '</div>';
       }).join('') + '<p class="help" style="margin:0">Persentase = bagian kode acuan yang juga ada di kode murid. Spasi, komentar, huruf besar-kecil, dan jenis tanda petik diabaikan. Kode tambahan milik murid tidak mengurangi nilai. Ini petunjuk untuk guru, bukan nilai otomatis.</p></section>';
