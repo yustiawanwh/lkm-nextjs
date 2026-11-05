@@ -404,7 +404,8 @@
   .hm-prog i{display:block; height:100%; border-radius:6px; background:var(--viz-1); transform-origin:left}
   .hm-sub{font-size:11.5px; color:var(--muted)}
   .db-heat .pill{margin:1px 0}
-  .db-heat td[data-gows]{cursor:pointer}
+  .db-heat td[data-gows], .db-heat td[data-score]{cursor:pointer}
+  .db-heat td[data-score]:hover{box-shadow:inset 0 0 0 2px var(--accent)}
   .db-heat td.hm.off{background:repeating-linear-gradient(135deg, transparent 0 5px, var(--viz-grid) 5px 6px) !important}
   .db-heat td[data-gows]:hover{box-shadow:inset 0 0 0 2px var(--accent)}
   .db-misi{display:grid; gap:10px}
@@ -551,6 +552,22 @@
 
   /* kemiripan & github */
   .sim{display:flex; align-items:center; gap:10px; min-width:130px}
+  .why-reasons li.bad{background:var(--danger-soft)} .why-reasons li.bad::before{content:'!'; background:var(--danger)}
+  .sw-step{border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden}
+  .sw-step header{display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--surface-2); font-size:13.5px}
+  .sw-step header b{color:var(--accent)}
+  .sw-st{font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--ok-soft); color:var(--ok)}
+  .sw-st.sedang-dikerjakan{background:var(--accent-soft); color:var(--accent)} .sw-st.belum-sampai{background:var(--surface); color:var(--muted); border:1px solid var(--line)}
+  .sw-pts{margin-left:auto; font-weight:800}
+  .sw-step ul{list-style:none; margin:0; padding:0}
+  .sw-step li{display:grid; grid-template-columns:118px 1fr auto; gap:10px; align-items:start; padding:9px 12px; border-top:1px solid var(--line); font-size:13px}
+  .sw-kind{font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:999px; text-align:center}
+  .sw-kind.ok{background:var(--ok-soft); color:var(--ok)} .sw-kind.warn{background:var(--warn-soft); color:var(--warn)} .sw-kind.danger{background:var(--danger-soft); color:var(--danger)}
+  .sw-kind.muted{background:var(--surface-2); color:var(--muted)} .sw-kind.info{background:var(--accent-soft); color:var(--accent)}
+  .sw-prompt{font-weight:600}
+  .sw-ans{color:var(--ink-2); font-size:12.5px; margin-top:2px} .sw-ans span{color:var(--ink)} .sw-ans .key{color:var(--ok); font-weight:700}
+  .sw-p{font-weight:800; white-space:nowrap}
+  @media (max-width:640px){ .sw-step li{grid-template-columns:1fr auto} .sw-kind{grid-column:1 / -1; justify-self:start} }
   .why-btn{display:inline-block; margin-top:4px; padding:2px 8px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--accent); font-size:11.5px; font-weight:700; cursor:pointer}
   .why-btn:hover{background:var(--accent-soft); border-color:var(--accent)}
   .db-heat td[data-why]{cursor:help; position:relative}
@@ -1578,13 +1595,13 @@
     // peta murid
     const order = P.slice().sort((a, b) => b.why.length - a.why.length || collator.compare(a.st.name, b.st.name));
     const heat = (pct) => heatCell(pct);
-    html += card(12, 12, 'Peta progres murid', 'Murid yang perlu perhatian ada di atas. Warna sel makin pekat = makin tinggi. Klik baris untuk melihat detail GitHub.',
+    html += card(12, 12, 'Peta progres murid', 'Murid yang perlu perhatian ada di atas. Warna sel makin pekat = makin tinggi. Klik sel Nilai untuk alasan nilainya, sel file untuk alasan persentase kode, atau baris untuk detail GitHub.',
       '<div class="db-heat-wrap"><table class="db-heat"><thead><tr><th>Murid</th><th>Progres</th><th class="c">Nilai</th>' + md.refs.map((st) => '<th class="c" title="' + h(st.ref_path || st.title) + '">L' + st.no + '</th>').join('') +
       '<th class="c">Kode</th><th class="c">Commit</th><th>Catatan</th></tr></thead><tbody>' + order.map((p, k) => {
         const prog = p.st.status === 'finished' ? 100 : (p.step / Math.max(1, md.total)) * 100;
         return '<tr data-s="' + h(p.row.session_id) + '" style="--r:' + Math.min(k, 30) + '"><td><div class="who"><span class="avatar">' + h(initials(p.st.name)) + '</span><div><strong>' + h(p.st.name) + '</strong><span>' + h(p.st.class) + '</span></div></div></td>' +
           '<td><div class="hm-prog"' + tipAttr(p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'Langkah ' + p.step + ' dari ' + md.total) + '><i class="grow-x" style="width:' + prog + '%;--d:' + (300 + Math.min(k, 30) * 25) + (p.st.status === 'finished' ? ';background:var(--viz-good)' : '') + '"></i></div><span class="hm-sub">' + (p.st.status === 'finished' ? 'Selesai' : p.st.status === 'not_started' ? 'Belum mulai' : 'L' + p.step + '/' + md.total) + '</span></td>' +
-          heat(p.av && p.av.avg != null ? Math.round(p.av.avg) : null) + p.files.map((f, j) => f ? heatCell(f.pct, md.refs[j].ref_path + ': ' + f.pct + '%' + (f.alt ? ' · ada versi ' + f.alt.pct + '% selama misi' : '') + ' · klik untuk penjelasan', ' data-why="' + h(p.row.session_id) + '|' + md.refs[j].id + '"' + (f.alt ? ' data-alt="1"' : '')) : heat(null)).join('') + heat(p.code ? p.code.pct : null) +
+          (p.av && p.av.avg != null ? heatCell(Math.round(p.av.avg), 'Nilai ' + fmtNum(p.av.avg) + ' · klik untuk alasannya', ' data-score="' + S.ws + '|' + h(p.row.session_id) + '"') : heat(null)) + p.files.map((f, j) => f ? heatCell(f.pct, md.refs[j].ref_path + ': ' + f.pct + '%' + (f.alt ? ' · ada versi ' + f.alt.pct + '% selama misi' : '') + ' · klik untuk penjelasan', ' data-why="' + h(p.row.session_id) + '|' + md.refs[j].id + '"' + (f.alt ? ' data-alt="1"' : '')) : heat(null)).join('') + heat(p.code ? p.code.pct : null) +
           '<td class="c">' + (p.commits == null ? '<span class="muted">-</span>' : '<b>' + p.commits + '</b>') + '</td>' +
           '<td>' + (p.why.length ? p.why.map((x) => '<span class="pill warn">' + h(x) + '</span>').join(' ') : '<span class="pill ok">Aman</span>') + '</td></tr>';
       }).join('') + '</tbody></table></div>');
@@ -1621,7 +1638,7 @@
           commitList = d.commits.filter((c) => { const t = new Date(c.date).getTime(); return t0 ? t >= t0 - GH_EARLY_MS && t <= t1 : false; });
           commits = commitList.filter((c) => commitKind(c) === 'ok').length;
         }
-        return { x, st, av, code, d, commits, commitList, t0, t1, on: x.classes.has(st0.class) };
+        return { x, st, av, code, d, commits, commitList, t0, t1, on: x.classes.has(st0.class), sid: row.session_id };
       });
       // hanya misi yang dikerjakan kelas murid ini yang dihitung
       return { st: st0, per, on: per.filter((e) => e.on) };
@@ -1735,7 +1752,7 @@
 
     // peta murid × misi
     const order = P.slice().sort((a, b) => b.why.length - a.why.length || collator.compare(a.st.name, b.st.name));
-    html += card(12, 12, 'Peta progres murid', 'Satu kolom per misi berisi nilai akhir (makin pekat = makin tinggi). ▸ = sedang mengerjakan, - = belum mulai. Klik sel untuk membuka misi itu.',
+    html += card(12, 12, 'Peta progres murid', 'Satu kolom per misi berisi nilai akhir (makin pekat = makin tinggi). ▸ = sedang mengerjakan, - = belum mulai. Klik sel untuk melihat alasan nilainya.',
       '<div class="db-heat-wrap"><table class="db-heat"><thead><tr><th>Murid</th><th>Misi selesai</th>' + W.map((x) => '<th class="c" title="' + h(x.w.title) + '">' + misiLabel(x) + '</th>').join('') +
       '<th class="c">Nilai</th><th class="c">Kode</th><th class="c">Commit</th><th>Catatan</th></tr></thead><tbody>' + order.map((p, r) =>
         '<tr style="--r:' + Math.min(r, 30) + '"><td><div class="who"><span class="avatar">' + h(initials(p.st.name)) + '</span><div><strong>' + h(p.st.name) + '</strong><span>' + h(p.st.class) + '</span></div></div></td>' +
@@ -1744,7 +1761,7 @@
           if (!e.on) return '<td class="hm na off"' + tipAttr(misiLabel(e.x) + ': bukan misi kelas ' + p.st.class) + '></td>';
           const tip = misiLabel(e.x) + ' ' + e.x.w.title + ': ' + (e.st.status === 'finished' ? 'selesai' : e.st.status === 'running' ? 'langkah ' + e.st.step_index + ' dari ' + e.x.m.total : 'belum mulai') +
             (e.av && e.av.avg != null ? ', nilai ' + fmtNum(Math.round(e.av.avg * 10) / 10) : '') + (e.code ? ', kode ' + e.code.pct + '%' : '');
-          const go = ' data-gows="' + e.x.id + '"';
+          const go = ' data-score="' + e.x.id + '|' + h(e.sid) + '" data-stu="' + p.st.student_id + '"';
           if (e.av && e.av.avg != null) return heatCell(Math.round(e.av.avg), tip, go);
           return '<td class="hm na"' + tipAttr(tip) + go + '>' + (e.st.status === 'running' ? '▸' : e.st.status === 'finished' ? '✓' : '-') + '</td>';
         }).join('') +
@@ -2063,6 +2080,8 @@
     }
     catch (e) { $('rTable').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
     renderResults();
+    // dibuka dari penjelasan nilai di dashboard: langsung buka laci penilaian murid itu
+    if (S.pendingDrawer) { const sid = S.pendingDrawer; S.pendingDrawer = null; if (S.results.rows.some((r) => r.session_id === sid)) openDrawer(sid); }
   }
   // urutan: nama (A-Z / Z-A) atau waktu dikumpulkan; yang belum mengumpulkan selalu di bawah
   const collator = new Intl.Collator('id', { sensitivity: 'base', numeric: true });
@@ -3396,6 +3415,123 @@
     return Object.assign({ text: null, err: 'File ' + st.ref_path + ' sudah dihapus', changes: 0 }, extra);
   }
   const verText = (v) => v ? VER_LABEL[v.kind] + (v.kind === 'clear' ? ': "' + v.msg + '"' : '') + ', ' + new Date(v.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+
+  /* ---------- penjelasan nilai misi ---------- */
+  // ctx: { ws, R (hasil t_results), ms (data murid dari t_monitor), sid }
+  function ansText(q, v) {
+    if (!hasVal(v)) return '';
+    if (q.type === 'single' || q.type === 'tf') return (q.options || [])[v] ?? String(v);
+    if (q.type === 'multi') return (Array.isArray(v) ? v : []).map((i) => (q.options || [])[i]).join(', ');
+    if (q.type === 'image') return (Array.isArray(v) ? v.length : 0) + ' gambar';
+    if (q.type === 'table') return Object.keys(v || {}).length + ' sel diisi';
+    const t = String(v).replace(/\s+/g, ' ').trim();
+    return t.length > 140 ? t.slice(0, 140) + '…' : t;
+  }
+  function keyText(q) {
+    if (q.type === 'single' || q.type === 'tf') return q.correct != null ? (q.options || [])[q.correct] : '';
+    if (q.type === 'multi') return (q.correct || []).map((i) => (q.options || [])[i]).join(', ');
+    if (q.type === 'short') return (q.accept && q.accept.length ? q.accept : String(q.acceptText || '').split('\n')).map((x) => String(x).trim()).filter(Boolean).join(' / ');
+    return '';
+  }
+  function scoreModel(R, row, ms) {
+    const steps = gradedSteps(R), total = R.steps.length;
+    const pos = ms ? (ms.status === 'finished' ? total + 1 : ms.status === 'not_started' ? 0 : ms.step_index) : (row && row.finished ? total + 1 : 0);
+    const items = [];
+    steps.forEach((st) => {
+      const a = row && row.answers[st.id];
+      const reached = st.no < pos, here = st.no === pos;
+      qsOf(st).forEach((q) => {
+        const r = qPoint(q, a), pts = Number(q.points) || 0, v = a && a.data ? a.data[q.id] : undefined;
+        let kind;
+        if (r.p == null) kind = 'todo';
+        else if (r.empty) kind = reached ? 'empty' : here ? 'current' : 'unreached';
+        else if (r.p >= pts) kind = 'full';
+        else if (!r.manual && isAuto(q)) kind = r.p > 0 ? 'partial' : 'wrong';
+        else kind = r.p >= pts * 0.5 ? 'partial' : 'low';
+        items.push({ st, q, pts, p: r.p, kind, v, a, lost: r.p == null ? 0 : pts - r.p, manual: r.manual, feedback: a && a.feedback });
+      });
+    });
+    const graded = items.filter((x) => x.kind !== 'todo');
+    const max = graded.reduce((t, x) => t + x.pts, 0), earned = graded.reduce((t, x) => t + x.p, 0);
+    const done = graded.filter((x) => !['unreached', 'current'].includes(x.kind));
+    const dMax = done.reduce((t, x) => t + x.pts, 0), dEarned = done.reduce((t, x) => t + x.p, 0);
+    return { items, pos, total, score: max ? (earned * 100) / max : null, max, earned, partScore: dMax ? (dEarned * 100) / dMax : null, dMax, dEarned };
+  }
+  const KIND = {
+    full: ['ok', 'Benar / penuh'], partial: ['warn', 'Sebagian'], low: ['danger', 'Poin rendah'], wrong: ['danger', 'Salah'],
+    empty: ['danger', 'Dikosongkan'], unreached: ['muted', 'Belum sampai'], current: ['muted', 'Sedang dikerjakan'], todo: ['info', 'Belum dinilai'],
+  };
+  function openScoreWhy(ctx) {
+    const { R, sid } = ctx;
+    const row = R.rows.find((x) => x.session_id === sid);
+    const ms = ctx.ms;
+    const name = row ? row.name : ms ? ms.name : '', cls = row ? row.class : ms ? ms.class : '';
+    const M = scoreModel(R, row, ms), I = M.items;
+    const by = (k) => I.filter((x) => x.kind === k);
+    const sum = (a) => a.reduce((t, x) => t + x.lost, 0);
+    const reasons = [];
+    const status = !ms ? '' : ms.status === 'finished' ? 'Murid sudah menyelesaikan misi ini.' : ms.status === 'not_started' ? 'Murid belum memulai misi ini, jadi semua pertanyaan dihitung 0.' : 'Murid masih mengerjakan, sekarang di langkah ' + ms.step_index + ' dari ' + M.total + '.';
+    if (status) reasons.push([ms.status === 'finished' ? 'info' : 'warn', status]);
+    const unr = by('unreached').concat(by('current'));
+    if (unr.length) {
+      const stepsTxt = [...new Set(unr.map((x) => x.st.no))].sort((a, b) => a - b).map((n) => 'L' + n).join(', ');
+      reasons.push(['warn', 'Langkah ' + stepsTxt + ' belum dikerjakan sehingga dihitung 0 (' + fmtNum(sum(unr)) + ' poin). ' + (M.partScore != null ? 'Kalau hanya langkah yang sudah dilewati yang dihitung, nilainya ' + fmtNum(M.partScore) + '.' : '')]);
+    }
+    if (by('empty').length) reasons.push(['danger', by('empty').length + ' pertanyaan di langkah yang sudah dilewati dikosongkan (' + fmtNum(sum(by('empty'))) + ' poin hilang): ' + by('empty').slice(0, 5).map((x) => 'L' + x.st.no).join(', ') + '.']);
+    if (by('wrong').length) reasons.push(['danger', by('wrong').length + ' jawaban otomatis salah (' + fmtNum(sum(by('wrong'))) + ' poin hilang).']);
+    if (by('low').length) reasons.push(['danger', by('low').length + ' jawaban diberi poin rendah oleh guru (' + fmtNum(sum(by('low'))) + ' poin hilang).']);
+    if (by('partial').length) reasons.push(['warn', by('partial').length + ' jawaban mendapat poin sebagian (' + fmtNum(sum(by('partial'))) + ' poin hilang).']);
+    if (by('todo').length) reasons.push(['info', by('todo').length + ' jawaban belum dinilai (' + by('todo').reduce((t, x) => t + x.pts, 0) + ' poin). Jawaban itu belum ikut dihitung, jadi nilainya masih bisa berubah.']);
+    if (!I.length) reasons.push(['info', 'Misi ini tidak punya pertanyaan bernilai.']);
+    const top = I.filter((x) => x.lost > 0 && x.kind !== 'unreached' && x.kind !== 'current').sort((a, b) => b.lost - a.lost).slice(0, 3);
+    if (top.length) reasons.push(['info', 'Poin paling banyak hilang di: ' + top.map((x) => 'L' + x.st.no + ' "' + ((x.q.prompt || '').replace(/[*`_]/g, '').slice(0, 50) || TYPES_LABEL(x.q)) + '" (−' + fmtNum(x.lost) + ')').join('; ') + '.']);
+    const notStarted = ms && ms.status === 'not_started';
+    if (notStarted) M.score = null;
+    const [tone, word] = notStarted ? ['info', 'Belum mulai'] : M.score == null ? ['info', 'Belum ada nilai'] : verdictOf(M.score);
+    const stepsHtml = gradedSteps(R).map((st) => {
+      const its = I.filter((x) => x.st === st);
+      const g = its.filter((x) => x.kind !== 'todo'), e = g.reduce((t, x) => t + x.p, 0), m = its.reduce((t, x) => t + x.pts, 0);
+      const stat = st.no < M.pos ? 'dilewati' : st.no === M.pos ? 'sedang dikerjakan' : 'belum sampai';
+      return '<section class="sw-step"><header><b>L' + st.no + '</b> ' + h(st.title) + '<span class="sw-st ' + stat.replace(' ', '-') + '">' + stat + '</span><span class="sw-pts">' + fmtNum(e) + ' / ' + m + '</span></header>' +
+        '<ul>' + its.map((x) => {
+          const [t, lbl] = KIND[x.kind], at = ansText(x.q, x.v), key = (x.kind === 'wrong' || x.kind === 'partial') && isAuto(x.q) ? keyText(x.q) : '';
+          return '<li><span class="sw-kind ' + t + '">' + lbl + '</span><div class="sw-q"><div class="sw-prompt">' + h((x.q.prompt || '').replace(/[*`_]/g, '') || TYPES_LABEL(x.q)) + ' <span class="muted">· ' + h(QTYPES[x.q.type] || x.q.type) + '</span></div>' +
+            (at ? '<div class="sw-ans">Jawaban: <span>' + h(at) + '</span></div>' : '') + (key ? '<div class="sw-ans">Kunci: <span class="key">' + h(key) + '</span></div>' : '') +
+            (x.feedback && x.q === qsOf(x.st)[0] ? '<div class="sw-ans">Komentar guru: <span>' + h(x.feedback) + '</span></div>' : '') + '</div>' +
+            '<span class="sw-p">' + (x.p == null ? '?' : fmtNum(x.p)) + ' / ' + x.pts + '</span></li>';
+        }).join('') + '</ul></section>';
+    }).join('');
+    const box = openModal('<div class="why-head"><div><span class="db-eyebrow">' + h(R.title || '') + '</span><h2>' + h(name) + '</h2><p class="sub" style="margin:4px 0 0">' + h(cls) +
+        (M.score != null ? ' · ' + fmtNum(M.earned) + ' dari ' + M.max + ' poin yang sudah dinilai' : '') + '</p></div>' +
+      '<div class="why-score ' + tone + '"><b>' + (M.score == null ? '-' : fmtNum(M.score)) + '</b><span>' + word + '</span></div></div>' +
+      '<p class="help" style="margin:12px 0 0">Nilai akhir = total poin ÷ total bobot pertanyaan yang sudah dinilai × 100. Jawaban kosong dan langkah yang belum dikerjakan dihitung 0. Jawaban yang belum dinilai guru belum dihitung.</p>' +
+      '<ul class="why-reasons">' + reasons.map(([t, x]) => '<li class="' + (t === 'danger' ? 'warn bad' : t) + '">' + h(x) + '</li>').join('') + '</ul>' +
+      '<h3 class="why-h">Rincian per langkah</h3>' + (stepsHtml || '<p class="muted">Tidak ada pertanyaan bernilai.</p>') +
+      '<div class="modal-actions">' + (row ? '<button class="btn btn-ghost" data-x="open">Nilai di Hasil &amp; nilai</button>' : '') + (ctx.ws !== S.ws || S.dbScope !== 'misi' ? '<button class="btn btn-ghost" data-x="misi">Dashboard misi ini</button>' : '') +
+      '<button class="btn btn-primary" data-x="no">Tutup</button></div>', true);
+    box.classList.add('why');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    const om = box.querySelector('[data-x="misi"]'); if (om) om.onclick = () => { closeModal(false); openMisi(ctx.ws); };
+    const op = box.querySelector('[data-x="open"]');
+    if (op) op.onclick = () => {
+      closeModal(false);
+      S.ws = ctx.ws; ss.set('g_ws', ctx.ws); if ($('wsSel')) $('wsSel').value = ctx.ws;
+      if (S.rMode !== 'ws') { S.rMode = 'ws'; ss.set('g_rmode', 'ws'); }
+      S.pendingDrawer = sid; go('results');
+    };
+  }
+  const TYPES_LABEL = (q) => QTYPES[q.type] || 'Pertanyaan';
+  // sel nilai di dashboard: data-score="ws|sesi"
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest && e.target.closest('[data-score]'); if (!el) return;
+    e.preventDefault(); e.stopPropagation();
+    const [ws, sid] = el.dataset.score.split('|');
+    const src = ws === S.ws && S.results && S.results._ws === ws ? { R: S.results, m: S.monitor } : S.dbData && S.dbData[ws] ? { R: S.dbData[ws].r, m: S.dbData[ws].m } : null;
+    if (!src) return;
+    const row = src.R.rows.find((x) => x.session_id === sid);
+    const ms = src.m && src.m.students.find((x) => x.student_id === (row ? row.student_id : el.dataset.stu));
+    openScoreWhy({ ws, R: src.R, sid, ms });
+  }, true);
 
   /* ---------- penjelasan persentase kode ("Kenapa?") ---------- */
   const WHEN_LABEL = { mission: 'selama misi', before: 'sebelum misi', after: 'setelah misi', head: '' };
