@@ -1542,8 +1542,12 @@
   window.addEventListener('beforeprint', () => { if (onSlide()) logEv('copy'); });
 
   /* ---------- catat aktivitas (hanya dicatat, tidak dilarang) ---------- */
+  // "blur" dan "visible" bisa terjadi ratusan kali (murid bolak-balik ke editor): cukup dicatat sekali per 30 detik
+  const evLast = {};
   function logEv(type) {
     if (!token || !cur) return;
+    if ((type === 'blur' || type === 'visible') && Date.now() - (evLast[type] || 0) < 30000) return;
+    evLast[type] = Date.now();
     sb.rpc('log_event', { p_token: token, p_type: type }).then(() => {}, () => {});
   }
   document.addEventListener('visibilitychange', () => {

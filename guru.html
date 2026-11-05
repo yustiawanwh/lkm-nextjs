@@ -1018,6 +1018,7 @@
     const m = (e && (e.message || e.error_description)) || '';
     if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Tidak bisa terhubung ke server. Periksa internet.';
     if (/JWT|token/i.test(m)) return 'Sesi berakhir. Silakan masuk lagi.';
+    if (/statement timeout/i.test(m)) return 'Server database terlalu lama memproses permintaan ini. Coba lagi sebentar. Bila sering muncul, pastikan schema.sql terbaru sudah dijalankan.';
     return m || 'Terjadi kesalahan.';
   }
   async function api(fn, args) {
@@ -1412,14 +1413,22 @@
         S.results = r; S.results._ws = ws; S.results.steps.forEach((st, i) => (st.no = i + 1));
         S.results.title = (S.overview.worksheets.find((w) => w.id === ws) || {}).title || '';
       } else {
-        const got = await Promise.all(ids.map((id) => Promise.all([api('t_monitor', { p_ws: id }), api('t_results', { p_ws: id })])));
+        // dimuat 3 misi sekaligus, tidak semuanya bersamaan, agar database tidak kewalahan
+        const got = new Array(ids.length); let next = 0;
+        await Promise.all([0, 1, 2].map(async () => { while (next < ids.length) { const k = next++; got[k] = await Promise.all([api('t_monitor', { p_ws: ids[k] }), api('t_results', { p_ws: ids[k] })]); } }));
         if (scope !== S.dbScope) return false;
         S.dbData = S.dbData || {};
         got.forEach(([m, r], k) => { r.steps.forEach((st, i) => (st.no = i + 1)); r.title = (S.overview.worksheets.find((w) => w.id === ids[k]) || {}).title || ''; S.dbData[ids[k]] = { m, r }; });
       }
       $('dbStamp').textContent = 'Diperbarui ' + clock(new Date());
       return true;
-    } catch (e) { $('dbRoot').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return false; }
+    } catch (e) {
+      // saat pembaruan berkala gagal, tampilan lama dipertahankan
+      if ($('dbRoot').querySelector('.db-hero')) { $('dbStamp').textContent = 'Gagal memperbarui ' + clock(new Date()); return false; }
+      $('dbRoot').innerHTML = '<div class="empty">' + h(errMsg(e)) + '<div style="margin-top:12px"><button class="btn" onclick="this.closest(\'.empty\').innerHTML=\'<span class=spinner></span>\'" id="dbRetry">Coba lagi</button></div></div>';
+      const rb = $('dbRetry'); if (rb) rb.addEventListener('click', () => loadDash(true));
+      return false;
+    }
   }
   function updateDbGhBtn() {
     const at = S.dbScope === 'misi' ? S.gh && S.gh.ws === S.ws && S.gh.at : Math.max(0, ...scopeIds().map((id) => (S.ghCache && S.ghCache[id] && S.ghCache[id].at) || 0)) || null;
