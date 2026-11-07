@@ -568,6 +568,24 @@
   .sw-ans{color:var(--ink-2); font-size:12.5px; margin-top:2px} .sw-ans span{color:var(--ink)} .sw-ans .key{color:var(--ok); font-weight:700}
   .sw-p{font-weight:800; white-space:nowrap}
   @media (max-width:640px){ .sw-step li{grid-template-columns:1fr auto} .sw-kind{grid-column:1 / -1; justify-self:start} }
+  .as-list{display:grid; gap:8px; margin-bottom:8px}
+  .as-list:empty{display:none}
+  .as-item{display:grid; grid-template-columns:40px minmax(0, 1fr) auto; gap:10px; align-items:center; padding:8px; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+  .as-main{min-width:0; display:grid; gap:2px}
+  .as-main .input{height:34px; font-size:13.5px}
+  .as-meta{font-size:11.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .as-ic{width:40px; height:40px; border-radius:10px; display:grid; place-items:center; font:800 11px var(--sans); letter-spacing:.02em; background:var(--surface-2); color:var(--ink-2)}
+  .as-ic.img{background:#e7f1fb; color:#1c5fa8} .as-ic.font{background:#efedff; color:#5b3fd1; font-size:15px; font-family:Georgia, serif}
+  .as-ic.zip{background:#f9eeda; color:#8a5a00} .as-ic.pdf{background:#fbebeb; color:#b42828} .as-ic.link{background:#e5f4e4; color:#1f7a1f; font-size:16px}
+  .as-ic.code{background:#111733; color:#e2e8ff} .as-ic.media{background:#f9ece7; color:#a8461f}
+  @media (prefers-color-scheme: dark){ .as-ic.img, .as-ic.font, .as-ic.zip, .as-ic.pdf, .as-ic.link, .as-ic.media{filter:saturate(.9) brightness(.85)} }
+  .pv-assets{margin-top:14px; display:grid; gap:6px; font-size:13.5px}
+  .pv-as{display:grid; grid-template-columns:32px 1fr auto; gap:10px; align-items:center; padding:6px; border:1px solid var(--line); border-radius:10px}
+  .pv-as .as-ic{width:32px; height:32px; font-size:10px}
+  .pv-dl{font-size:12px; font-weight:700; color:var(--accent); padding:4px 10px; border-radius:8px; background:var(--accent-soft)}
+  .inline-dlg{position:fixed; inset:0; z-index:90; background:var(--scrim); display:grid; place-items:center; padding:16px}
+  .inline-box{width:min(460px, 100%); background:var(--surface); border-radius:18px; padding:22px; box-shadow:var(--shadow-lg)}
+  .inline-box h3{font-size:17px; margin:0 0 14px}
   .why-btn{display:inline-block; margin-top:4px; padding:2px 8px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--accent); font-size:11.5px; font-weight:700; cursor:pointer}
   .why-btn:hover{background:var(--accent-soft); border-color:var(--accent)}
   .db-heat td[data-why]{cursor:help; position:relative}
@@ -2574,6 +2592,7 @@
         ((s.questions || []).length ? '<span class="pill run plain">' + s.questions.length + ' pertanyaan</span>' : '') +
         ((s.questions || []).some((q) => q.type === 'github') ? '<span class="pill plain">Link GitHub</span>' : '') +
         (s.ref_code ? '<span class="pill plain">Kode acuan' + (s.ref_path ? ': ' + h(s.ref_path) : '') + '</span>' : '') +
+        ((s.assets || []).length ? '<span class="pill plain">' + s.assets.length + ' bahan</span>' : '') +
         (s.images.length ? '<span class="pill plain">' + s.images.length + ' gambar</span>' : '') +
         (s.answers ? '<span class="pill warn plain">' + s.answers + ' jawaban murid</span>' : '') + '</div></div>' +
         '<div class="step-actions">' +
@@ -2669,6 +2688,49 @@
     return url;
   }
 
+  // ----- bahan / aset: unggah file apa saja ke folder yang sama dengan gambar -----
+  const extOf = (n) => { const m = String(n || '').match(/\.([a-z0-9]{1,8})$/i); return m ? m[1].toLowerCase() : ''; };
+  const fmtSize = (b) => b >= 1048576 ? fmtNum(b / 1048576) + ' MB' : b >= 1024 ? Math.round(b / 1024) + ' KB' : b + ' B';
+  // ekstensi asli diambil dari alamat file (nama tampilan boleh diubah guru)
+  const fileExt = (a) => extOf(String(a.url || '').split(/[?#]/)[0]) || extOf(a.name);
+  function assetKind(a) {
+    if (a.kind === 'link') return 'link';
+    const e = fileExt(a);
+    if (/^(png|jpe?g|gif|webp|svg|avif|bmp|ico)$/.test(e)) return 'img';
+    if (/^(ttf|otf|woff2?|eot)$/.test(e)) return 'font';
+    if (/^(zip|rar|7z|tar|gz)$/.test(e)) return 'zip';
+    if (e === 'pdf') return 'pdf';
+    if (/^(mp3|wav|ogg|mp4|webm|mov)$/.test(e)) return 'media';
+    if (/^(html?|css|jsx?|tsx?|json|md|txt|csv|py|php|sql)$/.test(e)) return 'code';
+    return 'file';
+  }
+  const assetBadge = (a) => ({ link: '↗', img: 'IMG', font: 'Aa', zip: 'ZIP', pdf: 'PDF', media: '▶', code: '</>', file: (fileExt(a) || 'FILE').slice(0, 4).toUpperCase() })[assetKind(a)];
+  async function uploadAsset(file) {
+    if (file.size > 50 * 1024 * 1024) throw new Error('ukuran maksimal 50 MB.');
+    if (!file.size) throw new Error('file kosong.');
+    const d = new Date(), pad = (n) => String(n).padStart(2, '0');
+    const rnd = [...crypto.getRandomValues(new Uint8Array(4))].map((b) => b.toString(16).padStart(2, '0')).join('');
+    // nama file di server tetap mudah dikenali murid saat diunduh: aset-20261107-ab12cd34-logo-toko.png
+    const ext = extOf(file.name), stem = file.name.replace(/\.[^.]*$/, '').normalize('NFKD').replace(/[^\w-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60) || 'file';
+    const url = IMAGE_UPLOAD_BASE.replace(/\/?$/, '/') + 'aset-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + rnd + '-' + stem + (ext ? '.' + ext : '');
+    let r;
+    try { r = await fetch(url, { method: 'PUT', body: file, headers: { 'Content-Type': file.type || 'application/octet-stream' } }); }
+    catch { throw new Error('tidak bisa terhubung ke server file.'); }
+    if (!r.ok) throw new Error(r.status === 404 || r.status === 409 ? 'folder tujuan belum ada di server.' : r.status === 413 ? 'file terlalu besar untuk server.' : 'server menolak unggahan (kode ' + r.status + ').');
+    return url;
+  }
+  // jendela kecil di atas jendela yang sedang terbuka
+  function openInline(title, body, onOk) {
+    const wrap = document.createElement('div'); wrap.className = 'inline-dlg';
+    wrap.innerHTML = '<div class="inline-box" role="dialog" aria-modal="true"><h3>' + h(title) + '</h3>' + body + '<div class="modal-actions"><button type="button" class="btn btn-ghost" data-x="no">Batal</button><button type="button" class="btn btn-primary" data-x="yes">Simpan</button></div></div>';
+    document.body.appendChild(wrap);
+    const close = () => wrap.remove();
+    wrap.querySelector('[data-x="no"]').onclick = close;
+    wrap.querySelector('[data-x="yes"]').onclick = () => { if (onOk() !== false) close(); };
+    wrap.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } if (e.key === 'Enter') wrap.querySelector('[data-x="yes"]').click(); });
+    return wrap;
+  }
+
   function stepModal(s) {
     const d = s ? s.duration_seconds : 300;
     const box = openModal(
@@ -2681,6 +2743,11 @@
       '<div class="field"><label class="lbl" for="seImg">URL gambar (satu per baris)</label><textarea class="textarea code" id="seImg" rows="3" placeholder="https://api-files-…/lkm/kerangka-8f3a1c.png">' + h((s?.images || []).join('\n')) + '</textarea>' +
       (IMAGE_UPLOAD_BASE ? '<div class="drop" id="seDrop"><svg width="18" height="18" style="vertical-align:-4px"><use href="#i-upload"/></svg> Seret gambar ke sini, tempel dengan Ctrl+V, atau <button type="button" id="sePick">pilih file</button><input type="file" id="seFile" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden><span class="st" id="seUpSt"></span></div>' : '') +
       '<div class="thumbs" id="seThumbs"></div></div>' +
+      '<div class="field"><span class="lbl">Bahan untuk murid (opsional)</span>' +
+      '<div class="as-list" id="asList"></div>' +
+      (IMAGE_UPLOAD_BASE ? '<div class="drop" id="asDrop"><svg width="18" height="18" style="vertical-align:-4px"><use href="#i-upload"/></svg> Seret file ke sini atau <button type="button" id="asPick">pilih file</button>. Gambar, font, zip, PDF, dan lainnya, maks. 50 MB per file.<input type="file" id="asFile" multiple hidden><span class="st" id="asSt"></span></div>' : '') +
+      '<button type="button" class="btn btn-ghost btn-sm" id="asLink" style="margin-top:8px"><svg><use href="#i-plus"/></svg>Tambah link</button>' +
+      '<div class="help">Murid bisa mengunduh bahan ini di langkah ini, dan tetap bisa membukanya lewat tombol <strong>Bahan</strong> di langkah-langkah berikutnya.' + (IMAGE_UPLOAD_BASE ? '' : ' IMAGE_UPLOAD_BASE di config.js kosong, jadi hanya link yang bisa ditambahkan.') + '</div></div>' +
       '<div class="field"><span class="lbl">Pertanyaan</span>' +
       (s && s.answers ? '<div class="notice" style="margin-bottom:10px"><svg><use href="#i-alert"/></svg><span>Langkah ini sudah punya ' + s.answers + ' jawaban murid. Mengubah soal atau kunci akan menilai ulang jawaban otomatis. Nilai yang Anda beri sendiri tetap.</span></div>' : '') +
       '<div class="qb-list" id="qbList"></div>' +
@@ -2690,7 +2757,7 @@
       '<details class="more"' + (s?.ref_code ? ' open' : '') + '><summary>Kode acuan untuk cek kemiripan (opsional)</summary>' +
       '<div class="field"><label class="lbl" for="seRefPath">Nama file di repository murid</label><input class="input code" id="seRefPath" placeholder="index.html" value="' + h(s?.ref_path || '') + '"><div class="help">Dipakai untuk membaca file murid dari GitHub. Kosongkan bila hanya ingin membandingkan dengan jawaban yang diketik di LKM.</div></div>' +
       '<div class="field" style="margin:0"><label class="lbl" for="seRefCode">Kode acuan</label><textarea class="textarea code" id="seRefCode" rows="8" placeholder="Tempel kode yang ada di screenshot">' + h(s?.ref_code || '') + '</textarea><div class="help">Murid tidak bisa melihat kode acuan.</div></div></details>' +
-      '</div><div><div class="preview-label">Pratinjau untuk murid</div><div class="preview"><h3 id="pvTitle" style="font-size:20px;font-weight:800;margin:0 0 12px"></h3><div class="prose" id="pvBody"></div><div id="pvImgs" style="display:grid;gap:10px;margin-top:14px"></div><div id="pvQs" style="margin-top:6px"></div></div></div></div>' +
+      '</div><div><div class="preview-label">Pratinjau untuk murid</div><div class="preview"><h3 id="pvTitle" style="font-size:20px;font-weight:800;margin:0 0 12px"></h3><div class="prose" id="pvBody"></div><div id="pvImgs" style="display:grid;gap:10px;margin-top:14px"></div><div id="pvAssets"></div><div id="pvQs" style="margin-top:6px"></div></div></div></div>' +
       '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">' + (s ? 'Simpan perubahan' : 'Tambah langkah') + '</button></div>', true);
     const urls = () => $('seImg').value.split('\n').map((u) => u.trim()).filter(Boolean);
     const preview = () => {
@@ -2702,6 +2769,55 @@
     };
     ['seTitle', 'seInstr'].forEach((id) => $(id).addEventListener('input', preview));
     let imgT; $('seImg').addEventListener('input', () => { clearTimeout(imgT); imgT = setTimeout(preview, 500); });
+    // ----- bahan / aset untuk murid -----
+    const AS = JSON.parse(JSON.stringify(s?.assets || []));
+    const renderAS = () => {
+      $('asList').innerHTML = AS.map((a, i) => '<div class="as-item"><span class="as-ic ' + assetKind(a) + '">' + assetBadge(a) + '</span>' +
+        '<div class="as-main"><input class="input" data-ai="' + i + '" value="' + h(a.name) + '" aria-label="Nama bahan"><span class="as-meta">' +
+        (a.kind === 'link' ? h(a.url) : (a.size ? fmtSize(a.size) + ' · ' : '') + h(fileExt(a).toUpperCase() || 'file')) + '</span></div>' +
+        '<span class="qb-acts"><button type="button" class="btn btn-ghost btn-sm btn-icon" data-aa="up" data-ai="' + i + '" aria-label="Naikkan"' + (i === 0 ? ' disabled' : '') + '><svg><use href="#i-up"/></svg></button>' +
+        '<button type="button" class="btn btn-ghost btn-sm btn-icon" data-aa="down" data-ai="' + i + '" aria-label="Turunkan"' + (i === AS.length - 1 ? ' disabled' : '') + '><svg><use href="#i-down"/></svg></button>' +
+        '<button type="button" class="btn btn-danger btn-sm btn-icon" data-aa="del" data-ai="' + i + '" aria-label="Hapus bahan"><svg><use href="#i-trash"/></svg></button></span></div>').join('');
+      $('pvAssets').innerHTML = AS.length ? '<div class="pv-assets"><b>Bahan untuk langkah ini</b>' + AS.map((a) => '<div class="pv-as"><span class="as-ic ' + assetKind(a) + '">' + assetBadge(a) + '</span><span>' + h(a.name) + '</span><span class="pv-dl">' + (a.kind === 'link' ? 'Buka' : 'Unduh') + '</span></div>').join('') + '</div>' : '';
+    };
+    renderAS();
+    $('asList').addEventListener('input', (e) => { const i = e.target.dataset.ai; if (i != null && e.target.tagName === 'INPUT') { AS[+i].name = e.target.value; $('pvAssets').querySelectorAll('.pv-as span:nth-child(2)')[+i].textContent = e.target.value; } });
+    $('asList').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-aa]'); if (!b) return;
+      const i = +b.dataset.ai, a = b.dataset.aa;
+      if (a === 'del') AS.splice(i, 1);
+      if (a === 'up' && i > 0) [AS[i - 1], AS[i]] = [AS[i], AS[i - 1]];
+      if (a === 'down' && i < AS.length - 1) [AS[i + 1], AS[i]] = [AS[i], AS[i + 1]];
+      renderAS();
+    });
+    $('asLink').onclick = () => {
+      const lb = openInline('Tambah link', '<div class="field"><label class="lbl" for="alName">Nama</label><input class="input" id="alName" placeholder="Font Poppins (Google Fonts)"></div>' +
+        '<div class="field"><label class="lbl" for="alUrl">Alamat</label><input class="input code" id="alUrl" placeholder="https://fonts.google.com/specimen/Poppins"></div>', () => {
+        const u = $('alUrl').value.trim(), n = $('alName').value.trim() || u;
+        if (!/^https?:\/\/\S+$/i.test(u)) { toast('Alamat harus diawali http:// atau https://', 'err'); return false; }
+        AS.push({ name: n.slice(0, 120), url: u, kind: 'link' }); renderAS(); return true;
+      });
+      setTimeout(() => lb.querySelector('#alName').focus(), 50);
+    };
+    const upAssets = async (files) => {
+      const st = $('asSt'); let ok = 0;
+      for (const f of files) {
+        if (AS.length >= 30) { toast('Bahan per langkah maksimal 30.', 'err'); break; }
+        st.textContent = 'Mengunggah ' + f.name + '…';
+        try { const url = await uploadAsset(f); AS.push({ name: f.name.slice(0, 120), url, kind: 'file', size: f.size, mime: f.type || '' }); ok++; renderAS(); }
+        catch (e) { toast(f.name + ': ' + e.message, 'err'); }
+      }
+      st.textContent = ok ? ok + ' file terunggah.' : '';
+    };
+    if ($('asPick')) {
+      $('asPick').onclick = () => $('asFile').click();
+      $('asFile').onchange = () => { upAssets([...$('asFile').files]); $('asFile').value = ''; };
+      const dz = $('asDrop');
+      dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+      dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); upAssets([...e.dataTransfer.files]); });
+    }
+
     // ----- penyusun pertanyaan -----
     const QS = JSON.parse(JSON.stringify(s?.questions || []));
     QS.forEach((q) => { if (q.type === 'short') q.acceptText = (q.accept || []).join('\n'); });
@@ -2884,6 +3000,7 @@
         p_id: s ? s.id : null, p_ws: edWs, p_title: title, p_instruction: $('seInstr').value,
         p_images: urls(), p_duration: dur, p_questions: questions,
         p_ref_path: $('seRefPath').value.trim(), p_ref_code: $('seRefCode').value,
+        p_assets: AS.map((a) => Object.assign({}, a, { name: String(a.name || '').trim() || 'bahan' })),
       }, s ? 'Langkah disimpan.' : 'Langkah ditambahkan.').catch(() => null);
       if (!id) return;
       closeModal(true); await refreshOverview(); renderSheetList(); await loadSteps();

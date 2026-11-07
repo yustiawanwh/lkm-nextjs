@@ -466,6 +466,28 @@
     animation:rise .2s ease-out;
   }
   @keyframes rise{from{opacity:0; transform:translateY(10px) scale(.98)}}
+  .assets{display:grid; gap:10px; margin-top:22px}
+  .assets h2{font-size:15px; font-weight:800; margin:0; display:flex; align-items:center; gap:8px}
+  .as-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px}
+  .as-card{display:grid; grid-template-columns:48px minmax(0, 1fr) auto; gap:12px; align-items:center; padding:10px 12px; border:1px solid var(--line); border-radius:14px; background:var(--surface)}
+  .as-card .as-name{font-weight:700; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .as-card .as-meta{font-size:12px; color:var(--muted)}
+  .as-ic{width:48px; height:48px; border-radius:12px; display:grid; place-items:center; font:800 12px var(--sans); background:var(--surface-2); color:var(--ink-2); overflow:hidden; border:0; padding:0}
+  .as-ic img{width:100%; height:100%; object-fit:cover}
+  button.as-ic{cursor:zoom-in}
+  .as-ic.font{background:#efedff; color:#5b3fd1; font:700 18px Georgia, serif} .as-ic.zip{background:#f9eeda; color:#8a5a00}
+  .as-ic.pdf{background:#fbebeb; color:#b42828} .as-ic.link{background:#e5f4e4; color:#1f7a1f; font-size:18px}
+  .as-ic.code{background:#111733; color:#e2e8ff} .as-ic.media{background:#f9ece7; color:#a8461f}
+  .as-dl{display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:13.5px; text-decoration:none; white-space:nowrap}
+  .as-dl:hover{background:var(--accent); color:#fff}
+  .as-dl svg{width:16px; height:16px}
+  .mat-btn{margin-left:auto}
+  .mat-btn b{min-width:20px; height:20px; padding:0 6px; border-radius:99px; background:var(--accent); color:#fff; font-size:12px; display:inline-grid; place-items:center}
+  .mat-sheet{width:min(720px, 100%); max-height:calc(100vh - 32px); overflow:auto}
+  .mat-head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .mat-step{margin-top:16px}
+  .mat-step h3{font-size:13.5px; font-weight:800; color:var(--ink-2); margin:0 0 8px}
+  .mat-step h3 b{color:var(--accent)}
   .sheet h2{font-size:21px; letter-spacing:-.02em; margin:0 0 8px; font-weight:800}
   .sheet p{margin:0; color:var(--ink-2); font-size:15px}
   .sheet .warn-line{
@@ -612,6 +634,7 @@
         <div id="instruction" class="prose"></div>
       </div>
       <div class="col-media" id="images"></div>
+      <section class="assets" id="assets" aria-label="Bahan untuk langkah ini" hidden></section>
       <section class="answer" id="answerWrap" hidden>
           <div class="answer-head">
             <span class="answer-title" id="answerTitle">Jawabanmu</span>
@@ -624,6 +647,7 @@
 
   <footer class="bottom">
     <div class="bottom-note" id="bottomNote"><svg><use href="#i-lock"/></svg><span>Setelah lanjut, langkah ini tertutup.</span></div>
+    <button id="matBtn" class="btn btn-ghost mat-btn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Bahan <b id="matCount"></b></button>
     <button id="nextBtn" class="btn btn-primary" type="button"><span id="nextLabel">Lanjut</span><svg id="nextIcon"><use href="#i-arrow"/></svg></button>
   </footer>
 </section>
@@ -673,6 +697,15 @@
       <button class="btn btn-ghost" type="button" id="cNo">Tetap di sini</button>
       <button class="btn btn-primary" type="button" id="cYes">Ya, lanjut</button>
     </div>
+  </div>
+</div>
+
+<!-- semua bahan dari langkah yang sudah dilalui -->
+<div class="overlay" id="matDlg" role="dialog" aria-modal="true" aria-labelledby="matTitle">
+  <div class="sheet mat-sheet">
+    <div class="mat-head"><h2 id="matTitle">Bahan</h2><button class="btn btn-ghost" type="button" id="matClose">Tutup</button></div>
+    <p>Bahan dari langkah ini dan langkah-langkah sebelumnya.</p>
+    <div id="matList"></div>
   </div>
 </div>
 
@@ -1033,6 +1066,70 @@
     tick();
   }
 
+  // ----- bahan / aset dari guru -----
+  const extOf = (n) => { const m = String(n || '').match(/\.([a-z0-9]{1,8})$/i); return m ? m[1].toLowerCase() : ''; };
+  const fmtSize = (b) => b >= 1048576 ? (Math.round(b / 104857.6) / 10).toString().replace('.', ',') + ' MB' : b >= 1024 ? Math.round(b / 1024) + ' KB' : b + ' B';
+  // ekstensi asli diambil dari alamat file (nama tampilan boleh diubah guru)
+  const fileExt = (a) => extOf(String(a.url || '').split(/[?#]/)[0]) || extOf(a.name);
+  function assetKind(a) {
+    if (a.kind === 'link') return 'link';
+    const e = fileExt(a);
+    if (/^(png|jpe?g|gif|webp|svg|avif|bmp)$/.test(e)) return 'img';
+    if (/^(ttf|otf|woff2?|eot)$/.test(e)) return 'font';
+    if (/^(zip|rar|7z|tar|gz)$/.test(e)) return 'zip';
+    if (e === 'pdf') return 'pdf';
+    if (/^(mp3|wav|ogg|mp4|webm|mov)$/.test(e)) return 'media';
+    if (/^(html?|css|jsx?|tsx?|json|md|txt|csv|py|php|sql)$/.test(e)) return 'code';
+    return 'file';
+  }
+  const DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
+  function assetCard(a) {
+    const k = assetKind(a), card = el('div', 'as-card');
+    let ic;
+    if (k === 'img') {
+      ic = document.createElement('button'); ic.type = 'button'; ic.className = 'as-ic img'; ic.setAttribute('aria-label', 'Lihat ' + a.name);
+      const im = new Image(); im.src = a.url; im.alt = ''; im.loading = 'lazy'; ic.appendChild(im);
+      ic.addEventListener('click', () => openZoom(a.url, a.name));
+    } else ic = el('span', 'as-ic ' + k, ({ link: '↗', font: 'Aa', zip: 'ZIP', pdf: 'PDF', media: '▶', code: '</>', file: (fileExt(a) || 'FILE').slice(0, 4).toUpperCase() })[k]);
+    const mid = el('div');
+    mid.append(el('div', 'as-name', a.name), el('div', 'as-meta', a.kind === 'link' ? 'Link' : [a.size ? fmtSize(a.size) : '', (fileExt(a) || 'file').toUpperCase(), k === 'font' ? 'font' : ''].filter(Boolean).join(' · ')));
+    mid.querySelector('.as-name').title = a.name;
+    const dl = document.createElement('a');
+    dl.className = 'as-dl'; dl.href = a.url; dl.target = '_blank'; dl.rel = 'noopener';
+    if (a.kind !== 'link') { const ex = fileExt(a); dl.setAttribute('download', ex && extOf(a.name) !== ex ? a.name + '.' + ex : a.name); }
+    dl.innerHTML = a.kind === 'link' ? 'Buka ↗' : DL_ICON + 'Unduh';
+    card.append(ic, mid, dl);
+    return card;
+  }
+  function renderAssets(s) {
+    const box = $('assets'), list = s.assets || [];
+    box.replaceChildren();
+    if (list.length) {
+      box.append(el('h2', null, 'Bahan untuk langkah ini'));
+      const g = el('div', 'as-grid'); list.forEach((a) => g.appendChild(assetCard(a))); box.appendChild(g);
+    }
+    box.hidden = !list.length;
+    const mats = s.materials || [], n = mats.reduce((t, m) => t + (m.assets || []).length, 0);
+    lastMaterials = mats;
+    $('matBtn').hidden = !n; $('matCount').textContent = n;
+  }
+  let lastMaterials = [];
+  function openMaterials() {
+    const list = $('matList'); list.replaceChildren();
+    lastMaterials.forEach((m) => {
+      const sec = el('section', 'mat-step'), h3 = el('h3');
+      h3.append(el('b', null, 'Langkah ' + m.no), document.createTextNode(' · ' + m.title));
+      const g = el('div', 'as-grid'); (m.assets || []).forEach((a) => g.appendChild(assetCard(a)));
+      sec.append(h3, g); list.appendChild(sec);
+    });
+    $('matDlg').classList.add('on'); $('matClose').focus();
+  }
+  const closeMaterials = () => $('matDlg').classList.remove('on');
+  $('matBtn').addEventListener('click', openMaterials);
+  $('matClose').addEventListener('click', closeMaterials);
+  $('matDlg').addEventListener('click', (e) => { if (e.target === $('matDlg')) closeMaterials(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('matDlg').classList.contains('on') && !$('zoom').classList.contains('on')) closeMaterials(); });
+
   function render(s) {
     if (s.veiled) {
       s = Object.assign({}, s, {
@@ -1057,6 +1154,7 @@
 
     $('title').textContent = s.title;
     $('instruction').innerHTML = fmt(s.instruction);
+    renderAssets(s);
 
     const box = $('images');
     box.replaceChildren();
