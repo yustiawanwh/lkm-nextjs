@@ -653,6 +653,12 @@
   .commit .meta{font-size:12px; color:var(--muted); margin-top:2px}
   .commit .diff{font-family:var(--mono); font-size:12px; white-space:nowrap}
   .add{color:var(--ok)} .del{color:var(--danger)}
+  .web-ans{margin:0 0 10px}
+  .web-acts{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px}
+  .web-stat{font-size:12.5px; color:var(--muted)}
+  .web-stat.ok{color:var(--ok, #1a7f4b)} .web-stat.bad{color:var(--danger)}
+  .web-pv{margin-top:8px}
+  .web-pv iframe{width:100%; height:420px; border:1px solid var(--line, #ddd); border-radius:10px; background:#fff}
   .repo-link{font-family:var(--mono); font-size:13px; color:var(--accent); text-decoration:none; word-break:break-all}
   .repo-link:hover{text-decoration:underline}
   .gh-row-err{color:var(--danger); font-size:12.5px}
@@ -2040,7 +2046,42 @@
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
 
   /* ---------- pertanyaan: jenis & nilai ---------- */
-  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub', image: 'Screenshot / bukti', table: 'Isian tabel' };
+  /* ---------- link aplikasi web (pertanyaan weblink) ---------- */
+  function webIssue(q, v) {
+    let u; try { u = new URL(String(v).trim()); } catch { return 'Format link tidak valid.'; }
+    if (!/^https?:$/.test(u.protocol)) return 'Bukan link http/https.';
+    if (/^(localhost|127\.|192\.168\.|10\.)/.test(u.hostname)) return 'Link localhost, tidak bisa dibuka dari komputer lain.';
+    const d = q.domain; if (d && u.hostname !== d && !u.hostname.endsWith('.' + d)) return 'Bukan dari ' + d + '.';
+    return '';
+  }
+  function webAnswer(q, v) {
+    const bad = webIssue(q, v), url = String(v).trim();
+    return '<div class="web-ans" data-url="' + h(url) + '"><a class="repo-link" href="' + h(url) + '" target="_blank" rel="noopener">' + h(url) + '</a>' +
+      (bad ? '<div class="help" style="color:var(--danger);margin-top:4px">' + h(bad) + '</div>' : '') +
+      '<div class="web-acts"><a class="btn btn-ghost btn-sm" href="' + h(url) + '" target="_blank" rel="noopener">Buka di tab baru ↗</a>' +
+      (bad ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-web="check">Cek online</button><button type="button" class="btn btn-ghost btn-sm" data-web="pv">Pratinjau</button>') +
+      '<span class="web-stat"></span></div><div class="web-pv" hidden></div></div>';
+  }
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest && e.target.closest('[data-web]'); if (!b) return;
+    const box = b.closest('.web-ans'), url = box.dataset.url, st = box.querySelector('.web-stat');
+    if (b.dataset.web === 'pv') {
+      const pv = box.querySelector('.web-pv');
+      if (!pv.hidden) { pv.hidden = true; pv.innerHTML = ''; b.textContent = 'Pratinjau'; return; }
+      pv.innerHTML = '<iframe src="' + h(url) + '" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms" referrerpolicy="no-referrer" title="Pratinjau aplikasi"></iframe>' +
+        '<p class="help" style="margin:6px 0 0">Kalau kotak ini kosong atau menolak, situsnya mungkin melarang ditampilkan di dalam halaman lain. Pakai tombol Buka di tab baru.</p>';
+      pv.hidden = false; b.textContent = 'Tutup pratinjau'; return;
+    }
+    b.disabled = true; st.className = 'web-stat'; st.textContent = 'Mengecek…';
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 10000), t0 = performance.now();
+    try {
+      await fetch(url, { mode: 'no-cors', cache: 'no-store', signal: ctl.signal });
+      st.className = 'web-stat ok'; st.textContent = 'Online, merespons dalam ' + Math.round(performance.now() - t0) + ' ms';
+    } catch (err) {
+      st.className = 'web-stat bad'; st.textContent = err.name === 'AbortError' ? 'Tidak merespons dalam 10 detik' : 'Tidak bisa dihubungi (alamat salah, belum di-deploy, atau sedang mati)';
+    } finally { clearTimeout(tm); b.disabled = false; }
+  });
+  const QTYPES = { single: 'Pilihan ganda', multi: 'Pilihan majemuk', tf: 'Benar / Salah', short: 'Isian singkat', essay: 'Uraian', code: 'Kode program', github: 'Link GitHub', weblink: 'Link aplikasi web', image: 'Screenshot / bukti', table: 'Isian tabel' };
   const newTable = () => ({ columns: [{ title: 'Nama', input: false }, { title: 'Tebakanku', input: true }, { title: 'Hasil sebenarnya', input: true }], rows: [['', '', ''], ['', '', ''], ['', '', '']] });
   // tabel HTML untuk laci penilaian dan cetak: sel tetap + isian murid
   function tableHtml(q, v, cls) {
@@ -2273,7 +2314,8 @@
           ans = list.length ? '<div class="g-shots">' + list.map((u, k) => '<a href="' + h(u) + '" target="_blank" rel="noopener" title="Perbesar gambar ' + (k + 1) + '"><img src="' + h(u) + '" alt="Screenshot ' + (k + 1) + '" loading="lazy" onerror="this.parentNode.classList.add(\'bad\')"><span>' + (k + 1) + '</span></a>').join('') + '</div>'
             : '<p class="muted" style="margin:0 0 10px;font-size:13px">Tidak mengunggah gambar.</p>';
         } else if (hasVal(v)) {
-          ans = q.type === 'github' ? '<p style="margin:0 0 10px"><a class="repo-link" href="' + h(v) + '" target="_blank" rel="noopener">' + h(v) + '</a></p>' : '<pre class="g-answer">' + h(v) + '</pre>';
+          ans = q.type === 'github' ? '<p style="margin:0 0 10px"><a class="repo-link" href="' + h(v) + '" target="_blank" rel="noopener">' + h(v) + '</a></p>'
+            : q.type === 'weblink' ? webAnswer(q, v) : '<pre class="g-answer">' + h(v) + '</pre>';
           if (q.type === 'short' && (q.accept || []).length) ans += '<div class="help" style="margin:-6px 0 10px">Kunci: ' + q.accept.map(h).join(', ') + '</div>';
           if (simTypes(s).includes(q.type) && s.ref_code) ans += '<div style="margin:-4px 0 10px">' + simDetail(codeSimilarity(s.ref_code, v), 'Kecocokan dengan kode acuan') + '</div>';
         } else ans = '<p class="muted" style="margin:0 0 10px;font-size:13px">Tidak menjawab.</p>';
@@ -2591,6 +2633,7 @@
         '<div><strong>' + h(s.title) + '</strong><div class="meta"><span class="pill plain">' + durText(s.duration_seconds) + '</span>' +
         ((s.questions || []).length ? '<span class="pill run plain">' + s.questions.length + ' pertanyaan</span>' : '') +
         ((s.questions || []).some((q) => q.type === 'github') ? '<span class="pill plain">Link GitHub</span>' : '') +
+        ((s.questions || []).some((q) => q.type === 'weblink') ? '<span class="pill plain">Link aplikasi web</span>' : '') +
         (s.ref_code ? '<span class="pill plain">Kode acuan' + (s.ref_path ? ': ' + h(s.ref_path) : '') + '</span>' : '') +
         ((s.assets || []).length ? '<span class="pill plain">' + s.assets.length + ' bahan</span>' : '') +
         (s.images.length ? '<span class="pill plain">' + s.images.length + ' gambar</span>' : '') +
@@ -2828,7 +2871,7 @@
         (q.type === 'multi' ? '<div class="help">Pilih semua jawaban yang benar.</div>' : '') +
         (q.type === 'table' ? tableHtml(q, {}, 'pv-tab') : q.type === 'single' || q.type === 'multi' || q.type === 'tf'
           ? (q.type === 'tf' ? ['Benar', 'Salah'] : q.options || []).map((o, k) => '<div class="pv-opt"><b>' + (q.type === 'tf' ? (k ? 'S' : 'B') : String.fromCharCode(65 + k)) + '</b>' + h(o || '…') + '</div>').join('')
-          : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' || q.type === 'image' ? ' tall' : '') + '"' + (q.type === 'image' ? ' style="border-style:dashed;text-align:center;display:grid;place-items:center"' : '') + '>' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…', image: 'Pilih gambar, Ctrl+V, atau seret ke sini (maks. ' + (q.max || 5) + ')' })[q.type] + '</div>') +
+          : '<div class="pv-field' + (q.type === 'essay' || q.type === 'code' || q.type === 'image' ? ' tall' : '') + '"' + (q.type === 'image' ? ' style="border-style:dashed;text-align:center;display:grid;place-items:center"' : '') + '>' + ({ short: 'Jawaban singkat', github: 'https://github.com/…', weblink: 'https://nama-aplikasi.' + (q.domain || 'vercel.app'), essay: 'Tulis jawabanmu di sini…', code: 'Tulis kodemu di sini…', image: 'Pilih gambar, Ctrl+V, atau seret ke sini (maks. ' + (q.max || 5) + ')' })[q.type] + '</div>') +
         '</div>').join('');
     };
     const renderQB = () => {
@@ -2863,6 +2906,9 @@
             (cols.length < 8 ? '<button type="button" class="btn btn-ghost btn-sm" data-a="tcoladd" data-i="' + i + '"><svg><use href="#i-plus"/></svg>Tambah kolom</button>' : '') + '</div></div>' +
             '<div class="qb-key">Isi sel yang sudah diketahui (misalnya nama dan jumlah). Kolom yang dicentang <strong>Diisi murid</strong> menjadi kotak isian. Dinilai guru.</div>' +
             '<label class="qb-paste"><input type="checkbox" data-i="' + i + '" data-f="paste"' + (q.paste ? ' checked' : '') + '> Izinkan murid menempel (paste) jawaban</label>';
+        } else if (q.type === 'weblink') {
+          body += '<label class="qb-pts" style="margin-top:8px">Wajib dari domain <input class="input" style="width:200px" data-i="' + i + '" data-f="domain" value="' + h(q.domain || '') + '" placeholder="vercel.app (opsional)"></label>' +
+            '<div class="qb-key">Murid menempelkan link aplikasi web yang sudah online, misalnya hasil deploy di Vercel atau Netlify. Isi domain bila link harus dari layanan tertentu (contoh <code>vercel.app</code>); kosongkan untuk menerima link apa saja. Link localhost dan link repository GitHub ditolak. Dinilai guru; di Hasil &amp; nilai ada tombol untuk mengecek link dan melihat pratinjaunya.</div>';
         } else if (q.type === 'image') {
           body += '<label class="qb-pts" style="margin-top:8px">Maksimal <input class="input" type="number" min="1" max="10" data-i="' + i + '" data-f="max" value="' + (q.max ?? 5) + '"> gambar</label>' +
             '<div class="qb-key">Murid mengunggah screenshot sebagai bukti (pilih file, tempel dengan Ctrl+V, atau seret). Gambar disimpan di server gambar Nextcloud. Dinilai guru.' +
@@ -2889,6 +2935,7 @@
       else if (f === 'opt') q.options[+t.dataset.k] = t.value;
       else if (f === 'accept') q.acceptText = t.value;
       else if (f === 'max') q.max = t.value === '' ? '' : Number(t.value);
+      else if (f === 'domain') q.domain = t.value;
       else if (f === 'tcol') q.columns[+t.dataset.c].title = t.value;
       else if (f === 'tcell') q.rows[+t.dataset.r][+t.dataset.c] = t.value;
       pvQs();
@@ -2992,6 +3039,7 @@
         if (q.type === 'tf') o.correct = q.correct;
         if (q.type === 'short') o.accept = String(q.acceptText || '').split('\n').map((x) => x.trim()).filter(Boolean);
         if (q.type === 'image') o.max = Math.min(10, Math.max(1, Number(q.max) || 5));
+        if (q.type === 'weblink') o.domain = String(q.domain || '').trim().replace(/^(https?:\/\/)?(www\.)?/i, '').replace(/\/.*$/, '').toLowerCase();
         if (q.type === 'essay' || q.type === 'code' || q.type === 'short' || q.type === 'table') o.paste = !!q.paste;
         if (q.type === 'table') { o.columns = q.columns.map((c) => ({ title: String(c.title).trim(), input: !!c.input })); o.rows = q.rows.map((r) => r.map((x, k) => (q.columns[k].input ? '' : String(x).trim()))); }
         return o;

@@ -357,6 +357,9 @@
   .qtab td.in{padding:4px; background:color-mix(in srgb, var(--accent-soft) 35%, transparent)}
   .q .qtab textarea{width:100%; min-height:38px; height:38px; padding:8px 10px; border:1px solid transparent; border-radius:8px; background:var(--surface); color:var(--ink); font:14.5px/1.4 var(--sans); resize:none; overflow:hidden; display:block}
   .q .qtab textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .web-row{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+  .web-open{flex:none; font-size:13px; font-weight:700; color:var(--accent); text-decoration:none; margin-top:8px}
+  .web-open:hover{text-decoration:underline}
   .shots{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-bottom:10px}
   .shots:empty{display:none}
   .shot{position:relative; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface-2); aspect-ratio:4/3}
@@ -1308,15 +1311,21 @@
           list.appendChild(lab);
         });
         card.appendChild(list);
-      } else if (q.type === 'short' || q.type === 'github') {
+      } else if (q.type === 'short' || q.type === 'github' || q.type === 'weblink') {
         const inp = document.createElement('input');
-        inp.className = 'txt' + (q.type === 'github' ? ' mono' : ''); inp.id = pid;
-        inp.type = q.type === 'github' ? 'url' : 'text'; inp.spellcheck = false; inp.autocomplete = 'off';
-        inp.placeholder = q.type === 'github' ? 'https://github.com/namamu/nama-repository' : 'Jawaban singkat';
+        inp.className = 'txt' + (q.type !== 'short' ? ' mono' : ''); inp.id = pid;
+        inp.type = q.type !== 'short' ? 'url' : 'text'; inp.spellcheck = false; inp.autocomplete = 'off';
+        inp.placeholder = q.type === 'github' ? 'https://github.com/namamu/nama-repository' : q.type === 'weblink' ? 'https://nama-aplikasimu.' + (q.domain || 'vercel.app') : 'Jawaban singkat';
         inp.value = typeof v === 'string' ? v : '';
         card.appendChild(inp);
         if (q.type === 'short' && !q.paste) guardNote(card);
         if (q.type === 'github') { const hp = el('div', 'repo-help', REPO_HELP); card.appendChild(hp); checkRepo(inp); }
+        if (q.type === 'weblink') {
+          card.dataset.domain = q.domain || '';
+          const row = el('div', 'web-row'), hp = el('div', 'repo-help web-help'), open = document.createElement('a');
+          open.className = 'web-open'; open.target = '_blank'; open.rel = 'noopener'; open.textContent = 'Coba buka ↗';
+          row.append(hp, open); card.appendChild(row); checkWeb(inp);
+        }
       } else if (q.type === 'table') {
         // isian tabel: sel tetap dari guru, kolom "diisi murid" berupa kotak isian
         const cols = q.columns || [], ans = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
@@ -1387,6 +1396,23 @@
     n.classList.add('hit'); n.textContent = 'Tempel tidak diizinkan. Ketik jawabanmu sendiri.';
     clearTimeout(n._t); n._t = setTimeout(() => { n.classList.remove('hit'); n.textContent = 'Ketik sendiri. Menempel (paste) dimatikan untuk pertanyaan ini.'; }, 4000);
     return true;
+  }
+  // link aplikasi web: harus http(s) dan (bila guru mengatur) berada di domain tertentu, misalnya vercel.app
+  function webProblem(v, domain) {
+    if (!v) return '';
+    let u; try { u = new URL(v); } catch { return 'Format belum benar. Contoh: https://nama-aplikasimu.' + (domain || 'vercel.app'); }
+    if (/^(localhost|127\.|192\.168\.|10\.)/.test(u.hostname)) return 'Itu alamat di komputermu sendiri (localhost). Kirim link yang sudah online, misalnya dari Vercel.';
+    if (!/^https?:$/.test(u.protocol) || !u.hostname.includes('.')) return 'Link harus diawali https:// dan berisi alamat web lengkap.';
+    if (u.hostname === 'github.com') return 'Itu link repository GitHub. Yang diminta link aplikasi yang sudah online.';
+    if (domain && u.hostname !== domain && !u.hostname.endsWith('.' + domain)) return 'Link harus dari ' + domain + '. Contoh: https://nama-aplikasimu.' + domain;
+    return '';
+  }
+  function checkWeb(inp) {
+    const card = inp.closest('.q'), hp = card && card.querySelector('.web-help'), open = card && card.querySelector('.web-open'); if (!hp) return;
+    const v = inp.value.trim(), bad = webProblem(v, card.dataset.domain);
+    hp.classList.toggle('bad', !!bad);
+    hp.textContent = bad || 'Tempel link aplikasimu yang sudah online. Pastikan bisa dibuka di browser lain (bukan localhost).';
+    open.hidden = !v || !!bad; if (v && !bad) open.href = v;
   }
   function checkRepo(inp) {
     const h = inp.parentElement && inp.parentElement.querySelector('.repo-help'); if (!h) return;
@@ -1499,7 +1525,7 @@
     uploadShots(target, files.map((f, i) => (f.name && f.name !== 'image.png' ? f : new File([f], 'tempel-' + i + '.png', { type: f.type }))));
   });
   const markDirty = () => { if (JSON.stringify(collect()) !== lastSaved) setSave('dirty'); };
-  $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') checkRepo(e.target); if (e.target.dataset.cell) growCell(e.target); markDirty(); });
+  $('qlist').addEventListener('input', (e) => { if (e.target.type === 'url') { const t = e.target.closest('.q').dataset.type; if (t === 'weblink') checkWeb(e.target); else checkRepo(e.target); } if (e.target.dataset.cell) growCell(e.target); markDirty(); });
   $('qlist').addEventListener('change', markDirty);
   $('qlist').addEventListener('paste', (e) => { logEv('paste'); blockPaste(e); });
   $('qlist').addEventListener('drop', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('text/plain')) { if (blockPaste(e)) logEv('paste'); } });
