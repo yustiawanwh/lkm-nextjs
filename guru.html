@@ -757,11 +757,44 @@
     *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
     .spinner{animation:spin 1.2s linear infinite !important}
   }
+  /* pengaturan: jadwal & susulan */
+  #setRoot{display:grid; grid-template-columns:minmax(0,1fr); gap:18px; max-width:1120px}
+  .set-card{padding:20px 22px}
+  .set-card h2{font-size:16px; font-weight:800; margin:0 0 12px}
+  .set-head{display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; margin-bottom:12px}
+  .set-head h2{margin:0 8px 0 0}
+  .set-head .select{width:auto; min-width:160px}
+  .set-switch{display:inline-flex; height:44px}
+  .set-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+  .tbl.sched td{padding-top:8px; padding-bottom:8px}
+  .tbl.sched input[type="time"]{width:116px; height:38px; padding:0 8px}
+  .tbl.sched tr.off td:not(:first-child){opacity:.4}
+  .tpair{display:flex; align-items:center; gap:6px}
+  .tpair span{color:var(--muted)}
+  .day-chk{display:inline-flex; align-items:center; gap:8px; font-weight:700; cursor:pointer; white-space:nowrap}
+  .day-chk input{width:17px; height:17px; accent-color:var(--accent); margin:0}
+  .spec-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px}
+  .spec-grid label{display:grid; gap:6px; font-size:13px; font-weight:600}
+  .spec-grid input[type="time"]{height:38px}
+  .mk-code{font-family:var(--mono); font-size:44px; font-weight:800; letter-spacing:.18em; text-align:center; padding:18px; border-radius:14px; background:var(--accent-soft); color:var(--accent); margin:6px 0 16px}
+  .modal-actions .spacer{flex:1}
+  #mTable td.act .btn{margin:2px 0}
+  .btn.on-mk{color:#8A4B00; background:#FFF1DC}
+  @media (prefers-color-scheme: dark){ .btn.on-mk{color:#F2C46B; background:#33260F} }
+  .pill.mk{background:#FFF1DC; color:#8A4B00}
+  .gc-mk{position:relative}
+  .gc-mk::after{content:"S"; position:absolute; top:-6px; right:-8px; font-size:9.5px; font-weight:800; line-height:15px; width:15px; height:15px; border-radius:50%; background:var(--warn); color:#fff; text-align:center}
+  @media (prefers-color-scheme: dark){ .pill.mk{background:#33260F; color:#F2C46B} }
+  @media (max-width:640px){ .spec-grid{grid-template-columns:1fr} .set-card{padding:16px} }
 </style>
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
   <symbol id="i-live" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
   <symbol id="i-grade" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></symbol>
@@ -819,6 +852,7 @@
     <button class="nav-btn" data-view="students"><svg><use href="#i-users"/></svg><span>Murid</span></button>
     <button class="nav-btn" data-view="github"><svg><use href="#i-git"/></svg><span>Kode &amp; GitHub</span></button>
     <button class="nav-btn" data-view="codes"><svg><use href="#i-key"/></svg><span>Tayangkan</span></button>
+    <button class="nav-btn" data-view="settings"><svg><use href="#i-gear"/></svg><span>Pengaturan</span></button>
     <div class="side-foot">
       <div class="me"><span class="avatar" id="meAv"></span><div><strong id="meName"></strong><span>Guru</span></div></div>
       <button class="btn btn-ghost btn-sm" id="logout"><svg><use href="#i-out"/></svg><span>Keluar</span></button>
@@ -937,6 +971,11 @@
       <h2 class="section-title">Kode yang berlaku</h2>
       <div class="panel table-wrap" id="codeList"></div>
     </section>
+
+    <!-- PENGATURAN -->
+    <section data-v="settings" hidden>
+      <div id="setRoot"></div>
+    </section>
   </main>
 </div>
 
@@ -1025,7 +1064,7 @@
     monitor: null, results: null, students: [], steps: null,
     codes: ss.get('g_codes') || {},
     filters: { dbClass: '', mClass: '', mSearch: '', mState: '', rClass: '', rSearch: '', sClass: '', sSearch: '', gClass: '', gSearch: '' },
-    gh: null, ghRate: null,
+    gh: null, ghRate: null, settings: null, setClass: '',
     dbScope: ss.get('g_dbscope') || 'misi', dbDay: ss.get('g_dbday') || '', rMode: ss.get('g_rmode') || 'ws', rSort: ss.get('g_rsort') || 'name', rDir: ss.get('g_rdir') || 'asc', resAll: null,
   };
 
@@ -1373,7 +1412,7 @@
   });
 
   /* ---------- navigasi ---------- */
-  const TITLES = { dash: 'Dashboard progres', monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub' };
+  const TITLES = { dash: 'Dashboard progres', monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub', settings: 'Pengaturan' };
   function go(view) {
     S.view = view; ss.set('g_view', view);
     document.querySelectorAll('.nav-btn').forEach((b) => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
@@ -1381,7 +1420,7 @@
     $('viewTitle').textContent = TITLES[view];
     $('wsPick').hidden = !((view === 'dash' && S.dbScope === 'misi') || view === 'monitor' || (view === 'results' && S.rMode !== 'student') || view === 'github');
     stopPoll();
-    ({ dash: () => loadDash(true), monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub })[view]();
+    ({ dash: () => loadDash(true), monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub, settings: loadSettings })[view]();
   }
   document.querySelectorAll('.nav-btn').forEach((b) => (b.onclick = () => go(b.dataset.view)));
 
@@ -1567,6 +1606,9 @@
     const watch = P.filter((p) => p.why.length);
     const mean = (a) => (a.length ? a.reduce((t, x) => t + x, 0) / a.length : null);
     const avgScore = mean(avs), avgCode = mean(codes);
+    // rata-rata dipisah: tepat waktu (di sekolah) dan susulan
+    const avOn = P.filter((p) => p.av && p.av.avg != null && !p.av.mk).map((p) => p.av.avg), avMk = P.filter((p) => p.av && p.av.avg != null && p.av.mk).map((p) => p.av.avg);
+    const splitTxt = avMk.length ? 'tepat waktu ' + (avOn.length ? fmtNum(mean(avOn)) : '-') + ' · susulan ' + fmtNum(mean(avMk)) + ' (' + avMk.length + ')' : '';
     const w = S.overview.worksheets.find((x) => x.id === S.ws) || {};
 
     let html = '<div class="db-hero db-card" style="--i:0"><div><span class="db-eyebrow">' + h(dayOf(w) || 'Lembar kerja') + (S.filters.dbClass ? ' · ' + h(S.filters.dbClass) : ' · semua kelas') + '</span>' +
@@ -1576,7 +1618,7 @@
     html += '<div class="db-kpis">' +
       kpi(1, 'Mulai mengerjakan', started, { sub: 'dari ' + n + ' murid', ratio: (started / n) * 100 }) +
       kpi(2, 'Selesai', finished, { sub: pctTxt(finished, n) + ' kelas', ratio: (finished / n) * 100, tone: 'good' }) +
-      kpi(3, 'Rata-rata nilai', avgScore == null ? null : Math.round(avgScore * 10) / 10, { dec: 1, sub: avs.length ? avs.length + ' murid sudah dinilai' : 'Belum ada nilai', ratio: avgScore }) +
+      kpi(3, 'Rata-rata nilai', avgScore == null ? null : Math.round(avgScore * 10) / 10, { dec: 1, sub: splitTxt || (avs.length ? avs.length + ' murid sudah dinilai' : 'Belum ada nilai'), ratio: avgScore }) +
       kpi(4, 'Rata-rata kode', avgCode == null ? null : Math.round(avgCode), { unit: '%', sub: md.refs.length ? (md.analysed ? 'GitHub (cek cerdas) + LKM' : 'Dari LKM. Klik Analisa GitHub') : 'Belum ada kode acuan', ratio: avgCode }) +
       kpi(5, 'Commit bermakna', cm.length ? cm.reduce((t, x) => t + x, 0) : null, { sub: cm.length ? 'rata-rata ' + fmtNum(Math.round((mean(cm)) * 10) / 10) + ' per murid selama misi' : 'Belum dianalisa' }) +
       kpi(6, 'Perlu perhatian', watch.length, { sub: watch.length ? 'lihat daftar di bawah' : 'semua aman', ratio: (watch.length / n) * 100, tone: watch.length ? 'crit' : 'good' }) +
@@ -1932,8 +1974,16 @@
           (pz.until ? ' sampai ' + clock(pz.until) : ' sampai Anda melanjutkan') + '.</span><button class="btn btn-sm" data-pz="cancel">Batalkan jadwal</button></div>' : '');
     if (!rows.length) { $('mTable').innerHTML = '<div class="empty">' + (m.students.length ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid</strong>Tambahkan murid di menu Murid.') + '</div>'; return; }
 
-    const status = (r) => r.status === 'finished' ? '<span class="pill ok">Selesai</span>'
-      : r.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>';
+    const FZ = { personal: ['warn', 'Waktunya dihentikan'], break: ['plain', 'Istirahat'], offhours: ['plain', 'Di luar jam'] };
+    const fzOf = (r) => r.freeze && r.freeze.frozen ? r.freeze : null;
+    const status = (r) => {
+      const fz = fzOf(r), mk = r.makeup && r.makeup.active;
+      return (r.status === 'finished' ? '<span class="pill ok">Selesai</span>'
+        : fz ? '<span class="pill ' + FZ[fz.reason][0] + '" title="' + h(fz.until ? 'Lanjut ' + whenLong(fz.until) : fz.reason === 'personal' ? 'Sampai Anda lanjutkan' : '') + '">' + FZ[fz.reason][1] + '</span>'
+        : r.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>') +
+        (mk ? ' <span class="pill mk" title="Akses susulan sampai ' + h(whenLong(r.makeup.until)) + '">Susulan</span>'
+          : r.makeup_steps ? ' <span class="pill mk plain" title="' + r.makeup_steps + ' langkah dikerjakan lewat susulan">Susulan</span>' : '');
+    };
     const bar = (r) => {
       let s = '';
       for (let i = 1; i <= m.total; i++) {
@@ -1954,7 +2004,8 @@
         '<tr data-id="' + r.student_id + '"' + (r.is_active ? '' : ' class="off"') + '>' +
         '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + '</span></div></div></td>' +
         '<td>' + bar(r) + '</td>' +
-        '<td><span class="time" data-rem="' + (r.remaining_ms ?? '') + '">' + (r.remaining_ms != null ? mmss(r.remaining_ms) : '-') + '</span></td>' +
+        '<td><span class="time" data-rem="' + (r.remaining_ms ?? '') + '"' + (fzOf(r) ? ' data-frozen="1"' : '') + '>' + (r.remaining_ms != null ? mmss(r.remaining_ms) : '-') + '</span>' +
+          (fzOf(r) ? '<div class="bar-label">berhenti</div>' : '') + '</td>' +
         '<td class="num hide-sm">' + r.answered + '</td>' +
         '<td class="num hide-sm">' + n(r.logins, 2, 3) + '</td>' +
         '<td class="num hide-sm">' + n(r.hidden, 3, 6) + '</td>' +
@@ -1963,6 +2014,9 @@
         '<td>' + (r.is_active ? '' : '<span class="pill warn">Nonaktif</span> ') + (r.locked ? '<span class="pill danger">Terkunci</span> ' : '') + status(r) + '</td>' +
         '<td class="act">' +
           (r.locked ? '<button class="btn btn-sm" data-a="unlock">Buka kunci</button> ' : '') +
+          (r.status === 'running' ? (r.own_pause ? '<button class="btn btn-primary btn-sm btn-icon" data-a="ownresume" title="Lanjutkan waktu ' + h(r.name) + '" aria-label="Lanjutkan waktu ' + h(r.name) + '"><svg><use href="#i-play"/></svg></button> '
+            : '<button class="btn btn-ghost btn-sm btn-icon" data-a="ownpause" title="Istirahat: hentikan waktu murid ini saja" aria-label="Hentikan waktu ' + h(r.name) + '"><svg><use href="#i-cup"/></svg></button> ') : '') +
+          (r.status !== 'finished' || (r.makeup && r.makeup.active) ? '<button class="btn btn-ghost btn-sm btn-icon' + (r.makeup && r.makeup.active ? ' on-mk' : '') + '" data-a="makeup" title="Akses susulan (mengerjakan di rumah)" aria-label="Akses susulan ' + h(r.name) + '"><svg><use href="#i-home"/></svg></button> ' : '') +
           (r.status !== 'not_started' ? '<button class="btn btn-ghost btn-sm" data-a="reset">Ulang</button>' : '') +
         '</td></tr>').join('') + '</tbody></table>';
     tickTimes();
@@ -1984,7 +2038,7 @@
   function tickTimes() {
     const el = $('mTable'); if (!el) return;
     const frozen = S.monitor && pauseInfo(S.monitor).active;
-    const elapsed = frozen ? 0 : performance.now() - fetchedAt;
+    const elapsed0 = performance.now() - fetchedAt;
     el.querySelectorAll('.pz-left').forEach((t) => {
       const ms = new Date(t.dataset.until) - Date.now();
       t.textContent = mmss(ms);
@@ -1992,7 +2046,7 @@
     });
     el.querySelectorAll('.time[data-rem]').forEach((t) => {
       if (t.dataset.rem === '') return;
-      const ms = Number(t.dataset.rem) - elapsed;
+      const ms = Number(t.dataset.rem) - (frozen || t.dataset.frozen ? 0 : elapsed0);
       t.textContent = mmss(ms);
       t.className = 'time' + (ms <= 15000 ? ' danger' : ms <= 60000 ? ' warn' : '');
     });
@@ -2000,6 +2054,9 @@
   async function rowAction(a, id) {
     const r = (S.monitor?.students || []).find((x) => x.student_id === id); if (!r) return;
     if (a === 'unlock') { await run('t_unlock', { p_id: id }, 'Akun ' + r.name + ' dibuka.').catch(() => {}); }
+    if (a === 'ownpause') { ownPauseModal(r); return; }
+    if (a === 'makeup') { makeupModal(r); return; }
+    if (a === 'ownresume') { await run('t_resume_student', { p_student: id, p_ws: S.ws }, 'Waktu ' + r.name + ' berjalan lagi.').catch(() => {}); }
     if (a === 'reset') {
       if (!(await confirmBox('Ulang pengerjaan ' + r.name + '?', 'Jawaban dan nilai ' + r.name + ' untuk lembar kerja ini akan terhapus. Murid bisa masuk lagi dan mulai dari langkah 1 dengan waktu penuh.', 'Ya, ulang', true))) return;
       await run('t_reset_session', { p_student: id, p_ws: S.ws }, 'Pengerjaan ' + r.name + ' diulang.').catch(() => {});
@@ -2044,6 +2101,201 @@
   };
   $('mClass').onchange = () => { S.filters.mClass = $('mClass').value; renderMonitor(); };
   $('mSearch').oninput = () => { S.filters.mSearch = $('mSearch').value; renderMonitor(); };
+
+  /* =========================================================
+     PENGATURAN: jadwal sekolah per kelas, pengecualian tanggal, susulan
+     ========================================================= */
+  const DOWS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  const fmtDay = (d) => new Date(d + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const whenLong = (d) => new Date(d).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const penalty = () => Number((S.overview && S.overview.settings && S.overview.settings.makeup_penalty) || 0);
+  const spanTxt = (x) => x.start + '–' + x.end + (x.b1s ? ', istirahat ' + x.b1s + '–' + x.b1e : '') + (x.b2s ? ' dan ' + x.b2s + '–' + x.b2e : '');
+  async function loadSettings() {
+    $('setRoot').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
+    try { S.settings = await api('t_settings'); } catch (e) { $('setRoot').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
+    if (!S.settings.classes.some((c) => c.class === S.setClass)) S.setClass = (S.settings.classes[0] || {}).class || '';
+    renderSettings();
+  }
+  function renderSettings() {
+    const T = S.settings; if (!T) return;
+    const cls = T.classes.find((c) => c.class === S.setClass);
+    const now = (c) => c.in_school == null ? '<span class="pill plain">Tanpa jadwal: waktu berjalan terus</span>'
+      : !T.schedule_on ? '<span class="pill plain">Jadwal dimatikan</span>'
+      : c.in_school ? '<span class="pill ok">Sekarang jam pelajaran</span>' : '<span class="pill warn">Sekarang istirahat / di luar jam</span>';
+    const byDow = {}; (cls ? cls.days : []).forEach((d) => (byDow[d.dow] = d));
+    const tIn = (dow, f, v) => '<input class="input" type="time" data-dow="' + dow + '" data-f="' + f + '" value="' + h(v || '') + '"' + (byDow[dow] ? '' : ' disabled') + '>';
+    $('setRoot').innerHTML =
+      // 1. umum
+      '<section class="panel set-card"><h2>Susulan dan jadwal</h2>' +
+      '<label class="switch set-switch"><input type="checkbox" id="stOn"' + (T.schedule_on ? ' checked' : '') + '>Pakai jadwal sekolah</label>' +
+      '<p class="help">Bila aktif, waktu murid berhenti sendiri saat jam istirahat dan setelah jam pulang (sama seperti tombol Istirahat di menu Pantau), lalu berjalan lagi pada jam pelajaran berikutnya. Kelas tanpa jadwal tidak terpengaruh. Murid yang mengerjakan di luar jam sekolah hanya bisa masuk dengan <strong>akses susulan</strong> dari guru, dan langkah yang ia kerjakan saat itu ditandai Susulan.</p>' +
+      '<div class="field" style="margin-top:16px"><label class="lbl" for="stPen">Potongan nilai susulan</label><div class="dur"><input class="input" id="stPen" type="number" min="0" max="100" step="1" value="' + Number(T.makeup_penalty) + '"> %</div>' +
+      '<div class="help">0 = tanpa potongan, hasil susulan hanya diberi label. Contoh 20: langkah susulan bernilai 80 menjadi 64. Potongan hanya untuk langkah yang dikerjakan lewat susulan, dan nilai aslinya tetap ditampilkan. Mengubah angka ini langsung berlaku untuk semua nilai.</div></div>' +
+      '<button class="btn btn-primary" id="stSave">Simpan</button></section>' +
+      // 2. jadwal per kelas
+      '<section class="panel set-card set-wide"><div class="set-head"><h2>Jadwal per kelas</h2>' +
+      (T.classes.length ? '<select class="select" id="stClass" aria-label="Kelas">' + T.classes.map((c) => '<option' + (c.class === S.setClass ? ' selected' : '') + '>' + h(c.class) + '</option>').join('') + '</select>' + (cls ? now(cls) : '') : '') + '</div>' +
+      (!T.classes.length ? '<p class="muted">Belum ada kelas. Tambahkan murid dulu di menu Murid.</p>' :
+      '<p class="help" style="margin:0 0 12px">Centang hari sekolah, lalu isi jam mulai, istirahat, dan pulang. Istirahat 2 boleh dikosongkan. Hari yang tidak dicentang dianggap libur.</p>' +
+      '<div class="table-wrap"><table class="tbl sched"><thead><tr><th>Hari</th><th>Mulai</th><th>Istirahat 1</th><th>Istirahat 2 <span class="muted">(opsional)</span></th><th>Pulang</th></tr></thead><tbody>' +
+      DOWS.map((n, i) => { const dow = i + 1, d = byDow[dow] || {};
+        return '<tr class="' + (byDow[dow] ? '' : 'off') + '"><td><label class="day-chk"><input type="checkbox" data-day="' + dow + '"' + (byDow[dow] ? ' checked' : '') + '>' + n + '</label></td>' +
+          '<td>' + tIn(dow, 'start', d.start) + '</td>' +
+          '<td><div class="tpair">' + tIn(dow, 'b1s', d.b1s) + '<span>–</span>' + tIn(dow, 'b1e', d.b1e) + '</div></td>' +
+          '<td><div class="tpair">' + tIn(dow, 'b2s', d.b2s) + '<span>–</span>' + tIn(dow, 'b2e', d.b2e) + '</div></td>' +
+          '<td>' + tIn(dow, 'end', d.end) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+      (T.classes.length > 1 ? '<div class="field" style="margin-top:14px"><span class="lbl">Pakai jadwal yang sama juga untuk</span><div class="chips">' +
+        T.classes.filter((c) => c.class !== S.setClass).map((c) => '<label class="chip"><input type="checkbox" data-copy value="' + h(c.class) + '">' + h(c.class) + (c.days.length ? '' : ' <span class="muted" style="font-weight:500">(belum ada)</span>') + '</label>').join('') + '</div></div>' : '') +
+      '<div class="set-actions"><button class="btn btn-primary" id="stSched">Simpan jadwal ' + h(S.setClass) + '</button>' +
+      (cls && cls.days.length ? '<button class="btn btn-ghost" id="stClear">Hapus jadwal kelas ini</button>' : '') + '</div>') + '</section>' +
+      // 3. pengecualian tanggal
+      '<section class="panel set-card set-wide"><div class="set-head"><h2>Libur dan jam khusus</h2><span class="spacer"></span><button class="btn btn-sm" id="stDayAdd"><svg><use href="#i-plus"/></svg>Tambah tanggal</button></div>' +
+      '<p class="help" style="margin:0 0 12px">Untuk tanggal yang berbeda dari jadwal biasa: libur, ujian, atau pulang cepat. Tanggal yang sudah lewat lebih dari seminggu tidak ditampilkan.</p>' +
+      (T.days.length ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>Tanggal</th><th>Kelas</th><th>Jam</th><th>Keterangan</th><th class="act"></th></tr></thead><tbody>' +
+        T.days.map((d) => '<tr data-day="' + d.day + '" data-cls="' + h(d.class) + '"><td style="white-space:nowrap">' + h(fmtDay(d.day)) + '</td><td>' + h(d.class) + '</td><td>' + (d.off ? '<span class="pill warn">Libur</span>' : h(spanTxt(d))) + '</td><td>' + h(d.note || '') + '</td>' +
+          '<td class="act"><button class="btn btn-ghost btn-sm btn-icon" data-a="delday" aria-label="Hapus"><svg><use href="#i-trash"/></svg></button></td></tr>').join('') + '</tbody></table></div>'
+        : '<p class="muted" style="margin:0">Belum ada.</p>') + '</section>' +
+      // 4. akses susulan
+      '<section class="panel set-card set-wide"><h2>Akses susulan</h2>' +
+      '<p class="help" style="margin:0 0 12px">Akses susulan dibuka per murid dari menu <strong>Pantau</strong> (tombol Susulan di baris murid). Daftar ini menampilkan akses yang masih berlaku dan yang berakhir dalam 7 hari terakhir.</p>' +
+      (T.makeups.length ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>Murid</th><th>Lembar kerja</th><th>Berlaku sampai</th><th>Status</th><th class="act"></th></tr></thead><tbody>' +
+        T.makeups.map((m) => { const on = new Date(m.until) > Date.now();
+          return '<tr data-stu="' + m.student_id + '" data-ws="' + m.worksheet_id + '"><td><strong>' + h(m.name) + '</strong><div class="bar-label">' + h(m.class) + '</div></td><td>' + h(m.title) + '</td>' +
+            '<td>' + h(whenLong(m.until)) + '</td><td>' + (on ? '<span class="pill warn">Berlaku</span> ' : '<span class="pill plain">Berakhir</span> ') +
+            (m.status === 'finished' ? '<span class="pill ok">Selesai</span>' : m.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>') + '</td>' +
+            '<td class="act">' + (on ? '<button class="btn btn-danger btn-sm" data-a="endmk">Tutup akses</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table></div>'
+        : '<p class="muted" style="margin:0">Belum ada akses susulan.</p>') + '</section>';
+
+    // ----- peristiwa -----
+    $('stSave').onclick = async () => {
+      const pen = Number($('stPen').value);
+      if (!(pen >= 0 && pen <= 100)) { toast('Potongan nilai 0 sampai 100 persen.', 'err'); return; }
+      await run('t_save_settings', { p_schedule_on: $('stOn').checked, p_penalty: pen }, 'Pengaturan disimpan.').catch(() => {});
+      await refreshOverview(); loadSettings();
+    };
+    if ($('stClass')) $('stClass').onchange = () => { S.setClass = $('stClass').value; renderSettings(); };
+    const root = $('setRoot');
+    root.querySelectorAll('input[data-day]').forEach((c) => (c.onchange = () => {
+      const dow = c.dataset.day, row = c.closest('tr'), ins = row.querySelectorAll('input[type="time"]');
+      ins.forEach((i) => (i.disabled = !c.checked)); row.classList.toggle('off', !c.checked);
+      if (c.checked && !ins[0].value) {
+        // jam diambil dari hari sekolah lain yang sudah terisi, atau 07:00-14:00
+        const src = [...root.querySelectorAll('input[data-day]:checked')].map((x) => x.closest('tr')).find((tr) => tr !== row && tr.querySelector('[data-f="start"]').value);
+        ins.forEach((i) => (i.value = src ? src.querySelector('[data-f="' + i.dataset.f + '"]').value : ({ start: '07:00', end: '14:00' })[i.dataset.f] || ''));
+      }
+    }));
+    const collectWeek = () => [...root.querySelectorAll('input[data-day]:checked')].map((c) => {
+      const o = { dow: Number(c.dataset.day) };
+      c.closest('tr').querySelectorAll('input[type="time"]').forEach((i) => (o[i.dataset.f] = i.value));
+      return o;
+    });
+    if ($('stSched')) $('stSched').onclick = async () => {
+      const days = collectWeek(), extra = [...root.querySelectorAll('input[data-copy]:checked')].map((i) => i.value);
+      if (!days.length && !(await confirmBox('Tidak ada hari yang dicentang', 'Menyimpan tanpa hari berarti jadwal ' + S.setClass + ' dihapus dan waktu murid kelas ini berjalan terus seperti tanpa jadwal.', 'Hapus jadwal', true))) return;
+      const b = $('stSched'); b.disabled = true;
+      try {
+        await run('t_save_schedule', { p_classes: [S.setClass, ...extra], p_days: days }, 'Jadwal ' + [S.setClass, ...extra].join(', ') + ' disimpan.');
+        loadSettings();
+      } catch { b.disabled = false; }
+    };
+    if ($('stClear')) $('stClear').onclick = async () => {
+      if (!(await confirmBox('Hapus jadwal ' + S.setClass + '?', 'Waktu murid kelas ini akan berjalan terus seperti sebelum ada jadwal. Libur dan jam khusus tetap tersimpan.', 'Hapus jadwal', true))) return;
+      await run('t_save_schedule', { p_classes: [S.setClass], p_days: [] }, 'Jadwal ' + S.setClass + ' dihapus.').catch(() => {});
+      loadSettings();
+    };
+    $('stDayAdd').onclick = () => dayModal();
+    root.querySelectorAll('[data-a="delday"]').forEach((b) => (b.onclick = async () => {
+      const tr = b.closest('tr');
+      if (!(await confirmBox('Hapus pengecualian?', fmtDay(tr.dataset.day) + ' untuk ' + tr.dataset.cls + ' kembali memakai jadwal biasa.', 'Hapus', true))) return;
+      await run('t_delete_day', { p_classes: [tr.dataset.cls], p_day: tr.dataset.day }, 'Pengecualian dihapus.').catch(() => {});
+      loadSettings();
+    }));
+    root.querySelectorAll('[data-a="endmk"]').forEach((b) => (b.onclick = async () => {
+      const tr = b.closest('tr');
+      if (!(await confirmBox('Tutup akses susulan?', 'Kode susulan murid ini tidak berlaku lagi. Jawaban yang sudah tersimpan tetap ada.', 'Tutup akses', true))) return;
+      await run('t_end_makeup', { p_student: tr.dataset.stu, p_ws: tr.dataset.ws }, 'Akses susulan ditutup.').catch(() => {});
+      loadSettings();
+    }));
+  }
+  function dayModal() {
+    const T = S.settings, today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const box = openModal('<h2>Libur atau jam khusus</h2><p class="sub">Berlaku untuk satu tanggal. Jadwal mingguan tidak berubah.</p>' +
+      '<div class="field"><label class="lbl" for="dDay">Tanggal</label><input class="input" id="dDay" type="date" value="' + today + '" style="width:200px"></div>' +
+      '<div class="field"><span class="lbl">Kelas</span><div class="chips">' + T.classes.map((c) => '<label class="chip"><input type="checkbox" value="' + h(c.class) + '"' + (c.class === S.setClass ? ' checked' : '') + '>' + h(c.class) + '</label>').join('') + '</div></div>' +
+      '<div class="field"><span class="lbl">Hari itu</span><div class="seg-ctl"><label><input type="radio" name="dOff" value="1" checked>Libur</label><label><input type="radio" name="dOff" value="0">Jam khusus</label></div></div>' +
+      '<div id="dSpec" hidden><div class="spec-grid">' +
+      '<label>Mulai<input class="input" type="time" data-f="start" value="07:00"></label><label>Pulang<input class="input" type="time" data-f="end" value="11:00"></label>' +
+      '<label>Istirahat 1<div class="tpair"><input class="input" type="time" data-f="b1s"><span>–</span><input class="input" type="time" data-f="b1e"></div></label>' +
+      '<label>Istirahat 2<div class="tpair"><input class="input" type="time" data-f="b2s"><span>–</span><input class="input" type="time" data-f="b2e"></div></label></div></div>' +
+      '<div class="field"><label class="lbl" for="dNote">Keterangan <span class="muted">(opsional)</span></label><input class="input" id="dNote" maxlength="200" placeholder="Misalnya: Ujian tengah semester"></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Simpan</button></div>');
+    const sync = () => ($('dSpec').hidden = box.querySelector('input[name="dOff"]:checked').value === '1');
+    box.querySelectorAll('input[name="dOff"]').forEach((r) => (r.onchange = sync));
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelector('[data-x="yes"]').onclick = async () => {
+      const classes = [...box.querySelectorAll('.chips input:checked')].map((i) => i.value);
+      if (!$('dDay').value) { toast('Pilih tanggal.', 'err'); return; }
+      if (!classes.length) { toast('Pilih minimal satu kelas.', 'err'); return; }
+      const off = box.querySelector('input[name="dOff"]:checked').value === '1', spec = {};
+      box.querySelectorAll('#dSpec input[data-f]').forEach((i) => (spec[i.dataset.f] = i.value));
+      const r = await run('t_save_day', { p_classes: classes, p_day: $('dDay').value, p_off: off, p_spec: off ? null : spec, p_note: $('dNote').value.trim() }, 'Tanggal ' + fmtDay($('dDay').value) + ' disimpan.').then(() => true).catch(() => false);
+      if (r) { closeModal(true); loadSettings(); }
+    };
+  }
+
+  /* ---------- akses susulan & istirahat per murid (dari menu Pantau) ---------- */
+  const dtLocal = (d) => { const x = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return x.toISOString().slice(0, 16); };
+  function makeupModal(r) {
+    const w = S.overview.worksheets.find((x) => x.id === S.ws) || {};
+    const mk = r.makeup && r.makeup.active ? r.makeup : null;
+    const def = new Date(); def.setDate(def.getDate() + 1); def.setHours(23, 59, 0, 0);
+    const box = openModal('<h2>Akses susulan</h2><p class="sub"><strong>' + h(r.name) + '</strong>, ' + h(r.class) + ' · ' + h(w.title || '') + '</p>' +
+      (r.status === 'finished' ? '<div class="notice info"><svg><use href="#i-alert"/></svg><span>Murid ini sudah menyelesaikan lembar kerja ini. Akses susulan tidak diperlukan kecuali pengerjaannya diulang.</span></div>' : '') +
+      (mk ? '<div class="notice"><svg><use href="#i-alert"/></svg><span>Akses susulan sedang berlaku sampai <strong>' + h(whenLong(mk.until)) + '</strong>. Kodenya tidak bisa ditampilkan lagi; buat kode baru bila murid lupa.</span></div>' : '') +
+      '<p class="help" style="margin:0 0 14px">Murid masuk dari rumah dengan nama, kelas, tanggal lahir, dan <strong>kode susulan</strong> ini. Kode hanya berlaku untuk murid ini dan lembar kerja ini. Selama akses berlaku, waktunya berjalan walaupun di luar jam sekolah atau lembar kerja sedang ditutup, dan ' +
+      (r.status === 'running' ? 'ia <strong>melanjutkan sisa langkahnya</strong> dengan sisa waktu yang tersimpan.' : r.status === 'not_started' ? 'ia mulai dari langkah 1.' : 'langkah yang dikerjakan saat itu ditandai Susulan.') +
+      ' Langkah yang dikerjakan di luar jam pelajaran ditandai <strong>Susulan</strong>' + (penalty() ? ' dan nilainya dipotong ' + fmtNum(penalty()) + '%' : '') + '.</p>' +
+      '<div class="field"><label class="lbl" for="mkUntil">Berlaku sampai</label><input class="input" id="mkUntil" type="datetime-local" value="' + dtLocal(mk ? new Date(mk.until) : def) + '" style="width:240px"></div>' +
+      '<div class="modal-actions">' + (mk ? '<button class="btn btn-danger" data-x="end">Tutup akses</button><span class="spacer"></span><button class="btn btn-ghost" data-x="ext">Ubah batas waktu saja</button><button class="btn btn-primary" data-x="yes">Buat kode baru</button>'
+        : '<button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Buka akses dan buat kode</button>') + '</div>');
+    const until = () => { const v = $('mkUntil').value; return v ? new Date(v) : null; };
+    const go2 = async (fresh) => {
+      const u = until(); if (!u || u <= Date.now() + 5 * 60000) { toast('Batas waktu harus di masa depan (lebih dari 5 menit lagi).', 'err'); return; }
+      const res = await run('t_grant_makeup', { p_student: r.student_id, p_ws: S.ws, p_until: u.toISOString(), p_new_code: fresh }).catch(() => null);
+      if (!res) return;
+      if (!res.code) { closeModal(true); toast('Batas waktu susulan ' + r.name + ' diubah.', 'ok'); pollMonitor(); return; }
+      const url = new URL('./', location.href), link = url.host + url.pathname.replace(/\/$/, '');
+      const msg = 'Kode susulan ' + (w.title || '') + ' untuk ' + r.name + ': ' + res.code + '. Masuk di ' + link + ' dengan nama, kelas ' + r.class + ', tanggal lahir, dan kode ini. Berlaku sampai ' + whenLong(res.until) + '.';
+      const b2 = openModal('<h2>Kode susulan ' + h(r.name) + '</h2><p class="sub">Berlaku sampai ' + h(whenLong(res.until)) + '. Catat atau kirim sekarang: kode ini tidak bisa ditampilkan lagi.</p>' +
+        '<div class="mk-code">' + h(res.code) + '</div><div class="field"><label class="lbl" for="mkMsg">Pesan untuk murid</label><textarea class="textarea" id="mkMsg" rows="4" readonly>' + h(msg) + '</textarea></div>' +
+        '<div class="modal-actions"><button class="btn btn-ghost" data-x="copy">Salin pesan</button><button class="btn btn-primary" data-x="no">Selesai</button></div>');
+      b2.querySelector('[data-x="copy"]').onclick = async () => { try { await navigator.clipboard.writeText(msg); toast('Pesan disalin.', 'ok'); } catch { $('mkMsg').select(); } };
+      b2.querySelector('[data-x="no"]').onclick = () => closeModal(true);
+      pollMonitor();
+    };
+    box.querySelector('[data-x="yes"]').onclick = () => go2(true);
+    const ext = box.querySelector('[data-x="ext"]'); if (ext) ext.onclick = () => go2(false);
+    const no = box.querySelector('[data-x="no"]'); if (no) no.onclick = () => closeModal(false);
+    const end = box.querySelector('[data-x="end"]');
+    if (end) end.onclick = async () => {
+      await run('t_end_makeup', { p_student: r.student_id, p_ws: S.ws }, 'Akses susulan ' + r.name + ' ditutup.').catch(() => {});
+      closeModal(true); pollMonitor();
+    };
+  }
+  function ownPauseModal(r) {
+    const box = openModal('<h2>Hentikan waktu ' + h(r.name) + '</h2><p class="sub">Untuk murid yang harus meninggalkan pelajaran sebentar. Hanya waktu murid ini yang berhenti; murid lain tetap mengerjakan. Ia melihat layar istirahat, dan sisa waktunya tidak berkurang.</p>' +
+      '<div class="field"><span class="lbl">Lama</span><div class="seg-ctl"><label><input type="radio" name="opLen" value="manual" checked>Sampai saya lanjutkan</label><label><input type="radio" name="opLen" value="min">Selama</label></div>' +
+      '<div class="dur" id="opMinWrap" style="margin-top:8px" hidden><input class="input" id="opMin" type="number" min="1" max="720" value="15"> menit</div></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" data-x="yes">Hentikan waktunya</button></div>');
+    box.querySelectorAll('input[name="opLen"]').forEach((i) => (i.onchange = () => ($('opMinWrap').hidden = box.querySelector('input[name="opLen"]:checked').value !== 'min')));
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelector('[data-x="yes"]').onclick = async () => {
+      const manual = box.querySelector('input[name="opLen"]:checked').value === 'manual', mins = manual ? null : parseInt($('opMin').value, 10);
+      if (!manual && !(mins >= 1 && mins <= 720)) { toast('Lama istirahat 1 sampai 720 menit.', 'err'); return; }
+      const ok = await run('t_pause_student', { p_student: r.student_id, p_ws: S.ws, p_minutes: mins }, 'Waktu ' + r.name + ' dihentikan.').then(() => true).catch(() => false);
+      if (ok) { closeModal(true); pollMonitor(); }
+    };
+  }
 
   /* ---------- pertanyaan: jenis & nilai ---------- */
   /* ---------- link aplikasi web (pertanyaan weblink) ---------- */
@@ -2103,10 +2355,13 @@
     if (!a || !a.data || !hasVal(a.data[q.id])) return { p: 0, empty: true };
     return { p: null };
   }
+  // langkah yang dikerjakan lewat susulan dipotong sesuai Pengaturan (nilai asli tetap dihitung: raw)
+  const mkFactor = (a) => (a && a.makeup ? 1 - penalty() / 100 : 1);
   function stepPoints(st, a) {
-    let earned = 0, max = 0, todo = 0;
-    qsOf(st).forEach((q) => { const r = qPoint(q, a); max += Number(q.points) || 0; if (r.p == null) todo++; else earned += r.p; });
-    return { earned, max, todo, pct: max ? (earned * 100) / max : null };
+    let raw = 0, max = 0, todo = 0;
+    qsOf(st).forEach((q) => { const r = qPoint(q, a); max += Number(q.points) || 0; if (r.p == null) todo++; else raw += r.p; });
+    const earned = raw * mkFactor(a);
+    return { earned, raw, max, todo, pct: max ? (earned * 100) / max : null, rawPct: max ? (raw * 100) / max : null, mk: !!(a && a.makeup) };
   }
   const answeredAny = (st, a) => !!(a && a.data && qsOf(st).some((q) => hasVal(a.data[q.id])));
   const fmtNum = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toString().replace('.', ',');
@@ -2171,10 +2426,17 @@
   // nilai akhir = total poin / total bobot semua pertanyaan (0-100); soal yang belum dinilai belum dihitung
   function average(row, R = S.results) {
     const st = gradedSteps(R); if (!st.length) return null;
-    let earned = 0, max = 0, todo = 0, total = 0;
-    st.forEach((s) => { const a = row.answers[s.id]; qsOf(s).forEach((q) => { total++; const r = qPoint(q, a); if (r.p == null) todo++; else { earned += r.p; max += Number(q.points) || 0; } }); });
-    return { avg: max ? (earned * 100) / max : null, n: total - todo, of: total };
+    let earned = 0, raw = 0, max = 0, todo = 0, total = 0, mk = 0;
+    st.forEach((s) => {
+      const a = row.answers[s.id], f = mkFactor(a); if (a && a.makeup) mk++;
+      qsOf(s).forEach((q) => { total++; const r = qPoint(q, a); if (r.p == null) todo++; else { earned += r.p * f; raw += r.p; max += Number(q.points) || 0; } });
+    });
+    return { avg: max ? (earned * 100) / max : null, raw: max ? (raw * 100) / max : null, n: total - todo, of: total, mk };
   }
+  // label susulan dan nilai asli (sebelum potongan) di tabel hasil
+  const mkPill = (row, av) => (av && av.mk) || (row.makeup && new Date(row.makeup.until) > Date.now())
+    ? ' <span class="pill mk" title="' + (av && av.mk ? av.mk + ' langkah dikerjakan lewat susulan' : 'Akses susulan sedang berlaku') + '">Susulan</span>' : '';
+  const rawNote = (av) => av && av.mk && penalty() && av.raw != null && Math.abs(av.raw - av.avg) > 0.05 ? '<div class="bar-label">asli ' + fmtNum(av.raw) + '</div>' : '';
   const rowFilter = (r) => { const f = S.filters, q = norm(f.rSearch); return (!f.rClass || r.class === f.rClass) && (!q || norm(r.name).includes(q)); };
   function visibleRows() {
     return sortRows((S.results?.rows || []).filter(rowFilter));
@@ -2216,17 +2478,18 @@
     const cell = (s, a) => {
       const sp = stepPoints(s, a);
       if (!answeredAny(s, a) && !(a && a.qgrades && Object.values(a.qgrades).some((g) => g.m))) return '<span class="grade-cell gc-none" title="Tidak menjawab (0)">-</span>';
-      if (sp.todo) return '<span class="grade-cell gc-todo" title="' + sp.todo + ' pertanyaan belum dinilai">Nilai</span>';
-      return '<span class="grade-cell gc-score">' + fmtNum(sp.pct, 0) + '</span>';
+      const mkc = sp.mk ? ' gc-mk' : '', mkt = sp.mk ? ' Dikerjakan lewat susulan' + (penalty() && sp.rawPct != null ? ' (nilai asli ' + fmtNum(sp.rawPct, 0) + ', dipotong ' + fmtNum(penalty()) + '%)' : '') + '.' : '';
+      if (sp.todo) return '<span class="grade-cell gc-todo' + mkc + '" title="' + sp.todo + ' pertanyaan belum dinilai.' + mkt + '">Nilai</span>';
+      return '<span class="grade-cell gc-score' + mkc + '"' + (mkt ? ' title="' + mkt.trim() + '"' : '') + '>' + fmtNum(sp.pct, 0) + '</span>';
     };
     $('rTable').innerHTML = '<table class="tbl"><thead><tr><th>Murid</th>' +
       st.map((s) => '<th class="center" title="' + h(s.title) + '">L' + s.no + '</th>').join('') +
       '<th>Dikumpulkan</th><th class="num">Nilai akhir</th></tr></thead><tbody>' + rows.map((r) => {
         const av = average(r);
         return '<tr class="clickable" data-s="' + r.session_id + '" tabindex="0">' +
-          '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.finished ? '' : ', belum selesai') + '</span></div></div></td>' +
+          '<td><div class="who"><span class="avatar">' + h(initials(r.name)) + '</span><div><strong>' + h(r.name) + '</strong><span>' + h(r.class) + (r.finished ? '' : ', belum selesai') + '</span></div>' + mkPill(r, av) + '</div></td>' +
           st.map((s) => '<td class="center">' + cell(s, r.answers[s.id]) + '</td>').join('') +
-          '<td>' + whenCell(r) + '</td><td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
+          '<td>' + whenCell(r) + '</td><td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' + rawNote(av) +
           (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' soal dinilai</div>' : '') + '</td></tr>';
       }).join('') + '</tbody></table>';
     $('rTable').querySelectorAll('tr[data-s]').forEach((tr) => {
@@ -2251,9 +2514,9 @@
           g.items.map(({ R, row }) => {
             const av = average(row, R);
             return '<tr class="clickable" data-s="' + row.session_id + '" tabindex="0"><td>' + h(R.title) + '</td>' +
-              '<td>' + (row.finished ? '<span class="pill ok">Selesai</span>' : '<span class="pill run">Belum selesai</span>') + '</td>' +
+              '<td>' + (row.finished ? '<span class="pill ok">Selesai</span>' : '<span class="pill run">Belum selesai</span>') + mkPill(row, av) + '</td>' +
               '<td>' + whenCell(row) + '</td>' +
-              '<td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' +
+              '<td class="num"><strong>' + (av && av.avg != null ? fmtNum(av.avg) : '-') + '</strong>' + rawNote(av) +
               (av && av.n < av.of ? '<div class="bar-label">' + av.n + ' dari ' + av.of + ' soal dinilai</div>' : '') + '</td></tr>';
           }).join('');
       }).join('') + '</tbody></table>';
@@ -2296,6 +2559,8 @@
     $('dPrev').disabled = i <= 0; $('dNext').disabled = i < 0 || i >= list.length - 1;
     $('dPrint').hidden = false;
     $('dMeta').textContent += S.rMode === 'student' ? ' · ' + (S.results.title || '') : '';
+    { const mkN = gradedSteps().filter((s) => r.answers[s.id] && r.answers[s.id].makeup).length;
+      if (mkN) $('dMeta').textContent += ' · ' + mkN + ' langkah susulan' + (penalty() ? ' (dipotong ' + fmtNum(penalty()) + '%)' : ''); }
     $('dBody').innerHTML = gradedSteps().map((s) => {
       const a = r.answers[s.id] || {};
       const sp = stepPoints(s, a);
@@ -2327,7 +2592,8 @@
           (pt.manual && auto ? '<button type="button" class="reset">Kembalikan ke nilai otomatis</button>' : '') + '<span class="save-state" style="margin:0"></span></div></div>';
       }).join('');
       return '<section class="g-step" data-step="' + s.id + '">' +
-        '<h3><span class="pill run plain">Langkah ' + s.no + '</span>' + h(s.title) + '<span class="muted" style="margin-left:auto;font-size:13px;font-weight:600" data-total>' + (sp.todo ? sp.todo + ' belum dinilai' : fmtNum(sp.earned) + ' / ' + sp.max + ' poin') + '</span></h3>' +
+        '<h3><span class="pill run plain">Langkah ' + s.no + '</span>' + h(s.title) + (a.makeup ? ' <span class="pill mk" title="Dikerjakan lewat jalur susulan (di luar jam pelajaran)">Susulan</span>' : '') +
+          '<span class="muted" style="margin-left:auto;font-size:13px;font-weight:600" data-total>' + stepTotal(sp) + '</span></h3>' +
         qhtml +
         '<div style="margin-top:14px"><label class="lbl">Komentar untuk catatan guru</label><textarea class="textarea" rows="2" data-fb>' + h(a.feedback || '') + '</textarea><div class="save-state" data-fbst></div></div></section>';
     }).join('');
@@ -2339,6 +2605,10 @@
     $('drawer').classList.remove('on'); $('drawer').setAttribute('aria-hidden', 'true'); $('drawerScrim').classList.remove('on');
     if (dMode === 'gh') { if (S.gh) renderGithub(); } else if (S.results || S.resAll) renderResults();
   }
+  // total poin satu langkah; langkah susulan menampilkan nilai asli dan potongannya
+  const stepTotal = (sp) => sp.todo ? sp.todo + ' belum dinilai'
+    : sp.mk && penalty() ? fmtNum(sp.earned) + ' / ' + sp.max + ' poin (asli ' + fmtNum(sp.raw) + ', potongan susulan ' + fmtNum(penalty()) + '%)'
+    : fmtNum(sp.earned) + ' / ' + sp.max + ' poin';
   function bindGrade(sec) {
     const stepId = sec.dataset.step;
     const step = S.results.steps.find((x) => x.id === stepId);
@@ -2346,7 +2616,7 @@
     const refreshTotal = () => {
       const row = rowOf(dSession); if (!row) return;
       const sp = stepPoints(step, row.answers[stepId]);
-      sec.querySelector('[data-total]').textContent = sp.todo ? sp.todo + ' belum dinilai' : fmtNum(sp.earned) + ' / ' + sp.max + ' poin';
+      sec.querySelector('[data-total]').textContent = stepTotal(sp);
     };
     sec.querySelectorAll('.gq').forEach((g) => {
       const qid = g.dataset.q, q = qsOf(step).find((x) => x.id === qid), inp = g.querySelector('input'), st = g.querySelector('.save-state');
@@ -2438,7 +2708,7 @@
     const safe = csvSafe, num = csvNum;
     const head = ['Kelas', 'Nama', 'Status', 'Dikumpulkan'];
     st.forEach((s) => head.push('L' + s.no + ' nilai', 'L' + s.no + ' jawaban', 'L' + s.no + ' komentar'));
-    head.push('Nilai akhir', 'Soal dinilai');
+    head.push('Nilai akhir', 'Nilai asli (tanpa potongan susulan)', 'Langkah susulan', 'Soal dinilai');
     const lines = [head.map(safe).join(';')];
     visibleRows().forEach((r) => {
       const av = average(r);
@@ -2447,7 +2717,8 @@
         const a = r.answers[s.id] || {}, sp = stepPoints(s, r.answers[s.id]);
         cells.push(sp.todo ? '' : num(sp.pct.toFixed(2)), safe(a.content), safe(a.feedback));
       });
-      cells.push(av && av.avg != null ? num(av.avg.toFixed(2)) : '', safe(av ? av.n + '/' + av.of : ''));
+      cells.push(av && av.avg != null ? num(av.avg.toFixed(2)) : '', av && av.raw != null ? num(av.raw.toFixed(2)) : '',
+        safe(gradedSteps().filter((s) => r.answers[s.id] && r.answers[s.id].makeup).map((s) => 'L' + s.no).join(' ')), safe(av ? av.n + '/' + av.of : ''));
       lines.push(cells.join(';'));
     });
     const title = (S.overview.worksheets.find((w) => w.id === S.ws) || {}).title || 'hasil';
@@ -2516,13 +2787,14 @@
     return '<article class="pr-sheet' + (o.page ? ' newpage after-break' : '') + '">' +
       '<header class="pr-head"><div><h1>' + h(R.title || '') + '</h1>' +
       '<div class="id"><b>' + h(row.name) + '</b> &middot; ' + h(row.class) + '</div>' +
-      '<div class="pr-meta">Mulai: ' + (row.started_at ? h(when(row.started_at)) : '-') + ' &middot; Dikumpulkan: ' + (row.finished_at ? h(when(row.finished_at)) : 'belum mengumpulkan') + '</div></div>' +
+      '<div class="pr-meta">Mulai: ' + (row.started_at ? h(when(row.started_at)) : '-') + ' &middot; Dikumpulkan: ' + (row.finished_at ? h(when(row.finished_at)) : 'belum mengumpulkan') +
+        (av && av.mk ? ' &middot; <b>Susulan</b>: ' + av.mk + ' langkah' + (penalty() ? ', dipotong ' + fmtNum(penalty()) + '%' + (o.grades && av.raw != null ? ' (nilai asli ' + fmtNum(av.raw) + ')' : '') : '') : '') + '</div></div>' +
       '<div class="pr-score"><span>Nilai akhir</span><b>' + score + '</b></div></header>' +
       steps.map((s) => {
         const a = row.answers[s.id], sp = stepPoints(s, a);
         const fb = a && a.feedback ? '<div class="given">' + h(a.feedback) + '</div>' : '<div class="line"></div><div class="line"></div>';
-        return '<section class="pr-step"><h2><span>Langkah ' + s.no + '. ' + h(s.title) + '</span><small>' +
-          (o.grades && !sp.todo ? fmtNum(sp.earned) + ' / ' + sp.max + ' poin' : '____ / ' + sp.max + ' poin') + '</small></h2>' +
+        return '<section class="pr-step"><h2><span>Langkah ' + s.no + '. ' + h(s.title) + (sp.mk ? ' (susulan)' : '') + '</span><small>' +
+          (o.grades && !sp.todo ? stepTotal(sp) : '____ / ' + sp.max + ' poin') + '</small></h2>' +
           (o.instr && s.instruction ? '<div class="pr-instr">' + fmt(s.instruction) + '</div>' : '') +
           qsOf(s).map((q, qi) => prQuestion(q, a, qi, o)).join('') +
           '<div class="pr-fb">Catatan guru:' + fb + '</div></section>';
@@ -3622,14 +3894,15 @@
         else if (r.p >= pts) kind = 'full';
         else if (!r.manual && isAuto(q)) kind = r.p > 0 ? 'partial' : 'wrong';
         else kind = r.p >= pts * 0.5 ? 'partial' : 'low';
-        items.push({ st, q, pts, p: r.p, kind, v, a, lost: r.p == null ? 0 : pts - r.p, manual: r.manual, feedback: a && a.feedback });
+        items.push({ st, q, pts, p: r.p, kind, v, a, lost: r.p == null ? 0 : pts - r.p, manual: r.manual, feedback: a && a.feedback, f: mkFactor(a), mk: !!(a && a.makeup) });
       });
     });
     const graded = items.filter((x) => x.kind !== 'todo');
-    const max = graded.reduce((t, x) => t + x.pts, 0), earned = graded.reduce((t, x) => t + x.p, 0);
+    const max = graded.reduce((t, x) => t + x.pts, 0), earned = graded.reduce((t, x) => t + x.p * x.f, 0);
     const done = graded.filter((x) => !['unreached', 'current'].includes(x.kind));
-    const dMax = done.reduce((t, x) => t + x.pts, 0), dEarned = done.reduce((t, x) => t + x.p, 0);
-    return { items, pos, total, score: max ? (earned * 100) / max : null, max, earned, partScore: dMax ? (dEarned * 100) / dMax : null, dMax, dEarned };
+    const dMax = done.reduce((t, x) => t + x.pts, 0), dEarned = done.reduce((t, x) => t + x.p * x.f, 0);
+    const mkCut = graded.reduce((t, x) => t + x.p * (1 - x.f), 0);
+    return { items, pos, total, score: max ? (earned * 100) / max : null, max, earned, partScore: dMax ? (dEarned * 100) / dMax : null, dMax, dEarned, mkCut };
   }
   const KIND = {
     full: ['ok', 'Benar / penuh'], partial: ['warn', 'Sebagian'], low: ['danger', 'Poin rendah'], wrong: ['danger', 'Salah'],
@@ -3655,6 +3928,9 @@
     if (by('wrong').length) reasons.push(['danger', by('wrong').length + ' jawaban otomatis salah (' + fmtNum(sum(by('wrong'))) + ' poin hilang).']);
     if (by('low').length) reasons.push(['danger', by('low').length + ' jawaban diberi poin rendah oleh guru (' + fmtNum(sum(by('low'))) + ' poin hilang).']);
     if (by('partial').length) reasons.push(['warn', by('partial').length + ' jawaban mendapat poin sebagian (' + fmtNum(sum(by('partial'))) + ' poin hilang).']);
+    { const mkSteps = [...new Set(I.filter((x) => x.mk).map((x) => 'L' + x.st.no))];
+      if (mkSteps.length) reasons.push([penalty() ? 'warn' : 'info', 'Langkah ' + mkSteps.join(', ') + ' dikerjakan lewat susulan' +
+        (penalty() ? ', jadi poinnya dipotong ' + fmtNum(penalty()) + '% (' + fmtNum(M.mkCut) + ' poin). Tanpa potongan nilainya ' + fmtNum(M.max ? ((M.earned + M.mkCut) * 100) / M.max : 0) + '.' : '. Tidak ada potongan nilai (diatur di menu Pengaturan).')]); }
     if (by('todo').length) reasons.push(['info', by('todo').length + ' jawaban belum dinilai (' + by('todo').reduce((t, x) => t + x.pts, 0) + ' poin). Jawaban itu belum ikut dihitung, jadi nilainya masih bisa berubah.']);
     if (!I.length) reasons.push(['info', 'Misi ini tidak punya pertanyaan bernilai.']);
     const top = I.filter((x) => x.lost > 0 && x.kind !== 'unreached' && x.kind !== 'current').sort((a, b) => b.lost - a.lost).slice(0, 3);
