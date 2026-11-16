@@ -1536,6 +1536,7 @@
       if (files.some((x) => x && x.alt)) why.push('Cek versi kode');
       if (st.hidden >= 3) why.push('Sering pindah tab');
       if ((st.paste || 0) + (st.copy || 0) + (st.devtools || 0) > 0) why.push('Coba salin/inspect');
+      if ((st.switches || 0) >= 2) why.push('Pindah misi ' + st.switches + 'x');
       return { st, row, step, av, code, files, d, commits, commitList, why };
     });
     return { people, refs, steps, total: M.total, median, wStart, wEnd, analysed: people.some((p) => p.d && p.d.status) };
@@ -1754,6 +1755,7 @@
       if (fin.some((e) => e.commits === 0)) why.push('Tanpa commit bermakna');
       if (p.per.reduce((t, e) => t + (e.st.hidden || 0), 0) >= 5) why.push('Sering pindah tab');
       if (p.per.reduce((t, e) => t + (e.st.paste || 0) + (e.st.copy || 0) + (e.st.devtools || 0), 0) > 0) why.push('Coba salin/inspect');
+      { const sw = Math.max(0, ...p.per.map((e) => e.st.switches || 0)); if (sw >= 2) why.push('Pindah misi ' + sw + 'x'); }
       p.why = why;
     });
     let wStart = Infinity, wEnd = 0;
@@ -1944,7 +1946,7 @@
       $('mStamp').innerHTML = '<span class="flag-hi">Gagal memperbarui, mencoba lagi</span>';
     }
   }
-  const needsCheck = (r) => r.is_active && (r.locked || r.logins > 1 || r.hidden >= 3 || r.paste > 0 || r.copy > 0 || r.devtools > 0);
+  const needsCheck = (r) => r.is_active && (r.locked || r.logins > 1 || r.hidden >= 3 || r.paste > 0 || r.copy > 0 || r.devtools > 0 || r.switches_today >= 3);
   function renderMonitor() {
     const m = S.monitor; if (!m) return;
     const f = S.filters;
@@ -1974,15 +1976,16 @@
           (pz.until ? ' sampai ' + clock(pz.until) : ' sampai Anda melanjutkan') + '.</span><button class="btn btn-sm" data-pz="cancel">Batalkan jadwal</button></div>' : '');
     if (!rows.length) { $('mTable').innerHTML = '<div class="empty">' + (m.students.length ? 'Tidak ada murid yang cocok dengan filter.' : '<strong>Belum ada murid</strong>Tambahkan murid di menu Murid.') + '</div>'; return; }
 
-    const FZ = { personal: ['warn', 'Waktunya dihentikan'], break: ['plain', 'Istirahat'], offhours: ['plain', 'Di luar jam'] };
+    const FZ = { personal: ['warn', 'Waktunya dihentikan'], break: ['plain', 'Istirahat'], offhours: ['plain', 'Di luar jam'], away: ['plain', 'Di misi lain'] };
     const fzOf = (r) => r.freeze && r.freeze.frozen ? r.freeze : null;
     const status = (r) => {
       const fz = fzOf(r), mk = r.makeup && r.makeup.active;
       return (r.status === 'finished' ? '<span class="pill ok">Selesai</span>'
-        : fz ? '<span class="pill ' + FZ[fz.reason][0] + '" title="' + h(fz.until ? 'Lanjut ' + whenLong(fz.until) : fz.reason === 'personal' ? 'Sampai Anda lanjutkan' : '') + '">' + FZ[fz.reason][1] + '</span>'
+        : fz ? '<span class="pill ' + FZ[fz.reason][0] + '" title="' + h(fz.reason === 'away' ? 'Sedang mengerjakan ' + (fz.other || 'misi lain') + '. Waktu misi ini berhenti sampai murid kembali.' : fz.until ? 'Lanjut ' + whenLong(fz.until) : fz.reason === 'personal' ? 'Sampai Anda lanjutkan' : '') + '">' + FZ[fz.reason][1] + '</span>'
         : r.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>') +
         (mk ? ' <span class="pill mk" title="Akses susulan sampai ' + h(whenLong(r.makeup.until)) + '">Susulan</span>'
-          : r.makeup_steps ? ' <span class="pill mk plain" title="' + r.makeup_steps + ' langkah dikerjakan lewat susulan">Susulan</span>' : '');
+          : r.makeup_steps ? ' <span class="pill mk plain" title="' + r.makeup_steps + ' langkah dikerjakan lewat susulan">Susulan</span>' : '') +
+        (r.switches_today ? ' <span class="pill ' + (r.switches_today >= 3 ? 'warn' : 'plain') + '" title="Pindah misi hari ini ' + r.switches_today + ' kali (total ' + r.switches + ' kali)">Pindah ' + r.switches_today + 'x</span>' : '');
     };
     const bar = (r) => {
       let s = '';
@@ -2126,11 +2129,13 @@
     const tIn = (dow, f, v) => '<input class="input" type="time" data-dow="' + dow + '" data-f="' + f + '" value="' + h(v || '') + '"' + (byDow[dow] ? '' : ' disabled') + '>';
     $('setRoot').innerHTML =
       // 1. umum
-      '<section class="panel set-card"><h2>Susulan dan jadwal</h2>' +
+      '<section class="panel set-card"><h2>Aturan pengerjaan</h2>' +
       '<label class="switch set-switch"><input type="checkbox" id="stOn"' + (T.schedule_on ? ' checked' : '') + '>Pakai jadwal sekolah</label>' +
       '<p class="help">Bila aktif, waktu murid berhenti sendiri saat jam istirahat dan setelah jam pulang (sama seperti tombol Istirahat di menu Pantau), lalu berjalan lagi pada jam pelajaran berikutnya. Kelas tanpa jadwal tidak terpengaruh. Murid yang mengerjakan di luar jam sekolah hanya bisa masuk dengan <strong>akses susulan</strong> dari guru, dan langkah yang ia kerjakan saat itu ditandai Susulan.</p>' +
       '<div class="field" style="margin-top:16px"><label class="lbl" for="stPen">Potongan nilai susulan</label><div class="dur"><input class="input" id="stPen" type="number" min="0" max="100" step="1" value="' + Number(T.makeup_penalty) + '"> %</div>' +
       '<div class="help">0 = tanpa potongan, hasil susulan hanya diberi label. Contoh 20: langkah susulan bernilai 80 menjadi 64. Potongan hanya untuk langkah yang dikerjakan lewat susulan, dan nilai aslinya tetap ditampilkan. Mengubah angka ini langsung berlaku untuk semua nilai.</div></div>' +
+      '<div class="field"><label class="lbl" for="stSw">Batas pindah misi per murid per hari</label><div class="dur"><input class="input" id="stSw" type="number" min="0" max="50" step="1" placeholder="tanpa batas" value="' + (T.switch_limit == null ? '' : T.switch_limit) + '"> kali</div>' +
+      '<div class="help">Hanya satu misi yang waktunya berjalan untuk setiap murid, yaitu misi yang terakhir ia buka; misi lain yang belum selesai berhenti dan sisa waktunya disimpan. Setiap pindah dari misi yang masih berjalan ke misi lain dicatat dan terlihat di Pantau dan Dashboard. Kosongkan untuk tanpa batas; 0 = murid tidak boleh pindah sebelum misinya selesai.</div></div>' +
       '<button class="btn btn-primary" id="stSave">Simpan</button></section>' +
       // 2. jadwal per kelas
       '<section class="panel set-card set-wide"><div class="set-head"><h2>Jadwal per kelas</h2>' +
@@ -2168,9 +2173,10 @@
 
     // ----- peristiwa -----
     $('stSave').onclick = async () => {
-      const pen = Number($('stPen').value);
+      const pen = Number($('stPen').value), swv = $('stSw').value.trim(), sw = swv === '' ? null : Number(swv);
       if (!(pen >= 0 && pen <= 100)) { toast('Potongan nilai 0 sampai 100 persen.', 'err'); return; }
-      await run('t_save_settings', { p_schedule_on: $('stOn').checked, p_penalty: pen }, 'Pengaturan disimpan.').catch(() => {});
+      if (sw != null && !(Number.isInteger(sw) && sw >= 0 && sw <= 50)) { toast('Batas pindah misi 0 sampai 50 kali, atau kosongkan.', 'err'); return; }
+      await run('t_save_settings', { p_schedule_on: $('stOn').checked, p_penalty: pen, p_switch_limit: sw }, 'Pengaturan disimpan.').catch(() => {});
       await refreshOverview(); loadSettings();
     };
     if ($('stClass')) $('stClass').onchange = () => { S.setClass = $('stClass').value; renderSettings(); };
