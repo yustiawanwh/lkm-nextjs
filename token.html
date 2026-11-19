@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<!-- Keamanan: hanya skrip & gaya di file ini (dikunci dengan hash), config.js, font Google, dan koneksi HTTPS ke Supabase.
+     Bila isi <script> atau <style> diubah, hash di bawah harus diperbarui. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XyGMIU/RImfD8pjn4GxDO3l1r0AN8rXfgCS9B8OzRtc='; style-src 'sha256-MyrtstCsu+eznZi9UMK9yw29S9+1l1nt14phEFKUIqI=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Kode Masuk · Lembar Kerja PjBL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* Papan kode masuk: dibuka murid tanpa login. Hanya menampilkan kode yang berlaku; tidak bisa mengubah apa pun. */
+  :root{
+    --bg:#1A2FB8; --bg-2:#13238F; --card:rgba(255,255,255,.09); --card-line:rgba(255,255,255,.16);
+    --ink:#FFFFFF; --ink-2:rgba(255,255,255,.78); --muted:rgba(255,255,255,.6);
+    --ok:#7CF0B4; --warn:#FFC857; --danger:#FF7A7A;
+    --font:'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; min-height:100%}
+  body{font-family:var(--font); color:var(--ink); background:radial-gradient(1200px 700px at 15% -10%, #2A43D6 0%, transparent 60%), linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%); background-attachment:fixed; -webkit-font-smoothing:antialiased}
+  button,input,select{font:inherit}
+  [hidden]{display:none !important}
+
+  /* ---------- papan kode ---------- */
+  #board{min-height:100vh; display:flex; flex-direction:column; padding:clamp(16px,2.4vw,36px)}
+  .top{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin-bottom:clamp(16px,2.2vw,30px)}
+  .top h1{margin:0; font-size:clamp(22px,2.6vw,38px); font-weight:800; letter-spacing:-.02em}
+  .url{font-size:clamp(15px,1.6vw,22px); font-weight:600; color:var(--ink-2); padding:8px 14px; border-radius:12px; background:rgba(255,255,255,.1)}
+  .url b{color:var(--ink); font-weight:800}
+  .spacer{flex:1}
+  .clock{font-family:var(--mono); font-size:clamp(20px,2.2vw,32px); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+  .tools{display:flex; gap:8px; align-items:center}
+  .tools select,.tools button{height:40px; border-radius:10px; border:1px solid var(--card-line); background:rgba(255,255,255,.1); color:#fff; padding:0 12px; font-weight:700; font-size:14px; cursor:pointer}
+  .tools select option{color:#141A2E}
+  .tools button:hover,.tools select:hover{background:rgba(255,255,255,.18)}
+  .fs .tools{opacity:.0; transition:opacity .2s} .fs .top:hover .tools{opacity:1}
+
+  .grid{display:grid; gap:clamp(14px,1.6vw,24px); grid-template-columns:repeat(auto-fill, minmax(min(100%, 400px), 1fr)); align-content:start; flex:1}
+  .grid.n1{grid-template-columns:minmax(0, 1100px); justify-content:center; align-content:center}
+  .grid.n2{grid-template-columns:repeat(auto-fit, minmax(min(100%, 460px), 1fr)); align-content:center}
+  .card{position:relative; background:var(--card); border:1px solid var(--card-line); border-radius:22px; padding:clamp(18px,1.8vw,28px); display:flex; flex-direction:column; gap:6px; overflow:hidden; transition:opacity .4s, transform .4s}
+  .card.gone{opacity:0; transform:scale(.97)}
+  .meta{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+  .cls{font-size:clamp(15px,1.4vw,20px); font-weight:800; padding:4px 12px; border-radius:999px; background:#fff; color:var(--bg)}
+  .day{font-size:clamp(13px,1.1vw,16px); font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+  .closed{font-size:12.5px; font-weight:800; padding:3px 10px; border-radius:999px; background:rgba(255,200,87,.2); color:var(--warn)}
+  .title{font-size:clamp(17px,1.6vw,24px); font-weight:700; line-height:1.3; color:var(--ink-2); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em}
+  .code{font-family:var(--mono); font-weight:700; font-size:clamp(46px,5.4vw,96px); letter-spacing:.14em; line-height:1.05; margin:10px 0 8px; padding-left:.02em; white-space:nowrap}
+  .grid.n2 .code{font-size:clamp(56px,8vw,150px)}
+  .grid.n1 .code{font-size:clamp(72px,15vw,230px); text-align:center}
+  .grid.n1 .meta,.grid.n1 .left{justify-content:center; text-align:center}
+  .grid.n1 .title{text-align:center; min-height:0}
+  .nocode{font-size:clamp(15px,1.3vw,18px); color:var(--warn); font-weight:600; line-height:1.45; margin:14px 0 10px}
+  .bar{height:8px; border-radius:99px; background:rgba(255,255,255,.14); overflow:hidden}
+  .bar i{display:block; height:100%; border-radius:inherit; background:var(--ok); transition:width 1s linear, background .3s}
+  .left{display:flex; align-items:baseline; gap:10px; margin-top:8px; font-size:clamp(15px,1.4vw,21px); font-weight:600; color:var(--ink-2)}
+  .left b{font-family:var(--mono); font-size:1.25em; color:#fff; font-variant-numeric:tabular-nums}
+  .card.warn .bar i{background:var(--warn)} .card.warn .left b{color:var(--warn)}
+  .card.crit .bar i{background:var(--danger)} .card.crit .left b{color:var(--danger)}
+  .card.crit{animation:pulse 1s ease-in-out infinite alternate}
+  @keyframes pulse{to{border-color:rgba(255,122,122,.7)}}
+  @media (prefers-reduced-motion: reduce){ .card.crit{animation:none} .bar i{transition:none} }
+
+  .empty{flex:1; display:grid; place-items:center; text-align:center; padding:40px 16px}
+  .empty h2{font-size:clamp(24px,3vw,40px); margin:0 0 10px; font-weight:800}
+  .empty p{margin:0 auto; max-width:620px; color:var(--ink-2); font-size:clamp(15px,1.5vw,20px); line-height:1.55}
+  .status{margin-top:18px; font-size:13.5px; color:var(--muted); display:flex; gap:12px; flex-wrap:wrap}
+  .status .bad{color:var(--warn); font-weight:700}
+  @media (max-width:640px){ .tools{width:100%} .tools select{flex:1} .clock{order:-1} }
+</style>
+</head>
+<body>
+
+<!-- ================= PAPAN KODE ================= -->
+<main id="board">
+  <div class="top">
+    <h1>Kode masuk</h1>
+    <div class="url" id="url"></div>
+    <span class="spacer"></span>
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="tools">
+      <select id="fClass" aria-label="Tampilkan kelas"><option value="">Semua kelas</option></select>
+      <button type="button" id="fsBtn">Layar penuh</button>
+    </div>
+  </div>
+  <div class="grid" id="grid" aria-live="polite"></div>
+  <div class="status" id="status"></div>
+</main>
+
+<script src="config.js"></script>
+<script>
+(() => {
+  'use strict';
+  // Halaman ini hanya MEMBACA lewat satu fungsi publik (public_codes) memakai kunci anon/publishable
+  // yang memang publik di config.js. Tidak ada login, tidak ada data murid, dan tidak ada aksi tulis.
+  const CFG = window.LKM_CONFIG || {};
+  const SUPABASE_URL = String(CFG.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+  const SUPABASE_KEY = String(CFG.SUPABASE_KEY || '').trim();
+  const CONFIG_OK = /^https?:\/\/[^\s/]+/.test(SUPABASE_URL) && SUPABASE_KEY && !/GANTI/.test(SUPABASE_URL + SUPABASE_KEY);
+  const REFRESH_MS = 15000;
+  const $ = (id) => document.getElementById(id);
+  const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const mmss = (ms) => { const t = Math.max(0, Math.ceil(ms / 1000)), hh = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60; return (hh ? hh + ':' + pad(m) : m) + ':' + pad(s); };
+  const hhmm = (d) => new Date(d).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const store = {
+    get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+
+  // alamat untuk murid: folder yang sama dengan halaman ini
+  const site = new URL('./', location.href);
+  $('url').innerHTML = 'Buka <b>' + h(site.host + site.pathname.replace(/\/$/, '')) + '</b>';
+
+  let codes = [], on = true, offset = 0, lastOk = 0, failing = '', timer = null, wake = null, loaded = false;
+
+  if (!CONFIG_OK) {
+    $('grid').innerHTML = '<div class="empty"><div><h2>Halaman belum siap</h2><p>' +
+      (window.LKM_CONFIG ? 'Isi SUPABASE_URL dan SUPABASE_KEY di config.js terlebih dulu.' : 'File config.js tidak ditemukan. Unggah token.html ke folder yang sama dengan config.js.') + '</p></div></div>';
+    return;
+  }
+
+  /* ---------- data: satu panggilan baca ---------- */
+  const okCode = (c) => c && typeof c === 'object' && typeof c.code === 'string' && /^[A-Z0-9]{4,12}$/.test(c.code)
+    && !isNaN(Date.parse(c.expires_at)) && !isNaN(Date.parse(c.created_at));
+  async function load() {
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000), t0 = Date.now();
+    try {
+      const r = await fetch(SUPABASE_URL + '/rest/v1/rpc/public_codes', {
+        method: 'POST', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer', signal: ctl.signal,
+        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: '{}',
+      });
+      if (r.status === 404) throw new Error('Fungsi public_codes belum ada. Guru perlu menjalankan schema.sql terbaru.');
+      if (!r.ok) throw new Error('Server menolak (' + r.status + ').');
+      const d = await r.json();
+      if (!d || isNaN(Date.parse(d.now)) || !Array.isArray(d.codes)) throw new Error('Jawaban server tidak dikenali.');
+      // jam server dipakai untuk hitung mundur, supaya tepat walau jam laptop meleset
+      offset = Date.parse(d.now) - (t0 + Date.now()) / 2;
+      codes = d.codes.filter(okCode); on = d.on !== false;
+      lastOk = Date.now(); failing = ''; loaded = true;
+    } catch (e) {
+      failing = e.name === 'AbortError' || /fetch|network/i.test(e.message) ? 'Tidak bisa terhubung ke server.' : e.message;
+    } finally { clearTimeout(to); }
+  }
+  async function refresh() { await load(); render(); }
+  function schedule() {
+    clearTimeout(timer);
+    // sedikit acak supaya laptop satu kelas tidak meminta data di detik yang sama
+    timer = setTimeout(async () => { if (!document.hidden) await refresh(); schedule(); }, REFRESH_MS + Math.random() * 3000);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { refresh(); keepAwake(); } });
+  async function keepAwake() { try { if ('wakeLock' in navigator && !wake && !document.hidden) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => (wake = null)); } } catch {} }
+
+  /* ---------- tampilan ---------- */
+  const now = () => Date.now() + offset;
+  function render() {
+    const sel = $('fClass'), want = store.get('tok_class');
+    const cls = [...new Set(codes.map((c) => String(c.class || '')))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+    sel.innerHTML = '<option value="">Semua kelas</option>' + cls.map((c) => '<option' + (c === want ? ' selected' : '') + '>' + h(c) + '</option>').join('');
+    const f = cls.includes(want) ? want : '';
+    const list = codes.filter((c) => (!f || c.class === f) && Date.parse(c.expires_at) > now());
+    const grid = $('grid');
+    grid.className = 'grid' + (list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : '');
+    if (!loaded) {
+      grid.innerHTML = '<div class="empty"><div><h2>Memuat kode…</h2><p>' + h(failing || 'Sebentar.') + '</p></div></div>';
+    } else if (!on) {
+      grid.innerHTML = '<div class="empty"><div><h2>Kode tidak ditayangkan di sini</h2><p>Guru sedang mematikan penayangan kode. Lihat kode yang ditunjukkan guru di kelas.</p></div></div>';
+    } else if (!list.length) {
+      grid.innerHTML = '<div class="empty"><div><h2>Belum ada kode yang berlaku' + (f ? ' untuk ' + h(f) : '') + '</h2>' +
+        '<p>Tunggu guru membuka misi. Kode akan muncul di sini dengan sendirinya, tidak perlu memuat ulang halaman.</p></div></div>';
+    } else {
+      grid.innerHTML = list.map((c) =>
+        '<article class="card" data-exp="' + h(c.expires_at) + '" data-start="' + h(c.created_at) + '">' +
+          '<div class="meta"><span class="cls">' + h(c.class) + '</span>' + (c.day ? '<span class="day">' + h(c.day) + '</span>' : '') + '</div>' +
+          '<div class="title">' + h(c.title) + '</div>' +
+          '<div class="code" aria-label="Kode ' + h(c.code.split('').join(' ')) + '">' + h(c.code) + '</div>' +
+          '<div class="bar"><i></i></div>' +
+          '<div class="left"><span>Berlaku</span><b>--:--</b><span>lagi · sampai ' + hhmm(c.expires_at) + '</span></div></article>').join('');
+    }
+    $('status').innerHTML = (failing && loaded ? '<span class="bad">' + h(failing) + ' Mencoba lagi…</span>' : '') +
+      '<span>Diperbarui otomatis' + (lastOk ? ', terakhir ' + new Date(lastOk).toLocaleTimeString('id-ID') : '') + '. Kode hanya berlaku untuk kelas yang tertulis, bersama nama dan tanggal lahirmu.</span>';
+    tick();
+  }
+  function tick() {
+    const n = now();
+    $('clock').textContent = new Date(n).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
+    let expired = false;
+    document.querySelectorAll('.card').forEach((el) => {
+      const exp = Date.parse(el.dataset.exp), st = Date.parse(el.dataset.start), left = exp - n;
+      el.querySelector('.left b').textContent = mmss(left);
+      el.querySelector('.bar i').style.width = Math.max(0, Math.min(100, (left / Math.max(1, exp - st)) * 100)) + '%';
+      el.classList.toggle('warn', left <= 120000 && left > 30000);
+      el.classList.toggle('crit', left <= 30000);
+      if (left <= 0 && !el.classList.contains('gone')) { el.classList.add('gone'); expired = true; }
+    });
+    if (expired) setTimeout(render, 450);
+  }
+  $('fClass').onchange = () => { store.set('tok_class', $('fClass').value); render(); };
+  $('fsBtn').onclick = async () => {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch {}
+  };
+  document.addEventListener('fullscreenchange', () => {
+    document.body.classList.toggle('fs', !!document.fullscreenElement);
+    $('fsBtn').textContent = document.fullscreenElement ? 'Keluar layar penuh' : 'Layar penuh';
+  });
+
+  render();
+  refresh().then(schedule);
+  setInterval(tick, 1000);
+  keepAwake();
+})();
+</script>
+</body>
+</html>

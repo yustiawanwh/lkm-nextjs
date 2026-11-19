@@ -967,7 +967,7 @@
           <option value="5">5 menit</option><option value="10">10 menit</option><option value="15" selected>15 menit</option><option value="30">30 menit</option><option value="60">60 menit</option></select></div>
         <button class="btn btn-primary" type="submit" style="height:40px">Buat kode</button>
       </form>
-      <div class="notice info"><svg><use href="#i-alert"/></svg><span>Satu kode untuk satu kelas dan satu lembar kerja. Kode hanya tampil di perangkat yang membuatnya, dan kode baru mematikan kode lama untuk pasangan yang sama. Murid yang sudah mulai tidak terpengaruh saat kode kedaluwarsa atau ditutup. Untuk menghentikan akses murid, tutup lembar kerjanya di menu Lembar kerja.</span></div>
+      <div class="notice info"><svg><use href="#i-alert"/></svg><span>Satu kode untuk satu kelas dan satu lembar kerja. Kode baru mematikan kode lama untuk pasangan yang sama. Semua kode yang berlaku juga tampil di <a href="token.html" target="_blank" rel="noopener"><strong>token.html</strong></a>, yang bisa dibuka murid tanpa login (bisa dimatikan di Pengaturan). Murid yang sudah mulai tidak terpengaruh saat kode kedaluwarsa atau ditutup. Untuk menghentikan akses murid, tutup lembar kerjanya di menu Lembar kerja.</span></div>
       <h2 class="section-title">Kode yang berlaku</h2>
       <div class="panel table-wrap" id="codeList"></div>
     </section>
@@ -2136,6 +2136,8 @@
       '<div class="help">0 = tanpa potongan, hasil susulan hanya diberi label. Contoh 20: langkah susulan bernilai 80 menjadi 64. Potongan hanya untuk langkah yang dikerjakan lewat susulan, dan nilai aslinya tetap ditampilkan. Mengubah angka ini langsung berlaku untuk semua nilai.</div></div>' +
       '<div class="field"><label class="lbl" for="stSw">Batas pindah misi per murid per hari</label><div class="dur"><input class="input" id="stSw" type="number" min="0" max="50" step="1" placeholder="tanpa batas" value="' + (T.switch_limit == null ? '' : T.switch_limit) + '"> kali</div>' +
       '<div class="help">Hanya satu misi yang waktunya berjalan untuk setiap murid, yaitu misi yang terakhir ia buka; misi lain yang belum selesai berhenti dan sisa waktunya disimpan. Setiap pindah dari misi yang masih berjalan ke misi lain dicatat dan terlihat di Pantau dan Dashboard. Kosongkan untuk tanpa batas; 0 = murid tidak boleh pindah sebelum misinya selesai.</div></div>' +
+      '<div class="field"><label class="switch set-switch"><input type="checkbox" id="stPub"' + (T.public_codes !== false ? ' checked' : '') + '>Tayangkan kode di token.html</label>' +
+      '<div class="help">Murid bisa melihat kode yang sedang berlaku di <a href="token.html" target="_blank" rel="noopener">token.html</a> dari laptopnya masing-masing, tanpa login, lengkap dengan hitung mundurnya. Yang tampil hanya kelas, judul misi, kode, dan batas waktunya. Untuk kelas yang punya jadwal, kode disembunyikan di luar jam sekolah. Matikan bila kode hanya ingin ditunjukkan di kelas.</div></div>' +
       '<button class="btn btn-primary" id="stSave">Simpan</button></section>' +
       // 2. jadwal per kelas
       '<section class="panel set-card set-wide"><div class="set-head"><h2>Jadwal per kelas</h2>' +
@@ -2176,7 +2178,7 @@
       const pen = Number($('stPen').value), swv = $('stSw').value.trim(), sw = swv === '' ? null : Number(swv);
       if (!(pen >= 0 && pen <= 100)) { toast('Potongan nilai 0 sampai 100 persen.', 'err'); return; }
       if (sw != null && !(Number.isInteger(sw) && sw >= 0 && sw <= 50)) { toast('Batas pindah misi 0 sampai 50 kali, atau kosongkan.', 'err'); return; }
-      await run('t_save_settings', { p_schedule_on: $('stOn').checked, p_penalty: pen, p_switch_limit: sw }, 'Pengaturan disimpan.').catch(() => {});
+      await run('t_save_settings', { p_schedule_on: $('stOn').checked, p_penalty: pen, p_switch_limit: sw, p_public_codes: $('stPub').checked }, 'Pengaturan disimpan.').catch(() => {});
       await refreshOverview(); loadSettings();
     };
     if ($('stClass')) $('stClass').onchange = () => { S.setClass = $('stClass').value; renderSettings(); };
@@ -3502,6 +3504,8 @@
       : '<span class="muted">Belum ada kelas. Tambahkan murid dulu.</span>';
 
     const codes = S.overview.codes || [];
+    // kode yang dibuat di perangkat lain kini juga dikirim server
+    codes.forEach((c) => { if (c.code) S.codes[codeKey(c.class, c.worksheet_id)] = { code: c.code, expires_at: c.expires_at, title: c.title }; });
     if (!codes.length) {
       $('codeList').innerHTML = '<div class="empty"><strong>Belum ada kode yang berlaku</strong>Pilih lembar kerja dan kelas di atas, lalu buat kodenya.</div>';
     } else {
@@ -3511,7 +3515,7 @@
           const known = mine && sameTime(mine.expires_at, c.expires_at);
           return '<tr data-c="' + h(c.class) + '" data-w="' + c.worksheet_id + '"><td style="white-space:nowrap"><strong>' + h(c.class) + '</strong></td>' +
             '<td>' + h(c.title) + (c.is_active ? '' : ' <span class="pill warn">Ditutup</span>') + '</td>' +
-            '<td>' + (known ? '<span class="code-cell">' + h(mine.code) + '</span>' : '<span class="muted" style="font-size:13px">Dibuat di perangkat lain</span>') + '</td>' +
+            '<td>' + (known ? '<span class="code-cell">' + h(mine.code) + '</span>' : '<span class="muted" style="font-size:13px">Dibuat sebelum pembaruan</span>') + '</td>' +
             '<td>sampai ' + clock(c.expires_at) + '<div class="bar-label"><span class="time" data-exp="' + c.expires_at + '"></span></div></td>' +
             '<td class="act">' + (known ? '<button class="btn btn-sm" data-a="show"><svg><use href="#i-screen"/></svg><span class="hide-sm">Tampilkan di layar</span></button> ' : '<button class="btn btn-sm" data-a="renew">Kode baru</button> ') +
             '<button class="btn btn-danger btn-sm" data-a="close">Tutup</button></td></tr>';
