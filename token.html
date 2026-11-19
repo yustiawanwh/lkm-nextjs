@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <!-- Keamanan: hanya skrip & gaya di file ini (dikunci dengan hash), config.js, font Google, dan koneksi HTTPS ke Supabase.
      Bila isi skrip atau gaya di file ini diubah, hash di bawah harus diperbarui. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-TI/w0Vl0rBYjbhiBkxzxhK/Lxc3YGGSBBsspFt0H4Ps='; style-src 'sha256-Y2W5OqUWojMjDmQBoWnTT0fKLdcnNoYgICDgljIjMk8=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-TULYdqu9St+m21uBnDowNiBxPSiRfoeY1n+0OxsF+BU='; style-src 'sha256-NlfT6ngxHcf/EENhrBSCC5p6drQR1bD8PjBeJMye/Pw=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Kode Masuk · Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,6 +65,7 @@
   @keyframes pulse{to{border-color:rgba(255,122,122,.7)}}
   @media (prefers-reduced-motion: reduce){ .card.crit{animation:none} .bar i{transition:none} }
 
+  .grid.is-empty{display:flex; align-items:center; justify-content:center}
   .empty{flex:1; display:grid; place-items:center; text-align:center; padding:40px 16px}
   .empty h2{font-size:clamp(24px,3vw,40px); margin:0 0 10px; font-weight:800}
   .empty p{margin:0 auto; max-width:620px; color:var(--ink-2); font-size:clamp(15px,1.5vw,20px); line-height:1.55}
@@ -161,7 +162,7 @@
     const f = cls.includes(want) ? want : '';
     const list = codes.filter((c) => (!f || c.class === f) && Date.parse(c.expires_at) > now());
     const grid = $('grid');
-    grid.className = 'grid' + (list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : '');
+    grid.className = 'grid' + (!loaded || !on || !list.length ? ' is-empty' : list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : '');
     if (!loaded) {
       grid.innerHTML = '<div class="empty"><div><h2>Memuat kode…</h2><p>' + h(failing || 'Sebentar.') + '</p></div></div>';
     } else if (!on) {
