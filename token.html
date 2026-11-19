@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <!-- Keamanan: hanya skrip & gaya di file ini (dikunci dengan hash), config.js, font Google, dan koneksi HTTPS ke Supabase.
-     Bila isi <script> atau <style> diubah, hash di bawah harus diperbarui. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XyGMIU/RImfD8pjn4GxDO3l1r0AN8rXfgCS9B8OzRtc='; style-src 'sha256-MyrtstCsu+eznZi9UMK9yw29S9+1l1nt14phEFKUIqI=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+     Bila isi skrip atau gaya di file ini diubah, hash di bawah harus diperbarui. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-TI/w0Vl0rBYjbhiBkxzxhK/Lxc3YGGSBBsspFt0H4Ps='; style-src 'sha256-Y2W5OqUWojMjDmQBoWnTT0fKLdcnNoYgICDgljIjMk8=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Kode Masuk · Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,8 +31,6 @@
   #board{min-height:100vh; display:flex; flex-direction:column; padding:clamp(16px,2.4vw,36px)}
   .top{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin-bottom:clamp(16px,2.2vw,30px)}
   .top h1{margin:0; font-size:clamp(22px,2.6vw,38px); font-weight:800; letter-spacing:-.02em}
-  .url{font-size:clamp(15px,1.6vw,22px); font-weight:600; color:var(--ink-2); padding:8px 14px; border-radius:12px; background:rgba(255,255,255,.1)}
-  .url b{color:var(--ink); font-weight:800}
   .spacer{flex:1}
   .clock{font-family:var(--mono); font-size:clamp(20px,2.2vw,32px); font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em}
   .tools{display:flex; gap:8px; align-items:center}
@@ -81,7 +79,6 @@
 <main id="board">
   <div class="top">
     <h1>Kode masuk</h1>
-    <div class="url" id="url"></div>
     <span class="spacer"></span>
     <div class="clock" id="clock">--:--:--</div>
     <div class="tools">
@@ -114,9 +111,6 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
 
-  // alamat untuk murid: folder yang sama dengan halaman ini
-  const site = new URL('./', location.href);
-  $('url').innerHTML = 'Buka <b>' + h(site.host + site.pathname.replace(/\/$/, '')) + '</b>';
 
   let codes = [], on = true, offset = 0, lastOk = 0, failing = '', timer = null, wake = null, loaded = false;
 
