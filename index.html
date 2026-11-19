@@ -185,6 +185,7 @@
     margin:4px 0 16px;
   }
   .alert svg{width:18px; height:18px; flex:none; margin-top:2px}
+  .alert.info{background:var(--accent-soft, #eef1ff); color:var(--ink, #1a1f36); border-color:transparent}
   .login-card .btn{width:100%}
   .fineprint{font-size:13px; color:var(--muted); margin:14px 0 0; text-align:center}
 
@@ -435,6 +436,14 @@
   .break-clock[hidden] + .break-until{margin-top:22px; font-size:16px; font-weight:700; color:var(--ink-2)}
   .mk-chip{flex:none; font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#8a4b00; background:#fff1dc; border:1px solid #f4cf98; padding:3px 9px; border-radius:999px; margin-left:10px}
   @media (prefers-color-scheme: dark){ .mk-chip{color:#ffd08a; background:#33260f; border-color:#6b4a14} }
+  .mk-sheet{max-width:520px}
+  .mk-sheet h2{margin:10px 0 8px}
+  .mk-sheet p{margin:0 0 12px; color:var(--ink-2); line-height:1.55}
+  .mk-badge{display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#8a4b00; background:#fff1dc; border:1px solid #f4cf98; padding:3px 10px; border-radius:999px}
+  .mk-list{margin:0 0 20px; padding-left:20px; line-height:1.55; font-size:14.5px}
+  .mk-list li{margin-bottom:6px}
+  .mk-actions{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px}
+  @media (prefers-color-scheme: dark){ .mk-badge{color:#ffd08a; background:#33260f; border-color:#6b4a14} }
   #hereBtn{margin-top:20px}
   #hereMsg{margin:12px 0 0; color:var(--danger)}
   .break-keep{margin-top:22px; padding:12px 16px; border-radius:12px; background:var(--surface-2); color:var(--ink-2); font-size:14px; font-weight:600}
@@ -720,6 +729,20 @@
   </div>
 </div>
 
+<!-- konfirmasi susulan (kode susulan kelas) -->
+<div class="overlay" id="mkDlg" role="alertdialog" aria-modal="true" aria-labelledby="mkTitle" aria-describedby="mkText">
+  <div class="sheet mk-sheet">
+    <span class="mk-badge">Susulan</span>
+    <h2 id="mkTitle">Kerjakan susulan sekarang?</h2>
+    <p id="mkText"></p>
+    <ul class="mk-list" id="mkList"></ul>
+    <div class="mk-actions">
+      <button class="btn btn-ghost" type="button" id="mkNo">Tidak, nanti saja</button>
+      <button class="btn btn-primary" type="button" id="mkYes">Ya, kerjakan susulan</button>
+    </div>
+  </div>
+</div>
+
 <!-- waktu habis -->
 <div class="overlay" id="lock" role="alertdialog" aria-modal="true" aria-labelledby="lTitle">
   <div class="sheet lock-sheet">
@@ -777,9 +800,10 @@
   const sessMsg = (e) => (/account_disabled/.test((e && e.message) || '') ? 'Akunmu dinonaktifkan guru. Hubungi gurumu.' : SESSION_GONE);
   const HEARTBEAT_MS = 15000;     // cek status ke server: lembar kerja ditutup, akun dinonaktifkan, sisa waktu
 
-  function setLoginMsg(t) {
+  function setLoginMsg(t, kind) {
     const box = $('loginMsg');
     box.querySelector('span').textContent = t || '';
+    box.classList.toggle('info', kind === 'info');
     box.hidden = !t;
   }
 
@@ -990,7 +1014,17 @@
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Memeriksa…';
     setLoginMsg('');
     try {
-      const r = await rpc('login', { p_name: name, p_class: cls, p_password: pass, p_code: code });
+      let r = await rpc('login', { p_name: name, p_class: cls, p_password: pass, p_code: code });
+      // kode susulan kelas: murid harus mengonfirmasi dulu; tanpa konfirmasi tidak ada yang berubah
+      if (r && r.confirm_makeup) {
+        const yes = await askMakeup(r.confirm_makeup);
+        if (!yes) {
+          setLoginMsg('Kamu tidak mengerjakan susulan. Waktumu tetap berhenti dan berjalan lagi sesuai jadwal kelas atau saat guru melanjutkan.', 'info');
+          return;
+        }
+        btn.innerHTML = '<span class="spinner"></span>Memulai susulan…';
+        r = await rpc('login', { p_name: name, p_class: cls, p_password: pass, p_code: code, p_makeup_ok: true });
+      }
       if (r.error) {
         setLoginMsg(LOGIN_ERR[r.error] || 'Gagal masuk. Coba lagi.');
         if (r.error === 'invalid_code' || r.error === 'class_closed') $('fCode').select();
@@ -1007,6 +1041,28 @@
       btn.disabled = false; btn.textContent = 'Masuk dan mulai';
     }
   });
+
+  // popup konfirmasi susulan; true = Ya
+  function askMakeup(c) {
+    return new Promise((resolve) => {
+      const until = new Date(c.until).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      $('mkText').textContent = 'Misi "' + c.worksheet + '". ' + (c.started
+        ? 'Kamu akan melanjutkan dari langkah ' + c.step_index + ' dari ' + c.total + ' dengan sisa waktu yang tersimpan.'
+        : 'Kamu belum memulai misi ini, jadi kamu mulai dari langkah 1 dari ' + c.total + '.');
+      const items = [
+        'Begitu kamu menekan Ya, waktumu langsung berjalan terus sampai misi ini selesai. Waktu tidak bisa dihentikan lagi.',
+        'Semua langkah yang kamu kerjakan sekarang ditandai Susulan' + (Number(c.penalty) > 0 ? ', dan nilainya dipotong ' + String(Number(c.penalty)).replace('.', ',') + '%.' : '.'),
+        'Kode susulan ini berlaku sampai ' + until + '.',
+        'Kalau memilih Tidak, waktumu tetap berhenti dan berjalan lagi sesuai jadwal kelas atau saat guru melanjutkan.',
+      ];
+      $('mkList').innerHTML = items.map((t) => '<li>' + esc(t) + '</li>').join('');
+      const dlg = $('mkDlg'); dlg.classList.add('on'); $('mkNo').focus();
+      const done = (v) => { dlg.classList.remove('on'); $('mkYes').onclick = $('mkNo').onclick = null; document.removeEventListener('keydown', key); resolve(v); };
+      const key = (e) => { if (e.key === 'Escape') done(false); };
+      $('mkYes').onclick = () => done(true); $('mkNo').onclick = () => done(false);
+      document.addEventListener('keydown', key);
+    });
+  }
 
   /* ---------- memuat & menampilkan keadaan dari server ---------- */
   // kembali ke misi ini dari layar "sedang di misi lain" (misi lain ganti berhenti)

@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <!-- Keamanan: hanya skrip & gaya di file ini (dikunci dengan hash), config.js, font Google, dan koneksi HTTPS ke Supabase.
      Bila isi skrip atau gaya di file ini diubah, hash di bawah harus diperbarui. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-TULYdqu9St+m21uBnDowNiBxPSiRfoeY1n+0OxsF+BU='; style-src 'sha256-NlfT6ngxHcf/EENhrBSCC5p6drQR1bD8PjBeJMye/Pw=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uQepPXvSv+aV/JtYZQkMgQn7yrpBBchdBTXQ5iDl2XY='; style-src 'sha256-Zp1aAkXuG4Fb6u0glOQ71cFK8Dd6I1/HgLOAGG7WTXI=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Kode Masuk · Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,13 @@
   .bar i{display:block; height:100%; border-radius:inherit; background:var(--ok); transition:width 1s linear, background .3s}
   .left{display:flex; align-items:baseline; gap:10px; margin-top:8px; font-size:clamp(15px,1.4vw,21px); font-weight:600; color:var(--ink-2)}
   .left b{font-family:var(--mono); font-size:1.25em; color:#fff; font-variant-numeric:tabular-nums}
+  /* kode susulan: kartu oranye, untuk dikerjakan di rumah */
+  .card.mk{background:linear-gradient(160deg, rgba(255,176,59,.22), rgba(255,140,40,.12)); border-color:rgba(255,200,120,.55)}
+  .card.mk .cls{background:#FFB547; color:#3A2200}
+  .mk-tag{font-size:clamp(12px,1vw,14px); font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:#FFB547; color:#3A2200}
+  .card.mk .code{color:#FFE1A8}
+  .card.mk .bar i{background:#FFB547}
+  .mk-note{font-size:clamp(13px,1.1vw,16px); color:#FFE1A8; font-weight:600; line-height:1.4}
   .card.warn .bar i{background:var(--warn)} .card.warn .left b{color:var(--warn)}
   .card.crit .bar i{background:var(--danger)} .card.crit .left b{color:var(--danger)}
   .card.crit{animation:pulse 1s ease-in-out infinite alternate}
@@ -107,6 +114,9 @@
   const pad = (n) => String(n).padStart(2, '0');
   const mmss = (ms) => { const t = Math.max(0, Math.ceil(ms / 1000)), hh = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60; return (hh ? hh + ':' + pad(m) : m) + ':' + pad(s); };
   const hhmm = (d) => new Date(d).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const until = (d) => { const x = new Date(d), t = new Date(now()); return x.toDateString() === t.toDateString() ? hhmm(d) : x.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }) + ', ' + hhmm(d); };
+  // sisa waktu: lebih dari sehari ditulis "2 hari 4 jam"
+  const leftTxt = (ms) => ms > 86400000 ? Math.floor(ms / 86400000) + ' hari ' + Math.floor((ms % 86400000) / 3600000) + ' jam' : mmss(ms);
   const store = {
     get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
@@ -171,13 +181,14 @@
       grid.innerHTML = '<div class="empty"><div><h2>Belum ada kode yang berlaku' + (f ? ' untuk ' + h(f) : '') + '</h2>' +
         '<p>Tunggu guru membuka misi. Kode akan muncul di sini dengan sendirinya, tidak perlu memuat ulang halaman.</p></div></div>';
     } else {
-      grid.innerHTML = list.map((c) =>
-        '<article class="card" data-exp="' + h(c.expires_at) + '" data-start="' + h(c.created_at) + '">' +
-          '<div class="meta"><span class="cls">' + h(c.class) + '</span>' + (c.day ? '<span class="day">' + h(c.day) + '</span>' : '') + '</div>' +
+      grid.innerHTML = list.map((c) => { const mk = c.kind === 'makeup';
+        return '<article class="card' + (mk ? ' mk' : '') + '" data-exp="' + h(c.expires_at) + '" data-start="' + h(c.created_at) + '">' +
+          '<div class="meta"><span class="cls">' + h(c.class) + '</span>' + (mk ? '<span class="mk-tag">Kode susulan</span>' : '') + (c.day ? '<span class="day">' + h(c.day) + '</span>' : '') + '</div>' +
           '<div class="title">' + h(c.title) + '</div>' +
-          '<div class="code" aria-label="Kode ' + h(c.code.split('').join(' ')) + '">' + h(c.code) + '</div>' +
+          '<div class="code" aria-label="Kode ' + (mk ? 'susulan ' : '') + h(c.code.split('').join(' ')) + '">' + h(c.code) + '</div>' +
+          (mk ? '<div class="mk-note">Untuk mengerjakan susulan dari rumah. Setelah menekan "Ya, kerjakan susulan", waktumu berjalan terus sampai misi selesai.</div>' : '') +
           '<div class="bar"><i></i></div>' +
-          '<div class="left"><span>Berlaku</span><b>--:--</b><span>lagi · sampai ' + hhmm(c.expires_at) + '</span></div></article>').join('');
+          '<div class="left"><span>Berlaku</span><b>--:--</b><span>lagi · sampai ' + h(until(c.expires_at)) + '</span></div></article>'; }).join('');
     }
     $('status').innerHTML = (failing && loaded ? '<span class="bad">' + h(failing) + ' Mencoba lagi…</span>' : '') +
       '<span>Diperbarui otomatis' + (lastOk ? ', terakhir ' + new Date(lastOk).toLocaleTimeString('id-ID') : '') + '. Kode hanya berlaku untuk kelas yang tertulis, bersama nama dan tanggal lahirmu.</span>';
@@ -189,10 +200,10 @@
     let expired = false;
     document.querySelectorAll('.card').forEach((el) => {
       const exp = Date.parse(el.dataset.exp), st = Date.parse(el.dataset.start), left = exp - n;
-      el.querySelector('.left b').textContent = mmss(left);
+      el.querySelector('.left b').textContent = leftTxt(left);
       el.querySelector('.bar i').style.width = Math.max(0, Math.min(100, (left / Math.max(1, exp - st)) * 100)) + '%';
-      el.classList.toggle('warn', left <= 120000 && left > 30000);
-      el.classList.toggle('crit', left <= 30000);
+      el.classList.toggle('warn', !el.classList.contains('mk') && left <= 120000 && left > 30000);
+      el.classList.toggle('crit', !el.classList.contains('mk') && left <= 30000);
       if (left <= 0 && !el.classList.contains('gone')) { el.classList.add('gone'); expired = true; }
     });
     if (expired) setTimeout(render, 450);

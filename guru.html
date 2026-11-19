@@ -778,6 +778,10 @@
   .spec-grid input[type="time"]{height:38px}
   .mk-code{font-family:var(--mono); font-size:44px; font-weight:800; letter-spacing:.18em; text-align:center; padding:18px; border-radius:14px; background:var(--accent-soft); color:var(--accent); margin:6px 0 16px}
   .modal-actions .spacer{flex:1}
+  .code-cell.mk{background:#FFF1DC; color:#8A4B00; padding:2px 10px; border-radius:8px}
+  .mk-notice{background:#FFF7EA; color:#6B3D00}
+  .mk-notice svg{color:#B86E00}
+  @media (prefers-color-scheme: dark){ .code-cell.mk{background:#33260F; color:#F2C46B} .mk-notice{background:#2A200F; color:#F2D9A8} .mk-notice svg{color:#F2C46B} }
   #mTable td.act .btn{margin:2px 0}
   .btn.on-mk{color:#8A4B00; background:#FFF1DC}
   @media (prefers-color-scheme: dark){ .btn.on-mk{color:#F2C46B; background:#33260F} }
@@ -970,6 +974,16 @@
       <div class="notice info"><svg><use href="#i-alert"/></svg><span>Satu kode untuk satu kelas dan satu lembar kerja. Kode baru mematikan kode lama untuk pasangan yang sama. Semua kode yang berlaku juga tampil di <a href="token.html" target="_blank" rel="noopener"><strong>token.html</strong></a>, yang bisa dibuka murid tanpa login (bisa dimatikan di Pengaturan). Murid yang sudah mulai tidak terpengaruh saat kode kedaluwarsa atau ditutup. Untuk menghentikan akses murid, tutup lembar kerjanya di menu Lembar kerja.</span></div>
       <h2 class="section-title">Kode yang berlaku</h2>
       <div class="panel table-wrap" id="codeList"></div>
+
+      <h2 class="section-title" style="margin-top:32px">Kode susulan per kelas</h2>
+      <form class="panel open-form mc-form" id="mcForm">
+        <div><label class="lbl" for="mcWs">Lembar kerja</label><select class="select" id="mcWs"></select></div>
+        <div><span class="lbl">Kelas</span><div class="chips" id="mcClasses"></div></div>
+        <div><label class="lbl" for="mcUntil">Berlaku sampai</label><input class="input" id="mcUntil" type="datetime-local"></div>
+        <button class="btn btn-primary" type="submit" style="height:40px">Buat kode susulan</button>
+      </form>
+      <div class="notice mk-notice"><svg><use href="#i-home"/></svg><span>Satu kode untuk semua murid satu kelas, untuk mengerjakan misi dari rumah. Saat masuk dengan kode ini, murid melihat popup <strong>"Kerjakan susulan sekarang?"</strong>. Yang menekan <strong>Ya</strong>: waktunya berjalan terus sampai misinya selesai, dan semua langkah yang dikerjakan ditandai Susulan. Yang tidak mengonfirmasi atau tidak memakai kode: waktunya tetap berhenti, lalu berjalan lagi sesuai jadwal kelas atau saat Anda melanjutkan. Kode susulan juga tampil di token.html dengan warna berbeda. Menutup kode tidak menghentikan murid yang sudah mulai susulan.</span></div>
+      <div class="panel table-wrap" id="mcList"></div>
     </section>
 
     <!-- PENGATURAN -->
@@ -3533,6 +3547,7 @@
         }
       }));
     }
+    renderMakeupCodes();
     clearInterval(codeTimer);
     const tick = () => {
       let expired = false;
@@ -3546,6 +3561,52 @@
     };
     tick(); codeTimer = setInterval(() => { if (S.view === 'codes') tick(); else clearInterval(codeTimer); }, 1000);
   }
+  /* ---------- kode susulan per kelas ---------- */
+  const leftLong = (ms) => { const m = Math.max(0, Math.round(ms / 60000)), d = Math.floor(m / 1440), hh = Math.floor((m % 1440) / 60), mm = m % 60;
+    return d ? d + ' hari ' + hh + ' jam' : hh ? hh + ' jam ' + mm + ' menit' : mm + ' menit'; };
+  function renderMakeupCodes() {
+    const ws = S.overview.worksheets.filter((w) => w.steps > 0);
+    const keep = $('mcWs').value || S.ws;
+    $('mcWs').innerHTML = ws.length ? wsOptions(ws, keep, () => '') : '<option value="">Belum ada lembar kerja yang punya langkah</option>';
+    const checked = new Set([...document.querySelectorAll('#mcClasses input:checked')].map((i) => i.value));
+    $('mcClasses').innerHTML = S.overview.classes.length ? S.overview.classes.map((c) =>
+      '<label class="chip"><input type="checkbox" value="' + h(c.class) + '"' + (checked.has(c.class) ? ' checked' : '') + '>' + h(c.class) + '</label>').join('')
+      : '<span class="muted">Belum ada kelas.</span>';
+    if (!$('mcUntil').value) { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(23, 59, 0, 0); $('mcUntil').value = dtLocal(d); }
+    const list = S.overview.makeup_codes || [];
+    $('mcList').innerHTML = !list.length ? '<div class="empty"><strong>Belum ada kode susulan</strong>Pilih lembar kerja, kelas, dan batas waktunya di atas.</div>'
+      : '<table class="tbl"><thead><tr><th>Kelas</th><th>Lembar kerja</th><th>Kode susulan</th><th>Berlaku sampai</th><th>Sudah mulai susulan</th><th class="act"></th></tr></thead><tbody>' +
+        list.map((c) => '<tr data-c="' + h(c.class) + '" data-w="' + c.worksheet_id + '"><td style="white-space:nowrap"><strong>' + h(c.class) + '</strong></td><td>' + h(c.title) + '</td>' +
+          '<td>' + (c.code ? '<span class="code-cell mk">' + h(c.code) + '</span>' : '-') + '</td>' +
+          '<td>' + h(whenLong(c.until)) + '<div class="bar-label">sisa ' + leftLong(new Date(c.until) - Date.now()) + '</div></td>' +
+          '<td class="num">' + c.used + ' murid</td>' +
+          '<td class="act"><button class="btn btn-ghost btn-sm" data-a="copy">Salin pesan</button> <button class="btn btn-danger btn-sm" data-a="close">Tutup</button></td></tr>').join('') + '</tbody></table>';
+    $('mcList').querySelectorAll('button[data-a]').forEach((b) => (b.onclick = async () => {
+      const tr = b.closest('tr'), c = list.find((x) => x.class === tr.dataset.c && x.worksheet_id === tr.dataset.w);
+      if (b.dataset.a === 'copy') {
+        const url = new URL('./', location.href), link = url.host + url.pathname.replace(/\/$/, '');
+        const msg = 'Kode susulan "' + c.title + '" untuk kelas ' + c.class + ': ' + c.code + '. Masuk di ' + link + ' dengan nama, kelas, tanggal lahir, dan kode ini, lalu tekan "Ya, kerjakan susulan". Waktu berjalan terus sampai misi selesai. Berlaku sampai ' + whenLong(c.until) + '.';
+        try { await navigator.clipboard.writeText(msg); toast('Pesan untuk kelas ' + c.class + ' disalin.', 'ok'); } catch { toast(msg, 'ok'); }
+      }
+      if (b.dataset.a === 'close') {
+        if (!(await confirmBox('Tutup kode susulan ' + c.class + '?', 'Murid baru tidak bisa memakai kode ini lagi. ' + (c.used ? c.used + ' murid yang sudah mulai susulan tetap bisa menyelesaikan misinya.' : ''), 'Tutup kode', true))) return;
+        await run('t_close_makeup_code', { p_ws: c.worksheet_id, p_class: c.class }, 'Kode susulan ' + c.class + ' ditutup.').catch(() => {});
+        await renderCodes();
+      }
+    }));
+  }
+  $('mcForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const wid = $('mcWs').value, classes = [...document.querySelectorAll('#mcClasses input:checked')].map((i) => i.value), u = $('mcUntil').value ? new Date($('mcUntil').value) : null;
+    if (!wid) { toast('Pilih lembar kerja yang sudah punya langkah.', 'err'); return; }
+    if (!classes.length) { toast('Pilih minimal satu kelas.', 'err'); return; }
+    if (!u || u <= Date.now() + 5 * 60000) { toast('Batas waktu harus di masa depan (lebih dari 5 menit lagi).', 'err'); return; }
+    const r = await run('t_open_makeup_codes', { p_ws: wid, p_classes: classes, p_until: u.toISOString() }).catch(() => null);
+    if (!r) return;
+    toast(r.length + ' kode susulan dibuat.', 'ok');
+    document.querySelectorAll('#mcClasses input').forEach((i) => (i.checked = false));
+    await renderCodes();
+  });
   async function makeCodes(wid, classes, minutes) {
     const w = S.overview.worksheets.find((x) => x.id === wid);
     let made = 0;
