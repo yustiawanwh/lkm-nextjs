@@ -778,6 +778,27 @@
   .spec-grid input[type="time"]{height:38px}
   .mk-code{font-family:var(--mono); font-size:44px; font-weight:800; letter-spacing:.18em; text-align:center; padding:18px; border-radius:14px; background:var(--accent-soft); color:var(--accent); margin:6px 0 16px}
   .modal-actions .spacer{flex:1}
+  .modal.fix{max-width:min(1080px, calc(100vw - 32px))}
+  .modal.jump{width:min(640px, 100%)}
+  .jump-grid{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; margin-top:14px}
+  .jump-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px}
+  .jall{display:inline-flex; gap:8px; align-items:center; font-size:13px; font-weight:600; cursor:pointer}
+  .jump-list{max-height:44vh; overflow:auto; border:1px solid var(--line); border-radius:12px}
+  .jrow{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); cursor:pointer; font-size:14px}
+  .jrow:last-child{border-bottom:0}
+  .jrow:hover{background:var(--surface-2, rgba(0,0,0,.03))}
+  .jall input,.jrow input{width:17px; height:17px; accent-color:var(--accent); margin:0}
+  @media (max-width:640px){ .jump-grid{grid-template-columns:1fr} }
+  .fix-form{display:grid; grid-template-columns:150px 110px 110px minmax(0,1.4fr) minmax(0,1fr) auto; gap:10px; align-items:end; margin-top:14px}
+  .fix-form label{display:grid; gap:6px; font-size:13px; font-weight:600}
+  .fix-form .input,.fix-form .select{height:40px}
+  .fix-form .btn{height:40px}
+  .fix-tbl{max-height:52vh; overflow:auto; border:1px solid var(--line); border-radius:12px}
+  .fix-tbl tr.off td{color:var(--muted)}
+  .fix-tbl input[type=checkbox]{width:17px; height:17px; accent-color:var(--accent)}
+  .fix-note{font-size:12.5px; line-height:1.45; min-width:180px}
+  .warn-t{color:var(--warn); font-weight:700}
+  @media (max-width:860px){ .fix-form{grid-template-columns:1fr 1fr} .fix-form .btn{grid-column:1 / -1} }
   .code-cell.mk{background:#FFF1DC; color:#8A4B00; padding:2px 10px; border-radius:8px}
   .mk-notice{background:#FFF7EA; color:#6B3D00}
   .mk-notice svg{color:#B86E00}
@@ -898,6 +919,8 @@
         <input class="input" id="mSearch" type="search" placeholder="Cari nama…" aria-label="Cari nama">
         <span class="spacer"></span>
         <span class="stamp" id="mStamp"></span>
+        <button class="btn btn-ghost" id="mJump" title="Pindahkan murid ke langkah tertentu di lembar kerja ini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Kembalikan ke langkah</button>
+        <button class="btn btn-ghost" id="mFix" title="Kembalikan waktu murid untuk rentang yang seharusnya berhenti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Koreksi waktu</button>
         <button class="btn btn-ghost" id="mPause" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>Istirahat</button>
       </div>
       <div class="panel table-wrap freeze" id="mTable"></div>
@@ -1999,6 +2022,7 @@
         : r.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>') +
         (mk ? ' <span class="pill mk" title="Akses susulan sampai ' + h(whenLong(r.makeup.until)) + '">Susulan</span>'
           : r.makeup_steps ? ' <span class="pill mk plain" title="' + r.makeup_steps + ' langkah dikerjakan lewat susulan">Susulan</span>' : '') +
+ (r.jumps ? ' <span class="pill plain" title="Pernah dikembalikan ke langkah tertentu atau dikoreksi waktunya oleh guru (' + r.jumps + ' kali)">Dikoreksi</span>' : '') +
         (r.switches_today ? ' <span class="pill ' + (r.switches_today >= 3 ? 'warn' : 'plain') + '" title="Pindah misi hari ini ' + r.switches_today + ' kali (total ' + r.switches + ' kali)">Pindah ' + r.switches_today + 'x</span>' : '');
     };
     const bar = (r) => {
@@ -2079,6 +2103,105 @@
       await run('t_reset_session', { p_student: id, p_ws: S.ws }, 'Pengerjaan ' + r.name + ' diulang.').catch(() => {});
     }
     pollMonitor();
+  }
+  /* ---------- kembalikan murid ke langkah tertentu ---------- */
+  $('mJump').onclick = () => jumpModal();
+  async function jumpModal() {
+    const m = S.monitor; if (!m) return;
+    const w = S.overview.worksheets.find((x) => x.id === S.ws) || {};
+    let st; try { st = (await api('t_steps', { p_ws: S.ws })).steps || []; } catch (e) { toast(errMsg(e), 'err'); return; }
+    const cls = $('mClass').value, started = m.students.filter((x) => x.status !== 'not_started' && (!cls || x.class === cls));
+    const mins = (sec) => (sec % 60 ? (sec / 60).toFixed(1).replace('.', ',') : sec / 60) + ' menit';
+    const box = openModal('<h2>Kembalikan ke langkah</h2><p class="sub">' + h(w.title || '') + '. Murid dipindah ke langkah yang dipilih. <strong>Semua jawaban tetap tersimpan</strong>, dan langkah sesudahnya tetap berdurasi penuh. Misi yang sudah selesai juga bisa dibuka lagi dengan cara ini.</p>' +
+      (!started.length ? '<p class="muted">Belum ada murid' + (cls ? ' ' + h(cls) : '') + ' yang mulai mengerjakan lembar kerja ini.</p><div class="modal-actions"><button class="btn btn-primary" data-x="no">Tutup</button></div>' :
+      '<div class="jump-grid"><div class="field"><label class="lbl" for="jStep">Ke langkah</label><select class="select" id="jStep">' +
+        st.map((x, i) => '<option value="' + x.pos + '" data-sec="' + x.duration_seconds + '">L' + (i + 1) + '. ' + h(x.title) + ' (' + mins(x.duration_seconds) + ')</option>').join('') + '</select></div>' +
+      '<div class="field"><span class="lbl">Sisa waktu di langkah itu</span><div class="seg-ctl"><label><input type="radio" name="jT" value="full" checked>Penuh</label><label><input type="radio" name="jT" value="set">Atur sendiri</label></div>' +
+        '<div class="dur" id="jMinWrap" style="margin-top:8px" hidden><input class="input" id="jMin" type="number" min="1" max="360" value="5"> menit</div></div></div>' +
+      '<div class="field"><div class="jump-head"><span class="lbl">Murid (' + started.length + ')</span><label class="jall"><input type="checkbox" id="jAll">Pilih semua</label></div>' +
+        '<div class="jump-list">' + started.map((x) => '<label class="jrow"><input type="checkbox" value="' + x.student_id + '"><span><strong>' + h(x.name) + '</strong> <span class="muted">' + h(x.class) + '</span></span><span class="muted">' +
+          (x.status === 'finished' ? 'Selesai' : 'L' + x.step_index + ' dari ' + m.total) + '</span></label>').join('') + '</div></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" id="jGo" disabled>Kembalikan</button></div>'), true);
+    box.classList.add('jump');
+    box.querySelectorAll('[data-x="no"]').forEach((b) => (b.onclick = () => closeModal(false)));
+    if (!started.length) return;
+    const picked = () => [...box.querySelectorAll('.jump-list input:checked')].map((i) => i.value);
+    const label = () => { const n = picked().length, o = $('jStep').selectedOptions[0]; $('jGo').disabled = !n; $('jGo').textContent = n ? 'Kembalikan ' + n + ' murid ke ' + o.textContent.split('.')[0] : 'Kembalikan'; };
+    box.querySelectorAll('.jump-list input').forEach((i) => (i.onchange = label));
+    $('jAll').onchange = () => { box.querySelectorAll('.jump-list input').forEach((i) => (i.checked = $('jAll').checked)); label(); };
+    $('jStep').onchange = label;
+    box.querySelectorAll('input[name="jT"]').forEach((i) => (i.onchange = () => ($('jMinWrap').hidden = box.querySelector('input[name="jT"]:checked').value !== 'set')));
+    $('jGo').onclick = async () => {
+      const ids = picked(); if (!ids.length) return;
+      const set = box.querySelector('input[name="jT"]:checked').value === 'set', mn = Number($('jMin').value);
+      if (set && !(mn >= 1 && mn <= 360)) { toast('Sisa waktu 1 sampai 360 menit.', 'err'); return; }
+      $('jGo').disabled = true;
+      const r = await run('t_set_step', { p_ws: S.ws, p_students: ids, p_pos: Number($('jStep').value), p_seconds: set ? Math.round(mn * 60) : null }).catch(() => null);
+      if (!r) { $('jGo').disabled = false; return; }
+      closeModal(true);
+      toast(r.done + ' murid dikembalikan ke ' + $('jStep').selectedOptions[0].textContent.split('.')[0] + '.', 'ok');
+      pollMonitor();
+    };
+  }
+
+  /* ---------- koreksi waktu: kembalikan waktu yang terlanjur berjalan di rentang tertentu ---------- */
+  $('mFix').onclick = () => fixModal();
+  function fixModal() {
+    const today = dtLocal(new Date()).slice(0, 10);
+    const wsOpts = '<option value="">Semua lembar kerja</option>' + S.overview.worksheets.filter((w) => w.steps > 0).map((w) => '<option value="' + w.id + '">' + h(w.title) + '</option>').join('');
+    const clsOpts = '<option value="">Semua kelas</option>' + S.overview.classes.map((c) => '<option>' + h(c.class) + '</option>').join('');
+    const box = openModal('<h2>Koreksi waktu</h2><p class="sub">Untuk rentang waktu yang seharusnya berhenti tetapi timer murid terlanjur berjalan, misalnya karena jam pulang salah diatur. Rentang itu diperlakukan seolah-olah istirahat: sisa waktu dikembalikan, dan langkah yang habis sendiri di rentang itu dibuka lagi. <strong>Jawaban murid tidak diubah.</strong></p>' +
+      '<div class="fix-form"><label>Tanggal<input class="input" type="date" id="fxDay" value="' + today + '"></label>' +
+      '<label>Dari jam<input class="input" type="time" id="fxFrom"></label><label>Sampai jam<input class="input" type="time" id="fxTo"></label>' +
+      '<label>Lembar kerja<select class="select" id="fxWs">' + wsOpts + '</select></label><label>Kelas<select class="select" id="fxCls">' + clsOpts + '</select></label>' +
+      '<button class="btn btn-primary" id="fxPrev">Lihat pratinjau</button></div>' +
+      '<div id="fxOut"></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Tutup</button><button class="btn btn-primary" id="fxApply" disabled>Kembalikan waktu</button></div>', true);
+    box.classList.add('fix');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    let plan = null, range = null;
+    const t = (sec) => { sec = Math.max(0, sec | 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); };
+    const count = () => { const n = box.querySelectorAll('#fxOut input[data-sid]:checked').length; $('fxApply').disabled = !n; $('fxApply').textContent = 'Kembalikan waktu' + (n ? ' (' + n + ' murid)' : ''); };
+    $('fxPrev').onclick = async () => {
+      const d = $('fxDay').value, a = $('fxFrom').value, b = $('fxTo').value;
+      if (!d || !a || !b) { toast('Isi tanggal, jam awal, dan jam akhir.', 'err'); return; }
+      range = { from: new Date(d + 'T' + a), to: new Date(d + 'T' + b) };
+      if (range.to <= range.from) { toast('Jam akhir harus setelah jam awal.', 'err'); return; }
+      $('fxOut').innerHTML = '<div class="empty"><span class="spinner"></span></div>'; $('fxApply').disabled = true;
+      plan = await run('t_rollback_preview', { p_from: range.from.toISOString(), p_to: range.to.toISOString(), p_ws: $('fxWs').value || null, p_class: $('fxCls').value || null }).catch(() => null);
+      if (!plan) { $('fxOut').innerHTML = ''; return; }
+      const hit = plan.filter((x) => x.run_s > 0);
+      $('fxOut').innerHTML = !plan.length ? '<p class="muted">Tidak ada murid yang sedang mengerjakan di rentang itu.</p>' :
+        '<p class="help" style="margin:14px 0 8px">' + hit.length + ' dari ' + plan.length + ' murid timernya berjalan di rentang ' + a + '–' + b + '. Centang yang ingin dikoreksi.</p>' +
+        '<div class="table-wrap fix-tbl"><table class="tbl"><thead><tr><th><input type="checkbox" id="fxAll" checked aria-label="Pilih semua"></th><th>Murid</th><th>Lembar kerja</th><th class="num">Timer berjalan</th><th>Sekarang</th><th>Setelah koreksi</th><th>Catatan</th></tr></thead><tbody>' +
+        plan.map((x) => {
+          const on = x.run_s > 0, notes = [];
+          if (x.corrected && !on) notes.push('Sudah dikoreksi');
+          else if (!on) notes.push(x.own_pause ? 'Sedang istirahat pribadi, timer tidak berjalan' : x.away ? 'Di misi lain, timer tidak berjalan' : 'Timer tidak berjalan');
+          if (x.saves) notes.push('<span class="warn-t">Menyimpan ' + x.saves + ' jawaban di rentang ini; periksa</span>');
+          if (on && x.finished) notes.push('Selesai karena waktu habis; dibuka lagi');
+          return '<tr class="' + (on ? '' : 'off') + '"><td>' + (on ? '<input type="checkbox" data-sid="' + x.session_id + '" checked>' : '') + '</td>' +
+            '<td><strong>' + h(x.name) + '</strong><div class="bar-label">' + h(x.class) + '</div></td><td>' + h(x.title) + '</td>' +
+            '<td class="num">' + (on ? Math.round(x.run_s / 60) + ' menit' : '-') + '</td>' +
+            '<td>' + (x.finished ? 'Selesai' : 'L' + x.step_now + ' dari ' + x.total + ', sisa ' + t(x.rem_now_s)) + '</td>' +
+            '<td>' + (on ? '<strong>L' + x.step_new + ', sisa ' + t(x.rem_new_s) + '</strong>' : '-') + '</td>' +
+            '<td class="fix-note">' + notes.join('<br>') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' +
+        '<p class="help" style="margin:10px 0 0">Sisa waktu "setelah koreksi" = sisa waktu di awal rentang. Waktu yang sudah lewat di luar rentang tidak berubah. Koreksi yang sama tidak bisa diterapkan dua kali.</p>';
+      const all = $('fxAll');
+      if (all) { all.checked = !!hit.length; all.onchange = () => { box.querySelectorAll('#fxOut input[data-sid]').forEach((i) => (i.checked = all.checked)); count(); }; }
+      box.querySelectorAll('#fxOut input[data-sid]').forEach((i) => (i.onchange = count));
+      count();
+    };
+    $('fxApply').onclick = async () => {
+      const ids = [...box.querySelectorAll('#fxOut input[data-sid]:checked')].map((i) => i.dataset.sid);
+      if (!ids.length || !range) return;
+      const b = $('fxApply'); b.disabled = true;
+      const n = await run('t_rollback_apply', { p_from: range.from.toISOString(), p_to: range.to.toISOString(), p_sessions: ids }).catch(() => null);
+      if (n == null) { b.disabled = false; return; }
+      toast('Waktu ' + n + ' murid dikembalikan.', 'ok');
+      $('fxPrev').click(); pollMonitor();
+    };
   }
   $('mPause').onclick = () => {
     const w = S.overview.worksheets.find((x) => x.id === S.ws); if (!w) return;
