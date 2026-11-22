@@ -781,6 +781,16 @@
   .modal.fix{max-width:min(1080px, calc(100vw - 32px))}
   .modal.jump{width:min(640px, 100%)}
   #docRoot{display:grid; gap:14px}
+  .pv{position:fixed; inset:0; z-index:95; display:flex; flex-direction:column; background:var(--bg)}
+  .pv-bar{display:flex; align-items:center; gap:8px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--line)}
+  .pv-t{flex:1; min-width:0; display:grid}
+  .pv-bar a.btn{text-decoration:none}
+  .pv-t strong{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pv-t span{font-size:12.5px; color:var(--muted)}
+  .pv-pg{font-size:13px; font-weight:700; min-width:60px; text-align:center; font-variant-numeric:tabular-nums}
+  .pv-body{flex:1; overflow:auto; padding:16px; display:flex; flex-direction:column; align-items:center; gap:14px}
+  .pv-p{background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); border-radius:4px; overflow:hidden; max-width:100%; flex:none}
+  .pv-p canvas{display:block; max-width:100%; height:auto}
   .dk-panel{padding:16px 18px; border-color:#D9CCFF; background:linear-gradient(180deg, #F7F3FF, var(--surface))}
   .dk-head{display:flex; gap:16px; align-items:flex-start; justify-content:space-between}
   .dk-head h3{margin:0; font-size:15.5px}
@@ -2511,7 +2521,7 @@
             (d.opens_at ? 'dibuka ' + h(whenLong(d.opens_at)) : 'langsung dibuka') + ' · ' + (d.closes_at ? 'ditutup ' + h(whenLong(d.closes_at)) : 'tanpa batas tutup') + '</div></div>' +
           '<div class="doc-stat"><b>' + seen + '</b> / ' + n + '<span>murid sudah membuka</span><span class="doc-sent">' + sent + ' / ' + n + ' mengumpulkan link</span></div>' +
           '<div class="doc-act"><button class="btn btn-ghost btn-sm" data-a="who">' + (open ? 'Sembunyikan' : 'Rincian') + '</button>' +
-          '<a class="btn btn-ghost btn-sm" href="' + h(d.file_url) + '" target="_blank" rel="noopener" title="Membuka/mengunduh file PDF (khusus guru)">File</a>' +
+          '<button class="btn btn-ghost btn-sm" data-a="view" title="Lihat PDF di sini, tanpa mengunduh">Lihat</button>' +
           '<button class="btn btn-ghost btn-sm" data-a="edit">Ubah</button>' +
           (lbl === 'Ditutup' ? '<button class="btn btn-ghost btn-sm" data-a="reopen">Buka lagi</button>' : '<button class="btn btn-ghost btn-sm" data-a="close">Tutup sekarang</button>') +
           '<button class="btn btn-ghost btn-sm btn-icon" data-a="del" aria-label="Hapus"><svg><use href="#i-trash"/></svg></button></div></div>' +
@@ -2537,6 +2547,7 @@
     $('docRoot').querySelectorAll('.doc-card [data-a]').forEach((b) => (b.onclick = async () => {
       const id = b.closest('.doc-card').dataset.id, d = D.find((x) => x.id === id), a = b.dataset.a;
       if (a === 'who') { S.docOpenId = S.docOpenId === id ? null : id; renderDocs(); }
+      if (a === 'view') pdfPreview(d.title, d.file_url);
       if (a === 'edit') docModal(d);
       if (a === 'close') { if (!(await confirmBox('Tutup petunjuk sekarang?', 'Murid tidak bisa membukanya lagi, dan yang sedang membaca akan langsung tertutup.', 'Tutup', true))) return; await run('t_close_doc', { p_id: id, p_close: true }, 'Petunjuk ditutup.').catch(() => {}); loadDocs(); }
       if (a === 'reopen') { await run('t_close_doc', { p_id: id, p_close: false }, 'Petunjuk dibuka lagi tanpa batas tutup.').catch(() => {}); loadDocs(); }
@@ -2578,6 +2589,79 @@
       closeModal(true); toast('Kode masuk studi kasus: ' + r.code, 'ok'); loadDocs();
     };
   }
+  /* ---------- pratinjau PDF untuk guru (Nextcloud memaksa unduh, jadi digambar dengan PDF.js) ---------- */
+  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    return new Promise((ok, no) => {
+      const sc = document.createElement('script'); sc.src = PDFJS + 'pdf.min.js'; sc.crossOrigin = 'anonymous';
+      sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; ok(window.pdfjsLib); };
+      sc.onerror = () => no(new Error('pdfjs')); document.head.appendChild(sc);
+    });
+  }
+  let pv = null;
+  async function pdfPreview(title, url) {
+    pvClose();
+    const el = document.createElement('div'); el.className = 'pv'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    el.innerHTML = '<div class="pv-bar"><div class="pv-t"><strong></strong><span>Memuat…</span></div><span class="pv-pg"></span>' +
+      '<button class="btn btn-ghost btn-sm" data-z="0.8" aria-label="Perkecil">&minus;</button><button class="btn btn-ghost btn-sm" data-z="1.25" aria-label="Perbesar">+</button>' +
+      '<a class="btn btn-ghost btn-sm" href="' + h(url) + '" target="_blank" rel="noopener" title="Unduh file asli">Unduh</a><button class="btn btn-primary btn-sm" data-x>Tutup</button></div><div class="pv-body"><div class="empty"><span class="spinner"></span></div></div>';
+    el.querySelector('.pv-t strong').textContent = title;
+    document.body.appendChild(el); document.body.style.overflow = 'hidden';
+    const st = pv = { el, scale: 1, pdf: null, io: null };
+    el.querySelector('[data-x]').onclick = pvClose;
+    el.querySelectorAll('[data-z]').forEach((b) => (b.onclick = () => { if (!st.pdf) return; st.scale = Math.min(2.5, Math.max(0.5, st.scale * Number(b.dataset.z))); pvLayout(st); }));
+    try {
+      const lib = await loadPdfJs();
+      const r = await fetch(url, { cache: 'no-store', credentials: 'omit' });
+      if (!r.ok) throw new Error('http ' + r.status);
+      const buf = await r.arrayBuffer();
+      if (pv !== st) return;
+      st.pdf = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
+    } catch (e) {
+      if (pv !== st) return;
+      el.querySelector('.pv-t span').textContent = '';
+      el.querySelector('.pv-body').innerHTML = '<div class="empty"><strong>PDF tidak bisa ditampilkan</strong>Server file tidak mengizinkan halaman ini membaca file (CORS) atau file tidak ditemukan. Murid akan mengalami hal yang sama. Tombol Unduh tetap bisa dipakai.</div>';
+      return;
+    }
+    if (pv !== st) return;
+    el.querySelector('.pv-t span').textContent = st.pdf.numPages + ' halaman';
+    pvLayout(st);
+  }
+  function pvLayout(st) {
+    const body = st.el.querySelector('.pv-body'); body.innerHTML = '';
+    if (st.io) st.io.disconnect();
+    const width = Math.min(body.clientWidth - 32, 980) * st.scale, boxes = [];
+    for (let i = 1; i <= st.pdf.numPages; i++) {
+      const b = document.createElement('div'); b.className = 'pv-p'; b.dataset.p = i; b.style.width = width + 'px'; b.style.height = width * 1.414 + 'px';
+      body.appendChild(b); boxes.push(b);
+    }
+    const pg = st.el.querySelector('.pv-pg');
+    st.io = new IntersectionObserver((ents) => {
+      ents.forEach(async (en) => {
+        const b = en.target; if (!en.isIntersecting || b.dataset.done || b.dataset.busy) return;
+        b.dataset.busy = '1';
+        try {
+          const page = await st.pdf.getPage(+b.dataset.p), v0 = page.getViewport({ scale: 1 }), dpr = Math.min(devicePixelRatio || 1, 2);
+          const vp = page.getViewport({ scale: (width / v0.width) * dpr }), c = document.createElement('canvas');
+          c.width = Math.floor(vp.width); c.height = Math.floor(vp.height); c.style.width = width + 'px';
+          await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+          if (pv !== st) return;
+          b.style.height = 'auto'; b.appendChild(c); b.dataset.done = '1';
+        } catch {} finally { delete b.dataset.busy; }
+      });
+      const vis = boxes.map((b) => { const r = b.getBoundingClientRect(); return [Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)), b.dataset.p]; }).sort((x, y) => y[0] - x[0]);
+      if (vis[0]) pg.textContent = vis[0][1] + ' / ' + st.pdf.numPages;
+    }, { root: body, rootMargin: '300px 0px', threshold: [0, 0.5, 1] });
+    boxes.forEach((b) => st.io.observe(b));
+    pg.textContent = '1 / ' + st.pdf.numPages;
+  }
+  function pvClose() {
+    if (!pv) return;
+    if (pv.io) pv.io.disconnect(); try { pv.pdf && pv.pdf.destroy(); } catch {}
+    pv.el.remove(); pv = null; document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pv) pvClose(); });
   async function uploadPdf(file) {
     if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) throw new Error('file harus PDF.');
     if (file.size > 30 * 1024 * 1024) throw new Error('ukuran maksimal 30 MB.');
