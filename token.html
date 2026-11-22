@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <!-- Keamanan: hanya skrip & gaya di file ini (dikunci dengan hash), config.js, font Google, dan koneksi HTTPS ke Supabase.
      Bila isi skrip atau gaya di file ini diubah, hash di bawah harus diperbarui. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-uQepPXvSv+aV/JtYZQkMgQn7yrpBBchdBTXQ5iDl2XY='; style-src 'sha256-Zp1aAkXuG4Fb6u0glOQ71cFK8Dd6I1/HgLOAGG7WTXI=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Igt/cV9gkS2f1cqkofGkwxMNzpiEPGnZfoqJ0d5lUIQ='; style-src 'sha256-/CQJiEd0XzFHJbmnASEZlbIWVAyMfQmU20fIjOaS078=' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Kode Masuk · Lembar Kerja PjBL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,12 @@
   .card.mk .code{color:#FFE1A8}
   .card.mk .bar i{background:#FFB547}
   .mk-note{font-size:clamp(13px,1.1vw,16px); color:#FFE1A8; font-weight:600; line-height:1.4}
+  /* kode masuk studi kasus: kartu ungu */
+  .card.dk{background:linear-gradient(160deg, rgba(167,139,250,.28), rgba(124,58,237,.16)); border-color:rgba(196,181,253,.6)}
+  .card.dk .cls{background:#C4B5FD; color:#2E1065}
+  .dk-tag{background:#C4B5FD; color:#2E1065}
+  .card.dk .code{color:#EDE9FE}
+  .dk-note{color:#E9DFFF}
   .card.warn .bar i{background:var(--warn)} .card.warn .left b{color:var(--warn)}
   .card.crit .bar i{background:var(--danger)} .card.crit .left b{color:var(--danger)}
   .card.crit{animation:pulse 1s ease-in-out infinite alternate}
@@ -133,7 +139,8 @@
 
   /* ---------- data: satu panggilan baca ---------- */
   const okCode = (c) => c && typeof c === 'object' && typeof c.code === 'string' && /^[A-Z0-9]{4,12}$/.test(c.code)
-    && !isNaN(Date.parse(c.expires_at)) && !isNaN(Date.parse(c.created_at));
+    && (c.expires_at == null || !isNaN(Date.parse(c.expires_at))) && !isNaN(Date.parse(c.created_at));
+  const alive = (c) => c.expires_at == null || Date.parse(c.expires_at) > now();
   async function load() {
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000), t0 = Date.now();
     try {
@@ -167,10 +174,10 @@
   const now = () => Date.now() + offset;
   function render() {
     const sel = $('fClass'), want = store.get('tok_class');
-    const cls = [...new Set(codes.map((c) => String(c.class || '')))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+    const cls = [...new Set(codes.flatMap((c) => String(c.class || '').split(', ')))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
     sel.innerHTML = '<option value="">Semua kelas</option>' + cls.map((c) => '<option' + (c === want ? ' selected' : '') + '>' + h(c) + '</option>').join('');
     const f = cls.includes(want) ? want : '';
-    const list = codes.filter((c) => (!f || c.class === f) && Date.parse(c.expires_at) > now());
+    const list = codes.filter((c) => (!f || String(c.class).split(', ').includes(f)) && alive(c));
     const grid = $('grid');
     grid.className = 'grid' + (!loaded || !on || !list.length ? ' is-empty' : list.length === 1 ? ' n1' : list.length === 2 ? ' n2' : '');
     if (!loaded) {
@@ -181,14 +188,15 @@
       grid.innerHTML = '<div class="empty"><div><h2>Belum ada kode yang berlaku' + (f ? ' untuk ' + h(f) : '') + '</h2>' +
         '<p>Tunggu guru membuka misi. Kode akan muncul di sini dengan sendirinya, tidak perlu memuat ulang halaman.</p></div></div>';
     } else {
-      grid.innerHTML = list.map((c) => { const mk = c.kind === 'makeup';
-        return '<article class="card' + (mk ? ' mk' : '') + '" data-exp="' + h(c.expires_at) + '" data-start="' + h(c.created_at) + '">' +
-          '<div class="meta"><span class="cls">' + h(c.class) + '</span>' + (mk ? '<span class="mk-tag">Kode susulan</span>' : '') + (c.day ? '<span class="day">' + h(c.day) + '</span>' : '') + '</div>' +
-          '<div class="title">' + h(c.title) + '</div>' +
-          '<div class="code" aria-label="Kode ' + (mk ? 'susulan ' : '') + h(c.code.split('').join(' ')) + '">' + h(c.code) + '</div>' +
+      grid.innerHTML = list.map((c) => { const mk = c.kind === 'makeup', dk = c.kind === 'docs';
+        return '<article class="card' + (mk ? ' mk' : dk ? ' dk' : '') + '"' + (c.expires_at ? ' data-exp="' + h(c.expires_at) + '"' : '') + ' data-start="' + h(c.created_at) + '">' +
+          '<div class="meta"><span class="cls">' + h(c.class) + '</span>' + (mk ? '<span class="mk-tag">Kode susulan</span>' : dk ? '<span class="mk-tag dk-tag">Studi kasus</span>' : '') + (c.day ? '<span class="day">' + h(c.day) + '</span>' : '') + '</div>' +
+          (dk ? '' : '<div class="title">' + h(c.title) + '</div>') +
+          '<div class="code" aria-label="Kode ' + (mk ? 'susulan ' : dk ? 'studi kasus ' : '') + h(c.code.split('').join(' ')) + '">' + h(c.code) + '</div>' +
           (mk ? '<div class="mk-note">Untuk mengerjakan susulan dari rumah. Setelah menekan "Ya, kerjakan susulan", waktumu berjalan terus sampai misi selesai.</div>' : '') +
-          '<div class="bar"><i></i></div>' +
-          '<div class="left"><span>Berlaku</span><b>--:--</b><span>lagi · sampai ' + h(until(c.expires_at)) + '</span></div></article>'; }).join('');
+          (dk ? '<div class="mk-note dk-note">Untuk membuka studi kasus ujianmu. Tidak membuka misi dan tidak ada timer. Isi studi kasus bisa berbeda untuk tiap murid.</div>' : '') +
+          (c.expires_at ? '<div class="bar"><i></i></div><div class="left"><span>Berlaku</span><b>--:--</b><span>lagi · sampai ' + h(until(c.expires_at)) + '</span></div>'
+            : '<div class="left"><span>Berlaku sampai studi kasus ditutup guru</span></div>') + '</article>'; }).join('');
     }
     $('status').innerHTML = (failing && loaded ? '<span class="bad">' + h(failing) + ' Mencoba lagi…</span>' : '') +
       '<span>Diperbarui otomatis' + (lastOk ? ', terakhir ' + new Date(lastOk).toLocaleTimeString('id-ID') : '') + '. Kode hanya berlaku untuk kelas yang tertulis, bersama nama dan tanggal lahirmu.</span>';
@@ -198,7 +206,7 @@
     const n = now();
     $('clock').textContent = new Date(n).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
     let expired = false;
-    document.querySelectorAll('.card').forEach((el) => {
+    document.querySelectorAll('.card[data-exp]').forEach((el) => {
       const exp = Date.parse(el.dataset.exp), st = Date.parse(el.dataset.start), left = exp - n;
       el.querySelector('.left b').textContent = leftTxt(left);
       el.querySelector('.bar i').style.width = Math.max(0, Math.min(100, (left / Math.max(1, exp - st)) * 100)) + '%';

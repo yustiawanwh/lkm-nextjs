@@ -781,6 +781,16 @@
   .modal.fix{max-width:min(1080px, calc(100vw - 32px))}
   .modal.jump{width:min(640px, 100%)}
   #docRoot{display:grid; gap:14px}
+  .dk-panel{padding:16px 18px; border-color:#D9CCFF; background:linear-gradient(180deg, #F7F3FF, var(--surface))}
+  .dk-head{display:flex; gap:16px; align-items:flex-start; justify-content:space-between}
+  .dk-head h3{margin:0; font-size:15.5px}
+  .dk-head .btn{flex:none}
+  .dk-row{display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line)}
+  .code-cell.dk{font-size:22px; letter-spacing:.12em; padding:4px 12px; border-radius:10px; background:#EEE7FF; color:#5B2EC9}
+  .dk-meta{flex:1; min-width:180px; display:grid}
+  .dk-meta span{font-size:12.5px; color:var(--muted)}
+  @media (prefers-color-scheme: dark){ .dk-panel{border-color:#3D2F6B; background:linear-gradient(180deg, #1E1833, var(--surface))} .code-cell.dk{background:#2B2150; color:#C9B5FF} }
+  @media (max-width:720px){ .dk-head{flex-direction:column} }
   .doc-card{padding:16px 18px}
   .doc-head{display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:14px; align-items:center}
   .doc-ico{width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent)}
@@ -2489,6 +2499,7 @@
     const D = (S.docs && S.docs.docs) || [];
     $('docRoot').innerHTML = '<div class="toolbar"><p class="help" style="margin:0;max-width:760px">Petunjuk berbentuk PDF yang hanya bisa dibuka murid terpilih, di dalam aplikasi (tanpa unduhan), selama rentang waktu yang Anda atur. Murid membukanya lewat tombol <strong>Studi kasus</strong> setelah masuk dengan kode lembar kerja mana pun.</p><span class="spacer"></span>' +
       '<button class="btn btn-primary" id="docNew"' + (IMAGE_UPLOAD_BASE ? '' : ' disabled title="IMAGE_UPLOAD_BASE di config.js masih kosong"') + '><svg><use href="#i-upload"/></svg>Unggah petunjuk</button></div>' +
+      docCodePanel() +
       (!D.length ? '<div class="panel empty"><strong>Belum ada petunjuk</strong>Unggah PDF, lalu pilih murid yang boleh membukanya.</div>' :
       D.map((d) => {
         const [tone, lbl] = docState(d), n = d.students.length, seen = d.students.filter((x) => x.first_at).length, sent = d.students.filter((x) => x.web_url && x.repo_url).length;
@@ -2512,6 +2523,17 @@
           '</section>';
       }).join(''));
     if ($('docNew')) $('docNew').onclick = () => docModal(null);
+    if ($('dkNew')) $('dkNew').onclick = () => docCodeModal();
+    $('docRoot').querySelectorAll('[data-dk-close]').forEach((b) => (b.onclick = async () => {
+      if (!(await confirmBox('Tutup kode masuk studi kasus?', 'Murid tidak bisa masuk lagi dengan kode ini. Murid yang sudah masuk tetap bisa membaca studi kasusnya.', 'Tutup kode', true))) return;
+      await run('t_close_doc_code', { p_batch: b.dataset.dkClose }, 'Kode masuk ditutup.').catch(() => {}); loadDocs();
+    }));
+    $('docRoot').querySelectorAll('[data-dk-copy]').forEach((b) => (b.onclick = async () => {
+      const k = ((S.docs && S.docs.codes) || []).find((x) => x.batch === b.dataset.dkCopy); if (!k) return;
+      const url = new URL('./', location.href), link = url.host + url.pathname.replace(/\/$/, '');
+      const msg = 'Kode masuk studi kasus: ' + k.code + ' (kelas ' + k.classes.join(', ') + '). Masuk di ' + link + ' dengan nama, kelas, tanggal lahir, dan kode ini.';
+      try { await navigator.clipboard.writeText(msg); toast('Pesan disalin.', 'ok'); } catch { toast(msg, 'ok'); }
+    }));
     $('docRoot').querySelectorAll('.doc-card [data-a]').forEach((b) => (b.onclick = async () => {
       const id = b.closest('.doc-card').dataset.id, d = D.find((x) => x.id === id), a = b.dataset.a;
       if (a === 'who') { S.docOpenId = S.docOpenId === id ? null : id; renderDocs(); }
@@ -2520,6 +2542,41 @@
       if (a === 'reopen') { await run('t_close_doc', { p_id: id, p_close: false }, 'Petunjuk dibuka lagi tanpa batas tutup.').catch(() => {}); loadDocs(); }
       if (a === 'del') { if (!(await confirmBox('Hapus petunjuk "' + d.title + '"?', 'Petunjuk dan catatan siapa yang sudah membukanya dihapus dari aplikasi. File PDF di Nextcloud tidak ikut terhapus.', 'Hapus', true))) return; await run('t_delete_doc', { p_id: id }, 'Petunjuk dihapus.').catch(() => {}); loadDocs(); }
     }));
+  }
+  // kode masuk khusus studi kasus: satu kode untuk beberapa kelas, tanpa misi dan tanpa timer
+  function docCodePanel() {
+    const K = (S.docs && S.docs.codes) || [];
+    return '<section class="panel dk-panel"><div class="dk-head"><div><h3>Kode masuk studi kasus</h3><p class="help" style="margin:2px 0 0">Satu kode yang sama untuk semua murid di kelas terpilih. Masuk dengan kode ini <strong>tidak membuka misi dan tidak menjalankan timer</strong>: murid langsung melihat daftar studi kasus yang ditujukan kepadanya. Kode juga tampil di token.html (kartu ungu) selama studi kasus kelas itu belum ditutup.</p></div>' +
+      '<button class="btn btn-primary" id="dkNew">' + (K.length ? 'Buat kode baru' : 'Buat kode masuk') + '</button></div>' +
+      (K.length ? K.map((k) => '<div class="dk-row"><span class="code-cell dk">' + h(k.code || '-') + '</span><div class="dk-meta"><strong>' + h(k.classes.join(', ')) + '</strong><span>' +
+          (k.until ? 'berlaku sampai ' + h(whenLong(k.until)) : 'berlaku sampai ditutup') + ' · ' + k.logins + ' murid sudah masuk</span></div>' +
+          '<button class="btn btn-ghost btn-sm" data-dk-copy="' + k.batch + '">Salin pesan</button><button class="btn btn-danger btn-sm" data-dk-close="' + k.batch + '">Tutup kode</button></div>').join('') : '') +
+      '</section>';
+  }
+  async function docCodeModal() {
+    const D = (S.docs && S.docs.docs) || [];
+    if (!S.overview || !S.overview.classes) await refreshOverview();
+    const openCls = new Set(); D.filter((d) => docState(d)[1] !== 'Ditutup').forEach((d) => d.students.forEach((x) => openCls.add(x.class)));
+    const all = S.overview.classes.map((c) => c.class);
+    const lastClose = D.filter((d) => docState(d)[1] !== 'Ditutup' && d.closes_at).map((d) => new Date(d.closes_at)).sort((a, b) => b - a)[0];
+    const box = openModal('<h2>Kode masuk studi kasus</h2><p class="sub">Satu kode untuk semua kelas yang dicentang. Kode baru menggantikan kode lama kelas itu. Isi studi kasus tetap berbeda per murid, sesuai pilihan Anda di tiap studi kasus.</p>' +
+      '<div class="field"><span class="lbl">Kelas</span><div class="chips">' + all.map((c) => '<label class="chip"><input type="checkbox" value="' + h(c) + '"' + (openCls.has(c) ? ' checked' : '') + '>' + h(c) + '</label>').join('') + '</div>' +
+        '<div class="help">Yang tercentang otomatis: kelas yang muridnya punya studi kasus yang belum ditutup.</div></div>' +
+      '<div class="field"><span class="lbl">Berlaku</span><div class="seg-ctl"><label><input type="radio" name="dkU" value="open" checked>Sampai saya tutup</label><label><input type="radio" name="dkU" value="set">Sampai waktu tertentu</label></div>' +
+        '<input class="input" id="dkUntil" type="datetime-local" style="width:240px;margin-top:8px" hidden value="' + (lastClose ? dtLocal(lastClose) : '') + '"></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" id="dkGo">Buat kode</button></div>');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    box.querySelectorAll('input[name="dkU"]').forEach((i) => (i.onchange = () => ($('dkUntil').hidden = box.querySelector('input[name="dkU"]:checked').value !== 'set')));
+    $('dkGo').onclick = async () => {
+      const cls = [...box.querySelectorAll('.chips input:checked')].map((i) => i.value);
+      const set = box.querySelector('input[name="dkU"]:checked').value === 'set', u = set && $('dkUntil').value ? new Date($('dkUntil').value) : null;
+      if (!cls.length) { toast('Pilih minimal satu kelas.', 'err'); return; }
+      if (set && (!u || u <= Date.now() + 5 * 60000)) { toast('Batas waktu harus di masa depan (lebih dari 5 menit lagi).', 'err'); return; }
+      $('dkGo').disabled = true;
+      const r = await run('t_open_doc_code', { p_classes: cls, p_until: u ? u.toISOString() : null }).catch(() => null);
+      if (!r) { $('dkGo').disabled = false; return; }
+      closeModal(true); toast('Kode masuk studi kasus: ' + r.code, 'ok'); loadDocs();
+    };
   }
   async function uploadPdf(file) {
     if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) throw new Error('file harus PDF.');

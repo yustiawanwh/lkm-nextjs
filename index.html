@@ -896,6 +896,8 @@
   };
 
   let token = store.get('lk_token');
+  // docMode: masuk lewat kode studi kasus (tanpa misi, tanpa timer); hanya daftar studi kasus yang tampil
+  let docMode = store.get('lk_mode') === 'docs';
   let who = safeJSON(store.get('lk_who')) || { name: '', cls: '' };
   let cur = null;          // langkah berjalan (dari server)
   let endAt = 0;           // performance.now() saat langkah berakhir (hanya untuk tampilan)
@@ -1052,7 +1054,8 @@
 
   function logout(msg) {
     store.clear();
-    token = null; cur = null; busy = false; syncing = false;
+    token = null; cur = null; busy = false; syncing = false; docMode = false;
+    $('dvClose').textContent = 'Tutup';
     if (typeof stopDoc === 'function') { stopDoc(); $('docView').hidden = true; document.body.classList.remove('dv-on'); docs = []; document.querySelectorAll('.doc-open').forEach((b) => (b.hidden = true)); }
     closeConfirm();
     $('lock').classList.remove('on');
@@ -1069,7 +1072,10 @@
   async function refreshDocs() {
     if (!token) return;
     try { const r = await rpc('my_docs', { p_token: token }); docs = (r && r.docs) || []; }
-    catch (e) { if (isInvalidSession(e)) return; return; }
+    catch (e) {
+      if (isInvalidSession(e) && docMode) { logout(sessMsg(e)); return; }
+      clearTimeout(docTimer); docTimer = setTimeout(refreshDocs, 15000); return;
+    }
     const n = docs.filter((d) => d.state === 'open').length;
     document.querySelectorAll('.doc-open').forEach((b) => { b.hidden = !docs.length; b.querySelector('.doc-count').textContent = docs.length > 1 ? docs.length : ''; b.classList.toggle('has-new', docs.some((d) => d.state === 'open' && !d.viewed)); });
     if (!$('docView').hidden && !docOpen) renderDocList();
@@ -1086,14 +1092,29 @@
     if (docs.length === 1 && docs[0].state === 'open') viewDoc(docs[0].id); else renderDocList();
   }
   function closeDocs() { stopDoc(); $('docView').hidden = true; document.body.classList.remove('dv-on'); refreshDocs(); }
-  $('dvClose').onclick = closeDocs;
+  // masuk lewat kode studi kasus: daftar studi kasus jadi "beranda"; Tutup = kembali ke daftar, Keluar = keluar akun
+  async function enterDocMode() {
+    for (const sc of document.querySelectorAll('.screen')) sc.classList.remove('active');
+    $('docView').hidden = false; document.body.classList.add('dv-on');
+    $('dvBody').innerHTML = '<div class="dv-empty"><span class="spinner"></span> Memuat studi kasus…</div>';
+    await refreshDocs();
+    if (!docMode) return;
+    renderDocList();
+  }
+  $('dvClose').onclick = () => {
+    if (!docMode) { closeDocs(); return; }
+    if (docOpen || $('dvTools').hidden === false || $('dvBack').hidden === false) { stopDoc(); renderDocList(); return; }
+    logout('');
+  };
   $('dvBack').onclick = () => { stopDoc(); renderDocList(); };
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('docView').hidden) closeDocs(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('docView').hidden && !docMode) closeDocs(); });
   const fmtWhen = (d) => new Date(d).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
   function renderDocList() {
     stopDoc();
-    $('dvBack').hidden = true; $('dvTools').hidden = true; $('dvTitle').textContent = 'Studi kasus'; $('dvSub').textContent = '';
-    $('dvBody').innerHTML = !docs.length ? '<div class="dv-empty">Belum ada studi kasus untukmu.</div>' :
+    $('dvBack').hidden = true; $('dvTools').hidden = true; $('dvTitle').textContent = 'Studi kasus';
+    $('dvSub').textContent = docMode ? (who.name ? who.name + (who.cls ? ' · ' + who.cls : '') : '') : '';
+    $('dvClose').textContent = docMode ? 'Keluar' : 'Tutup';
+    $('dvBody').innerHTML = !docs.length ? '<div class="dv-empty">Belum ada studi kasus untukmu.' + (docMode ? '<br>Halaman ini akan memperbarui sendiri.' : '') + '</div>' :
       '<div class="dv-list">' + docs.map((d) => '<button type="button" class="dv-item" data-doc="' + d.id + '"' + (d.state === 'open' ? '' : ' disabled') + '>' +
         '<strong>' + esc(d.title) + '</strong><span>' + (d.state === 'open'
           ? (d.viewed ? 'Sudah kamu buka' : 'Belum dibuka') + (d.web_url || d.repo_url ? ' · link sudah dikumpulkan' : ' · link belum dikumpulkan') + (d.closes_at ? ' · ditutup ' + fmtWhen(d.closes_at) : '')
@@ -1118,7 +1139,8 @@
   async function viewDoc(id) {
     stopDoc();
     const d = docs.find((x) => x.id === id) || {};
-    $('dvBack').hidden = docs.length < 2; $('dvTools').hidden = true;
+    $('dvBack').hidden = docs.length < 2 && !docMode; $('dvTools').hidden = true;
+    if (docMode) $('dvClose').textContent = 'Daftar';
     $('dvTitle').textContent = d.title || 'Studi kasus'; $('dvSub').textContent = '';
     $('dvBody').innerHTML = '<div class="dv-empty"><span class="spinner"></span> Memuat studi kasus…</div>';
     let r;
@@ -1296,6 +1318,8 @@
       store.set('lk_token', token);
       store.set('lk_who', JSON.stringify(who));
       $('fPass').value = ''; $('fCode').value = '';
+      if (r.mode === 'docs') { store.set('lk_mode', 'docs'); docMode = true; enterDocMode(); return; }
+      store.set('lk_mode', ''); docMode = false;
       await loadState();
       refreshDocs();
     } catch (e) {
@@ -1339,6 +1363,7 @@
     finally { b.disabled = false; }
   });
   async function loadState() {
+    if (docMode) return;                 // sesi studi kasus tidak punya misi
     try {
       apply(await rpc('get_state', { p_token: token }));
     } catch (e) {
@@ -2055,7 +2080,8 @@
   window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
   /* ---------- mulai ---------- */
-  if (token) {
+  if (token && docMode) enterDocMode();
+  else if (token) {
     loadState().catch(() => {
       setLoginMsg('Tidak bisa terhubung ke server. Periksa internet lalu muat ulang halaman.');
       show('login');
