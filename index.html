@@ -459,6 +459,21 @@
   .dv-p{position:relative; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); border-radius:4px; overflow:hidden; max-width:100%}
   .dv-p canvas{display:block; max-width:100%; height:auto !important; pointer-events:none}
   .dv-pn{position:absolute; inset:0; display:grid; place-items:center; color:#9aa0b4; font-weight:700}
+  .dv-form{width:min(980px, 100%); background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px; margin:6px 0 40px; -webkit-user-select:text; user-select:text}
+  .dv-form h3{margin:0 0 6px; font-size:18px}
+  .dv-form .help{margin:0 0 16px}
+  .dv-l{display:grid; gap:6px; margin-bottom:14px}
+  .dv-l span{font-weight:700; font-size:14px}
+  .dv-l input{width:100%; height:46px; border:1.5px solid var(--line); border-radius:12px; padding:0 14px; font-family:var(--mono, ui-monospace, monospace); font-size:14px; background:var(--surface); color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s}
+  .dv-l input:focus{border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  .dv-l input.bad{border-color:var(--danger)}
+  .dv-l small{font-size:12.5px; min-height:1em}
+  .dv-l small.bad{color:var(--danger)}
+  .dv-fa{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  #dvSaved{font-size:13px; font-weight:600}
+  #dvSaved.ok{color:var(--ok, #1a7f4b)} #dvSaved.warn{color:var(--warn, #b26b00)}
+  .dv-tools .dv-go{width:auto; padding:0 12px; font-size:13px}
+  @media (max-width:640px){ .dv-tools .dv-go{display:none} .dv-form{padding:16px} }
   .dv-empty{display:grid; place-items:center; min-height:60vh; text-align:center; color:var(--ink-2); font-size:15px; gap:10px; padding:20px}
   .dv-list{max-width:640px; margin:10px auto; display:grid; gap:10px}
   .dv-item{display:grid; gap:4px; text-align:left; padding:16px 18px; border-radius:14px; border:1px solid var(--line); background:var(--surface); cursor:pointer; font:inherit; color:inherit}
@@ -750,6 +765,7 @@
     <button class="btn btn-ghost dv-back" type="button" id="dvBack" hidden aria-label="Kembali ke daftar studi kasus">&larr;</button>
     <div class="dv-title"><strong id="dvTitle">Studi kasus</strong><span id="dvSub"></span></div>
     <div class="dv-tools" id="dvTools" hidden>
+      <button class="btn btn-ghost dv-go" type="button" id="dvGo">Kumpulkan link</button>
       <span class="dv-page" id="dvPage"></span>
       <button class="btn btn-ghost" type="button" id="dvOut" aria-label="Perkecil">&minus;</button>
       <button class="btn btn-ghost" type="button" id="dvIn" aria-label="Perbesar">+</button>
@@ -1080,7 +1096,7 @@
     $('dvBody').innerHTML = !docs.length ? '<div class="dv-empty">Belum ada studi kasus untukmu.</div>' :
       '<div class="dv-list">' + docs.map((d) => '<button type="button" class="dv-item" data-doc="' + d.id + '"' + (d.state === 'open' ? '' : ' disabled') + '>' +
         '<strong>' + esc(d.title) + '</strong><span>' + (d.state === 'open'
-          ? (d.viewed ? 'Sudah kamu buka' : 'Belum dibuka') + (d.closes_at ? ' · ditutup ' + fmtWhen(d.closes_at) : '')
+          ? (d.viewed ? 'Sudah kamu buka' : 'Belum dibuka') + (d.web_url || d.repo_url ? ' · link sudah dikumpulkan' : ' · link belum dikumpulkan') + (d.closes_at ? ' · ditutup ' + fmtWhen(d.closes_at) : '')
           : 'Bisa dibuka mulai ' + fmtWhen(d.opens_at)) + '</span></button>').join('') + '</div>';
     $('dvBody').querySelectorAll('[data-doc]').forEach((b) => (b.onclick = () => viewDoc(b.dataset.doc)));
   }
@@ -1112,7 +1128,7 @@
       $('dvBody').innerHTML = '<div class="dv-empty">' + ({ not_open: 'Studi kasus ini baru bisa dibuka mulai ' + fmtWhen(r.opens_at) + '.', closed: 'Studi kasus ini sudah ditutup guru.', not_allowed: 'Studi kasus ini bukan untukmu.' }[r.error] || 'Studi kasus tidak bisa dibuka.') + '</div>';
       refreshDocs(); return;
     }
-    const st = docOpen = { id, page: 1, pages: 0, scale: 1, secs: 0, sentAt: Date.now(), lastPage: 0 };
+    const st = docOpen = { id, page: 1, pages: 0, scale: 1, secs: 0, sentAt: Date.now(), lastPage: 0, web: r.web_url || '', repo: r.repo_url || '', at: r.submitted_at };
     try {
       const lib = await loadPdfJs();
       const res = await fetch(r.url, { cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
@@ -1160,6 +1176,54 @@
     }, { root: body, rootMargin: '200px 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
     st.cvs.forEach((b) => st.io.observe(b));
     $('dvPage').textContent = st.page + ' / ' + st.pages;
+    wrap.appendChild(linkForm(st));
+  }
+  /* ---------- kumpulkan link Vercel & GitHub (di bawah studi kasus) ---------- */
+  const VERCEL_RE = /^https:\/\/([a-z0-9-]+\.)+vercel\.app(\/\S*)?$/i;
+  const GH_RE = /^https:\/\/github\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
+  const cleanRepo = (v) => v.trim().replace(/(\.git)?\/*$/, '');
+  function linkProblem(kind, v) {
+    if (!v) return '';
+    if (kind === 'web') {
+      if (/^https?:\/\/(localhost|127\.|192\.168\.|10\.)/i.test(v)) return 'Itu alamat di komputermu sendiri (localhost). Tempel link yang sudah online di Vercel.';
+      if (/github\.com/i.test(v)) return 'Itu link GitHub. Kolom ini untuk link aplikasi di Vercel.';
+      return VERCEL_RE.test(v) ? '' : 'Link harus dari Vercel. Contoh: https://nama-aplikasimu.vercel.app';
+    }
+    if (/vercel\.app/i.test(v)) return 'Itu link Vercel. Kolom ini untuk link repository GitHub.';
+    return GH_RE.test(cleanRepo(v)) ? '' : 'Format belum benar. Contoh: https://github.com/namamu/nama-repository';
+  }
+  function linkForm(st) {
+    const f = document.createElement('section'); f.className = 'dv-form'; f.id = 'dvForm';
+    f.innerHTML = '<h3>Kumpulkan hasil project</h3><p class="help">Tempel link aplikasimu yang sudah online di Vercel dan link repository GitHub-nya. Kamu bisa menyimpan dan mengubahnya kapan saja selama studi kasus ini masih dibuka.</p>' +
+      '<label class="dv-l"><span>Link aplikasi di Vercel</span><input class="txt mono" type="url" id="dvWeb" placeholder="https://nama-aplikasimu.vercel.app" spellcheck="false" autocomplete="off"><small id="dvWebMsg"></small></label>' +
+      '<label class="dv-l"><span>Link repository GitHub</span><input class="txt mono" type="url" id="dvRepo" placeholder="https://github.com/namamu/nama-repository" spellcheck="false" autocomplete="off"><small id="dvRepoMsg"></small></label>' +
+      '<div class="dv-fa"><button class="btn btn-primary" type="button" id="dvSave">Simpan link</button><span id="dvSaved"></span></div>';
+    const web = f.querySelector('#dvWeb'), repo = f.querySelector('#dvRepo');
+    web.value = st.web; repo.value = st.repo;
+    const show = () => {
+      [[web, 'web', '#dvWebMsg'], [repo, 'repo', '#dvRepoMsg']].forEach(([i, k, m]) => {
+        const bad = linkProblem(k, i.value.trim()), el = f.querySelector(m);
+        el.textContent = bad; el.className = bad ? 'bad' : ''; i.classList.toggle('bad', !!bad);
+      });
+      const changed = web.value.trim() !== st.web || cleanRepo(repo.value) !== st.repo;
+      f.querySelector('#dvSaved').textContent = changed ? 'Belum disimpan' : st.at ? 'Tersimpan ' + new Date(st.at).toLocaleString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      f.querySelector('#dvSaved').className = changed ? 'warn' : 'ok';
+    };
+    web.oninput = show; repo.oninput = show; show();
+    f.querySelector('#dvSave').onclick = async () => {
+      const w = web.value.trim(), r = cleanRepo(repo.value);
+      if (linkProblem('web', w) || linkProblem('repo', r)) { show(); return; }
+      if (!w && !r) { f.querySelector('#dvSaved').textContent = 'Isi minimal satu link.'; f.querySelector('#dvSaved').className = 'warn'; return; }
+      const b = f.querySelector('#dvSave'); b.disabled = true;
+      try {
+        const res = await rpc('submit_doc_links', { p_token: token, p_doc: st.id, p_web: w, p_repo: r });
+        if (res.error) { f.querySelector('#dvSaved').textContent = { closed: 'Studi kasus ini sudah ditutup; link tidak bisa disimpan.', bad_web: linkProblem('web', w) || 'Link Vercel tidak valid.', bad_repo: 'Link GitHub tidak valid.', not_allowed: 'Studi kasus ini bukan untukmu.' }[res.error] || 'Gagal menyimpan.'; f.querySelector('#dvSaved').className = 'warn'; return; }
+        st.web = res.web_url || ''; st.repo = res.repo_url || ''; st.at = res.submitted_at; repo.value = st.repo; show();
+        const d = docs.find((x) => x.id === st.id); if (d) { d.web_url = st.web; d.repo_url = st.repo; d.submitted_at = st.at; }
+      } catch (e) { if (isInvalidSession(e)) { closeDocs(); logout(sessMsg(e)); return; } f.querySelector('#dvSaved').textContent = 'Koneksi bermasalah. Coba lagi.'; f.querySelector('#dvSaved').className = 'warn'; }
+      finally { b.disabled = false; }
+    };
+    return f;
   }
   async function drawPage(st, box, width) {
     if (box.dataset.done || box.dataset.busy) return;
@@ -1175,8 +1239,11 @@
       box.style.height = 'auto'; box.innerHTML = ''; box.appendChild(c); box.dataset.done = '1';
     } catch {} finally { delete box.dataset.busy; }
   }
-  function zoom(f) { const st = docOpen; if (!st || !st.pdf) return; st.scale = Math.min(2.5, Math.max(0.5, st.scale * f)); const p = st.page; layoutPages(st); const t = st.cvs[p - 1]; if (t) t.scrollIntoView(); }
+  function zoom(f) { const st = docOpen; if (!st || !st.pdf) return;
+    const keepW = $('dvWeb') && $('dvWeb').value, keepR = $('dvRepo') && $('dvRepo').value;
+    setTimeout(() => { if ($('dvWeb') && keepW != null) { $('dvWeb').value = keepW; $('dvRepo').value = keepR; $('dvWeb').dispatchEvent(new Event('input')); } }, 0); st.scale = Math.min(2.5, Math.max(0.5, st.scale * f)); const p = st.page; layoutPages(st); const t = st.cvs[p - 1]; if (t) t.scrollIntoView(); }
   $('dvIn').onclick = () => zoom(1.25); $('dvOut').onclick = () => zoom(0.8);
+  $('dvGo').onclick = () => { const f = $('dvForm'); if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(() => $('dvWeb').focus({ preventScroll: true }), 400); } };
   function sendProgress(final) {
     const st = docOpen; if (!st || !st.pages || !token) return;
     const secs = st.secs; st.secs = 0; st.sentAt = Date.now();

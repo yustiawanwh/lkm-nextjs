@@ -789,6 +789,8 @@
   .doc-stat{text-align:right; font-size:13px; color:var(--muted); white-space:nowrap}
   .doc-stat b{font-size:22px; color:var(--ink)}
   .doc-stat span{display:block; font-size:12px}
+  .doc-stat .doc-sent{margin-top:2px; font-weight:700; color:var(--ink-2)}
+  .doc-who .repo-link{display:inline-block; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom}
   .doc-act{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
   .doc-who{margin-top:14px; border:1px solid var(--line); border-radius:12px}
   .dc-when{display:grid; grid-template-columns:1fr 1fr; gap:12px}
@@ -2470,6 +2472,8 @@
      PETUNJUK UJIAN (PDF): unggah ke Nextcloud, pilih murid, rentang waktu, pantau siapa yang membuka
      ========================================================= */
   const fmtDur = (s) => (!s ? '-' : s < 60 ? s + ' dtk' : Math.floor(s / 60) + ' mnt' + (s % 60 && s < 600 ? ' ' + (s % 60) + ' dtk' : ''));
+  // link yang dikumpulkan murid: tampil singkat, bisa diklik
+  const linkCell = (u) => u ? '<a class="repo-link" href="' + h(u) + '" target="_blank" rel="noopener" title="' + h(u) + '">' + h(u.replace(/^https:\/\/(github\.com\/)?/, '')) + '</a>' : '<span class="muted">-</span>';
   function docState(d) {
     const now = Date.now();
     if (d.closes_at && new Date(d.closes_at) <= now) return ['plain', 'Ditutup'];
@@ -2487,23 +2491,24 @@
       '<button class="btn btn-primary" id="docNew"' + (IMAGE_UPLOAD_BASE ? '' : ' disabled title="IMAGE_UPLOAD_BASE di config.js masih kosong"') + '><svg><use href="#i-upload"/></svg>Unggah petunjuk</button></div>' +
       (!D.length ? '<div class="panel empty"><strong>Belum ada petunjuk</strong>Unggah PDF, lalu pilih murid yang boleh membukanya.</div>' :
       D.map((d) => {
-        const [tone, lbl] = docState(d), n = d.students.length, seen = d.students.filter((x) => x.first_at).length;
+        const [tone, lbl] = docState(d), n = d.students.length, seen = d.students.filter((x) => x.first_at).length, sent = d.students.filter((x) => x.web_url && x.repo_url).length;
         const open = S.docOpenId === d.id;
         return '<section class="panel doc-card" data-id="' + d.id + '"><div class="doc-head">' +
           '<div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>' +
           '<div class="doc-main"><h3>' + h(d.title) + ' <span class="pill ' + tone + '">' + lbl + '</span></h3>' +
           '<div class="bar-label">' + h(d.file_name || 'PDF') + (d.file_size ? ' · ' + fmtSize(d.file_size) : '') + ' · ' +
             (d.opens_at ? 'dibuka ' + h(whenLong(d.opens_at)) : 'langsung dibuka') + ' · ' + (d.closes_at ? 'ditutup ' + h(whenLong(d.closes_at)) : 'tanpa batas tutup') + '</div></div>' +
-          '<div class="doc-stat"><b>' + seen + '</b> / ' + n + '<span>murid sudah membuka</span></div>' +
+          '<div class="doc-stat"><b>' + seen + '</b> / ' + n + '<span>murid sudah membuka</span><span class="doc-sent">' + sent + ' / ' + n + ' mengumpulkan link</span></div>' +
           '<div class="doc-act"><button class="btn btn-ghost btn-sm" data-a="who">' + (open ? 'Sembunyikan' : 'Rincian') + '</button>' +
           '<a class="btn btn-ghost btn-sm" href="' + h(d.file_url) + '" target="_blank" rel="noopener" title="Membuka/mengunduh file PDF (khusus guru)">File</a>' +
           '<button class="btn btn-ghost btn-sm" data-a="edit">Ubah</button>' +
           (lbl === 'Ditutup' ? '<button class="btn btn-ghost btn-sm" data-a="reopen">Buka lagi</button>' : '<button class="btn btn-ghost btn-sm" data-a="close">Tutup sekarang</button>') +
           '<button class="btn btn-ghost btn-sm btn-icon" data-a="del" aria-label="Hapus"><svg><use href="#i-trash"/></svg></button></div></div>' +
-          (open ? '<div class="table-wrap doc-who"><table class="tbl"><thead><tr><th>Murid</th><th>Pertama dibuka</th><th>Terakhir</th><th>Halaman</th><th class="num">Lama membaca</th><th class="num">Dibuka</th></tr></thead><tbody>' +
+          (open ? '<div class="table-wrap doc-who"><table class="tbl"><thead><tr><th>Murid</th><th>Pertama dibuka</th><th>Terakhir</th><th>Halaman</th><th class="num">Lama membaca</th><th class="num">Dibuka</th><th>Link Vercel</th><th>Link GitHub</th></tr></thead><tbody>' +
             d.students.map((x) => '<tr><td><strong>' + h(x.name) + '</strong><div class="bar-label">' + h(x.class) + '</div></td>' +
               (x.first_at ? '<td>' + h(when(x.first_at)) + '</td><td>' + h(when(x.last_at)) + '</td><td>hal. ' + x.last_page + (x.pages ? ' dari ' + x.pages : '') + (x.pages && x.max_page >= x.pages ? ' <span class="pill ok">sampai akhir</span>' : x.max_page > x.last_page ? ' (terjauh ' + x.max_page + ')' : '') + '</td><td class="num">' + fmtDur(x.seconds) + '</td><td class="num">' + x.opens + 'x</td>'
-                : '<td colspan="5"><span class="pill plain">Belum dibuka</span></td>') + '</tr>').join('') + '</tbody></table></div>' : '') +
+                : '<td colspan="5"><span class="pill plain">Belum dibuka</span></td>') +
+              '<td>' + linkCell(x.web_url) + '</td><td>' + linkCell(x.repo_url) + (x.submitted_at && (x.web_url || x.repo_url) ? '<div class="bar-label">disimpan ' + h(when(x.submitted_at)) + '</div>' : '') + '</td></tr>').join('') + '</tbody></table></div>' : '') +
           '</section>';
       }).join(''));
     if ($('docNew')) $('docNew').onclick = () => docModal(null);
