@@ -780,6 +780,22 @@
   .modal-actions .spacer{flex:1}
   .modal.fix{max-width:min(1080px, calc(100vw - 32px))}
   .modal.jump{width:min(640px, 100%)}
+  #docRoot{display:grid; gap:14px}
+  .doc-card{padding:16px 18px}
+  .doc-head{display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:14px; align-items:center}
+  .doc-ico{width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent)}
+  .doc-ico svg{width:22px; height:22px}
+  .doc-main h3{margin:0 0 4px; font-size:15.5px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .doc-stat{text-align:right; font-size:13px; color:var(--muted); white-space:nowrap}
+  .doc-stat b{font-size:22px; color:var(--ink)}
+  .doc-stat span{display:block; font-size:12px}
+  .doc-act{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
+  .doc-who{margin-top:14px; border:1px solid var(--line); border-radius:12px}
+  .dc-when{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .dc-filter{display:flex; gap:8px}
+  .dc-filter .select,.dc-filter .input{height:36px; width:auto}
+  .jrow[hidden]{display:none}
+  @media (max-width:820px){ .doc-head{grid-template-columns:auto minmax(0,1fr)} .doc-stat{text-align:left} .doc-act{grid-column:1 / -1; justify-content:flex-start} .dc-when{grid-template-columns:1fr} }
   .jump-grid{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; margin-top:14px}
   .jump-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px}
   .jall{display:inline-flex; gap:8px; align-items:center; font-size:13px; font-weight:600; cursor:pointer}
@@ -816,6 +832,7 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
   <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
@@ -877,6 +894,7 @@
     <button class="nav-btn" data-view="students"><svg><use href="#i-users"/></svg><span>Murid</span></button>
     <button class="nav-btn" data-view="github"><svg><use href="#i-git"/></svg><span>Kode &amp; GitHub</span></button>
     <button class="nav-btn" data-view="codes"><svg><use href="#i-key"/></svg><span>Tayangkan</span></button>
+    <button class="nav-btn" data-view="docs"><svg><use href="#i-doc"/></svg><span>Petunjuk PDF</span></button>
     <button class="nav-btn" data-view="settings"><svg><use href="#i-gear"/></svg><span>Pengaturan</span></button>
     <div class="side-foot">
       <div class="me"><span class="avatar" id="meAv"></span><div><strong id="meName"></strong><span>Guru</span></div></div>
@@ -1007,6 +1025,11 @@
       </form>
       <div class="notice mk-notice"><svg><use href="#i-home"/></svg><span>Satu kode untuk semua murid satu kelas, untuk mengerjakan misi dari rumah. Saat masuk dengan kode ini, murid melihat popup <strong>"Kerjakan susulan sekarang?"</strong>. Yang menekan <strong>Ya</strong>: waktunya berjalan terus sampai misinya selesai, dan semua langkah yang dikerjakan ditandai Susulan. Yang tidak mengonfirmasi atau tidak memakai kode: waktunya tetap berhenti, lalu berjalan lagi sesuai jadwal kelas atau saat Anda melanjutkan. Kode susulan juga tampil di token.html dengan warna berbeda. Menutup kode tidak menghentikan murid yang sudah mulai susulan.</span></div>
       <div class="panel table-wrap" id="mcList"></div>
+    </section>
+
+    <!-- PETUNJUK PDF -->
+    <section data-v="docs" hidden>
+      <div id="docRoot"></div>
     </section>
 
     <!-- PENGATURAN -->
@@ -1449,7 +1472,7 @@
   });
 
   /* ---------- navigasi ---------- */
-  const TITLES = { dash: 'Dashboard progres', monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub', settings: 'Pengaturan' };
+  const TITLES = { dash: 'Dashboard progres', monitor: 'Pantau langsung', results: 'Hasil & nilai', sheets: 'Lembar kerja', students: 'Murid', codes: 'Tayangkan lembar kerja', github: 'Kode & GitHub', settings: 'Pengaturan', docs: 'Petunjuk ujian (PDF)' };
   function go(view) {
     S.view = view; ss.set('g_view', view);
     document.querySelectorAll('.nav-btn').forEach((b) => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
@@ -1457,7 +1480,7 @@
     $('viewTitle').textContent = TITLES[view];
     $('wsPick').hidden = !((view === 'dash' && S.dbScope === 'misi') || view === 'monitor' || (view === 'results' && S.rMode !== 'student') || view === 'github');
     stopPoll();
-    ({ dash: () => loadDash(true), monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub, settings: loadSettings })[view]();
+    ({ dash: () => loadDash(true), monitor: loadMonitor, results: loadResults, sheets: loadSheets, students: loadStudents, codes: renderCodes, github: loadGithub, settings: loadSettings, docs: loadDocs })[view]();
   }
   document.querySelectorAll('.nav-btn').forEach((b) => (b.onclick = () => go(b.dataset.view)));
 
@@ -2022,7 +2045,8 @@
         : r.status === 'running' ? '<span class="pill run">Mengerjakan</span>' : '<span class="pill">Belum mulai</span>') +
         (mk ? ' <span class="pill mk" title="Akses susulan sampai ' + h(whenLong(r.makeup.until)) + '">Susulan</span>'
           : r.makeup_steps ? ' <span class="pill mk plain" title="' + r.makeup_steps + ' langkah dikerjakan lewat susulan">Susulan</span>' : '') +
- (r.jumps ? ' <span class="pill plain" title="Pernah dikembalikan ke langkah tertentu atau dikoreksi waktunya oleh guru (' + r.jumps + ' kali)">Dikoreksi</span>' : '') +
+ (r.docs && r.docs.total ? (r.docs.viewed >= r.docs.total ? ' <span class="pill ok" title="Sudah membuka petunjuk ujian">Petunjuk ✓</span>' : ' <span class="pill warn" title="' + (r.docs.total - r.docs.viewed) + ' petunjuk ujian belum dibuka">Petunjuk belum dibuka</span>') : '') +
+        (r.jumps ? ' <span class="pill plain" title="Pernah dikembalikan ke langkah tertentu atau dikoreksi waktunya oleh guru (' + r.jumps + ' kali)">Dikoreksi</span>' : '') +
         (r.switches_today ? ' <span class="pill ' + (r.switches_today >= 3 ? 'warn' : 'plain') + '" title="Pindah misi hari ini ' + r.switches_today + ' kali (total ' + r.switches + ' kali)">Pindah ' + r.switches_today + 'x</span>' : '');
     };
     const bar = (r) => {
@@ -2439,6 +2463,120 @@
       if (!manual && !(mins >= 1 && mins <= 720)) { toast('Lama istirahat 1 sampai 720 menit.', 'err'); return; }
       const ok = await run('t_pause_student', { p_student: r.student_id, p_ws: S.ws, p_minutes: mins }, 'Waktu ' + r.name + ' dihentikan.').then(() => true).catch(() => false);
       if (ok) { closeModal(true); pollMonitor(); }
+    };
+  }
+
+  /* =========================================================
+     PETUNJUK UJIAN (PDF): unggah ke Nextcloud, pilih murid, rentang waktu, pantau siapa yang membuka
+     ========================================================= */
+  const fmtDur = (s) => (!s ? '-' : s < 60 ? s + ' dtk' : Math.floor(s / 60) + ' mnt' + (s % 60 && s < 600 ? ' ' + (s % 60) + ' dtk' : ''));
+  function docState(d) {
+    const now = Date.now();
+    if (d.closes_at && new Date(d.closes_at) <= now) return ['plain', 'Ditutup'];
+    if (d.opens_at && new Date(d.opens_at) > now) return ['warn', 'Dijadwalkan'];
+    return ['ok', 'Bisa dibuka'];
+  }
+  async function loadDocs() {
+    $('docRoot').innerHTML = '<div class="empty"><span class="spinner"></span></div>';
+    try { S.docs = await api('t_docs'); } catch (e) { $('docRoot').innerHTML = '<div class="empty">' + h(errMsg(e)) + '</div>'; return; }
+    renderDocs();
+  }
+  function renderDocs() {
+    const D = (S.docs && S.docs.docs) || [];
+    $('docRoot').innerHTML = '<div class="toolbar"><p class="help" style="margin:0;max-width:760px">Petunjuk berbentuk PDF yang hanya bisa dibuka murid terpilih, di dalam aplikasi (tanpa unduhan), selama rentang waktu yang Anda atur. Murid membukanya lewat tombol <strong>Studi kasus</strong> setelah masuk dengan kode lembar kerja mana pun.</p><span class="spacer"></span>' +
+      '<button class="btn btn-primary" id="docNew"' + (IMAGE_UPLOAD_BASE ? '' : ' disabled title="IMAGE_UPLOAD_BASE di config.js masih kosong"') + '><svg><use href="#i-upload"/></svg>Unggah petunjuk</button></div>' +
+      (!D.length ? '<div class="panel empty"><strong>Belum ada petunjuk</strong>Unggah PDF, lalu pilih murid yang boleh membukanya.</div>' :
+      D.map((d) => {
+        const [tone, lbl] = docState(d), n = d.students.length, seen = d.students.filter((x) => x.first_at).length;
+        const open = S.docOpenId === d.id;
+        return '<section class="panel doc-card" data-id="' + d.id + '"><div class="doc-head">' +
+          '<div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>' +
+          '<div class="doc-main"><h3>' + h(d.title) + ' <span class="pill ' + tone + '">' + lbl + '</span></h3>' +
+          '<div class="bar-label">' + h(d.file_name || 'PDF') + (d.file_size ? ' · ' + fmtSize(d.file_size) : '') + ' · ' +
+            (d.opens_at ? 'dibuka ' + h(whenLong(d.opens_at)) : 'langsung dibuka') + ' · ' + (d.closes_at ? 'ditutup ' + h(whenLong(d.closes_at)) : 'tanpa batas tutup') + '</div></div>' +
+          '<div class="doc-stat"><b>' + seen + '</b> / ' + n + '<span>murid sudah membuka</span></div>' +
+          '<div class="doc-act"><button class="btn btn-ghost btn-sm" data-a="who">' + (open ? 'Sembunyikan' : 'Rincian') + '</button>' +
+          '<a class="btn btn-ghost btn-sm" href="' + h(d.file_url) + '" target="_blank" rel="noopener" title="Membuka/mengunduh file PDF (khusus guru)">File</a>' +
+          '<button class="btn btn-ghost btn-sm" data-a="edit">Ubah</button>' +
+          (lbl === 'Ditutup' ? '<button class="btn btn-ghost btn-sm" data-a="reopen">Buka lagi</button>' : '<button class="btn btn-ghost btn-sm" data-a="close">Tutup sekarang</button>') +
+          '<button class="btn btn-ghost btn-sm btn-icon" data-a="del" aria-label="Hapus"><svg><use href="#i-trash"/></svg></button></div></div>' +
+          (open ? '<div class="table-wrap doc-who"><table class="tbl"><thead><tr><th>Murid</th><th>Pertama dibuka</th><th>Terakhir</th><th>Halaman</th><th class="num">Lama membaca</th><th class="num">Dibuka</th></tr></thead><tbody>' +
+            d.students.map((x) => '<tr><td><strong>' + h(x.name) + '</strong><div class="bar-label">' + h(x.class) + '</div></td>' +
+              (x.first_at ? '<td>' + h(when(x.first_at)) + '</td><td>' + h(when(x.last_at)) + '</td><td>hal. ' + x.last_page + (x.pages ? ' dari ' + x.pages : '') + (x.pages && x.max_page >= x.pages ? ' <span class="pill ok">sampai akhir</span>' : x.max_page > x.last_page ? ' (terjauh ' + x.max_page + ')' : '') + '</td><td class="num">' + fmtDur(x.seconds) + '</td><td class="num">' + x.opens + 'x</td>'
+                : '<td colspan="5"><span class="pill plain">Belum dibuka</span></td>') + '</tr>').join('') + '</tbody></table></div>' : '') +
+          '</section>';
+      }).join(''));
+    if ($('docNew')) $('docNew').onclick = () => docModal(null);
+    $('docRoot').querySelectorAll('.doc-card [data-a]').forEach((b) => (b.onclick = async () => {
+      const id = b.closest('.doc-card').dataset.id, d = D.find((x) => x.id === id), a = b.dataset.a;
+      if (a === 'who') { S.docOpenId = S.docOpenId === id ? null : id; renderDocs(); }
+      if (a === 'edit') docModal(d);
+      if (a === 'close') { if (!(await confirmBox('Tutup petunjuk sekarang?', 'Murid tidak bisa membukanya lagi, dan yang sedang membaca akan langsung tertutup.', 'Tutup', true))) return; await run('t_close_doc', { p_id: id, p_close: true }, 'Petunjuk ditutup.').catch(() => {}); loadDocs(); }
+      if (a === 'reopen') { await run('t_close_doc', { p_id: id, p_close: false }, 'Petunjuk dibuka lagi tanpa batas tutup.').catch(() => {}); loadDocs(); }
+      if (a === 'del') { if (!(await confirmBox('Hapus petunjuk "' + d.title + '"?', 'Petunjuk dan catatan siapa yang sudah membukanya dihapus dari aplikasi. File PDF di Nextcloud tidak ikut terhapus.', 'Hapus', true))) return; await run('t_delete_doc', { p_id: id }, 'Petunjuk dihapus.').catch(() => {}); loadDocs(); }
+    }));
+  }
+  async function uploadPdf(file) {
+    if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) throw new Error('file harus PDF.');
+    if (file.size > 30 * 1024 * 1024) throw new Error('ukuran maksimal 30 MB.');
+    // nama acak panjang, tanpa nama murid: alamatnya tidak bisa ditebak
+    const d = new Date(), pad = (n) => String(n).padStart(2, '0');
+    const rnd = [...crypto.getRandomValues(new Uint8Array(12))].map((b) => b.toString(16).padStart(2, '0')).join('');
+    const url = IMAGE_UPLOAD_BASE.replace(/\/?$/, '/') + 'petunjuk-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + rnd + '.pdf';
+    let r;
+    try { r = await fetch(url, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/pdf' } }); }
+    catch { throw new Error('tidak bisa terhubung ke server file.'); }
+    if (!r.ok) throw new Error(r.status === 413 ? 'file terlalu besar untuk server.' : 'server menolak unggahan (kode ' + r.status + ').');
+    return url;
+  }
+  async function docModal(d) {
+    if (!S.students || !S.students.length) { try { S.students = await api('t_students'); } catch (e) { toast(errMsg(e), 'err'); return; } }
+    const studs = S.students.filter((x) => x.is_active !== false);
+    const chosen = new Set(d ? d.students.map((x) => x.student_id) : []);
+    const classes = [...new Set(studs.map((x) => x.class))].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+    let file = d ? { url: d.file_url, name: d.file_name, size: d.file_size } : null;
+    const box = openModal('<h2>' + (d ? 'Ubah petunjuk' : 'Unggah petunjuk ujian') + '</h2><p class="sub">PDF disimpan di Nextcloud dengan nama acak. Alamatnya hanya dikirim ke murid terpilih saat petunjuk bisa dibuka, dan murid membacanya di dalam aplikasi.</p>' +
+      '<div class="field"><label class="lbl" for="dcTitle">Judul</label><input class="input" id="dcTitle" maxlength="200" value="' + h(d ? d.title : '') + '" placeholder="Misalnya: Ujian Project Final, Aplikasi Kasir"></div>' +
+      '<div class="field"><span class="lbl">File PDF</span><div class="drop" id="dcDrop"><svg width="18" height="18" style="vertical-align:-4px"><use href="#i-upload"/></svg> <span id="dcFileTxt">' + (file ? h(file.name || 'PDF') + ' (' + fmtSize(file.size) + ') · <button type="button" id="dcPick">ganti file</button>' : 'Seret PDF ke sini atau <button type="button" id="dcPick">pilih file</button>. Maks. 30 MB.') + '</span><input type="file" id="dcFile" accept="application/pdf,.pdf" hidden><span class="st" id="dcSt"></span></div></div>' +
+      '<div class="dc-when"><div class="field"><label class="lbl" for="dcOpen">Dibuka mulai <span class="muted">(kosong = langsung)</span></label><input class="input" id="dcOpen" type="datetime-local" value="' + (d && d.opens_at ? dtLocal(new Date(d.opens_at)) : '') + '"></div>' +
+      '<div class="field"><label class="lbl" for="dcClose">Ditutup pada <span class="muted">(kosong = tidak ditutup)</span></label><input class="input" id="dcClose" type="datetime-local" value="' + (d && d.closes_at ? dtLocal(new Date(d.closes_at)) : '') + '"></div></div>' +
+      '<div class="field"><div class="jump-head"><span class="lbl">Murid yang boleh membuka <b id="dcN"></b></span>' +
+        '<div class="dc-filter"><select class="select" id="dcCls"><option value="">Semua kelas</option>' + classes.map((c) => '<option>' + h(c) + '</option>').join('') + '</select><input class="input" id="dcQ" type="search" placeholder="Cari nama…"></div></div>' +
+        '<label class="jall" style="margin:4px 0 8px"><input type="checkbox" id="dcAll">Pilih semua yang tampil</label>' +
+        '<div class="jump-list" id="dcList">' + studs.map((x) => '<label class="jrow" data-c="' + h(x.class) + '" data-n="' + h(norm(x.name)) + '"><input type="checkbox" value="' + x.id + '"' + (chosen.has(x.id) ? ' checked' : '') + '><span><strong>' + h(x.name) + '</strong></span><span class="muted">' + h(x.class) + '</span></label>').join('') + '</div></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" data-x="no">Batal</button><button class="btn btn-primary" id="dcSave">' + (d ? 'Simpan' : 'Simpan dan bagikan') + '</button></div>', true);
+    box.classList.add('jump');
+    box.querySelector('[data-x="no"]').onclick = () => closeModal(false);
+    const rows = [...box.querySelectorAll('#dcList .jrow')];
+    const count = () => { $('dcN').textContent = '(' + box.querySelectorAll('#dcList input:checked').length + ' dipilih)'; };
+    const filter = () => { const c = $('dcCls').value, q = norm($('dcQ').value); rows.forEach((r) => (r.hidden = (c && r.dataset.c !== c) || (q && !r.dataset.n.includes(q)))); };
+    $('dcCls').onchange = filter; $('dcQ').oninput = filter;
+    $('dcAll').onchange = () => { rows.forEach((r) => { if (!r.hidden) r.querySelector('input').checked = $('dcAll').checked; }); count(); };
+    box.querySelectorAll('#dcList input').forEach((i) => (i.onchange = count)); count();
+    const take = async (f) => {
+      if (!f) return;
+      $('dcSt').textContent = 'Mengunggah…'; $('dcSave').disabled = true;
+      try { const url = await uploadPdf(f); file = { url, name: f.name, size: f.size }; $('dcFileTxt').innerHTML = h(f.name) + ' (' + fmtSize(f.size) + ') · <button type="button" id="dcPick">ganti file</button>'; $('dcPick').onclick = () => $('dcFile').click(); $('dcSt').textContent = 'Terunggah.'; if (!$('dcTitle').value.trim()) $('dcTitle').value = f.name.replace(/\.pdf$/i, ''); }
+      catch (e) { $('dcSt').textContent = 'Gagal: ' + e.message; }
+      finally { $('dcSave').disabled = false; }
+    };
+    $('dcPick').onclick = () => $('dcFile').click();
+    $('dcFile').onchange = () => take($('dcFile').files[0]);
+    const drop = $('dcDrop');
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); take(e.dataTransfer.files[0]); });
+    $('dcSave').onclick = async () => {
+      const title = $('dcTitle').value.trim(), ids = [...box.querySelectorAll('#dcList input:checked')].map((i) => i.value);
+      const o = $('dcOpen').value ? new Date($('dcOpen').value) : null, c = $('dcClose').value ? new Date($('dcClose').value) : null;
+      if (!title) { toast('Isi judul petunjuk.', 'err'); return; }
+      if (!file) { toast('Unggah file PDF dulu.', 'err'); return; }
+      if (o && c && c <= o) { toast('Waktu ditutup harus setelah waktu dibuka.', 'err'); return; }
+      $('dcSave').disabled = true;
+      const r = await run('t_save_doc', { p_id: d ? d.id : null, p_title: title, p_url: file.url, p_name: file.name || '', p_size: file.size || 0,
+        p_opens: o ? o.toISOString() : null, p_closes: c ? c.toISOString() : null, p_students: ids }, 'Petunjuk disimpan untuk ' + ids.length + ' murid.').catch(() => null);
+      if (!r) { $('dcSave').disabled = false; return; }
+      closeModal(true); loadDocs();
     };
   }
 

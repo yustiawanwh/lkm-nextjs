@@ -436,6 +436,38 @@
   .break-clock[hidden] + .break-until{margin-top:22px; font-size:16px; font-weight:700; color:var(--ink-2)}
   .mk-chip{flex:none; font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#8a4b00; background:#fff1dc; border:1px solid #f4cf98; padding:3px 9px; border-radius:999px; margin-left:10px}
   @media (prefers-color-scheme: dark){ .mk-chip{color:#ffd08a; background:#33260f; border-color:#6b4a14} }
+  /* petunjuk ujian (PDF) */
+  .who .doc-open{margin-left:10px; height:34px; padding:0 12px; font-size:13px; flex:none}
+  .doc-open b{font-weight:800}
+  .bottom .doc-mob{display:none}
+  .bottom .btn.doc-mob{min-width:0; margin-left:0}
+  @media (max-width:720px){ .bottom .btn.doc-mob:not([hidden]){display:inline-flex; flex:none; padding:0 12px; margin-right:8px} }
+  .doc-open.has-new{border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .doc-view{position:fixed; inset:0; z-index:90; display:flex; flex-direction:column; background:var(--bg)}
+  .doc-view[hidden]{display:none}
+  body.dv-on{overflow:hidden}
+  .dv-bar{display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--line)}
+  .dv-title{flex:1; min-width:0; display:flex; flex-direction:column}
+  .dv-title strong{font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .dv-title span{font-size:12.5px; color:var(--muted)}
+  .dv-tools{display:flex; align-items:center; gap:6px}
+  .dv-tools .btn{width:38px; padding:0; justify-content:center; font-size:18px}
+  .dv-page{font-size:13px; font-weight:700; color:var(--ink-2); min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
+  .dv-back{width:38px; padding:0; justify-content:center; font-size:18px}
+  .dv-body{flex:1; overflow:auto; padding:16px; -webkit-user-select:none; user-select:none}
+  .dv-pages{display:flex; flex-direction:column; align-items:center; gap:14px}
+  .dv-p{position:relative; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.12); border-radius:4px; overflow:hidden; max-width:100%}
+  .dv-p canvas{display:block; max-width:100%; height:auto !important; pointer-events:none}
+  .dv-pn{position:absolute; inset:0; display:grid; place-items:center; color:#9aa0b4; font-weight:700}
+  .dv-empty{display:grid; place-items:center; min-height:60vh; text-align:center; color:var(--ink-2); font-size:15px; gap:10px; padding:20px}
+  .dv-list{max-width:640px; margin:10px auto; display:grid; gap:10px}
+  .dv-item{display:grid; gap:4px; text-align:left; padding:16px 18px; border-radius:14px; border:1px solid var(--line); background:var(--surface); cursor:pointer; font:inherit; color:inherit}
+  .dv-item:hover:not(:disabled){border-color:var(--accent)}
+  .dv-item:disabled{opacity:.6; cursor:default}
+  .dv-item strong{font-size:15.5px}
+  .dv-item span{font-size:13px; color:var(--muted)}
+  @media (max-width:640px){ .who .doc-open{padding:0 10px} .dv-bar{flex-wrap:wrap} }
+  @media print{ .doc-view{display:none !important} }
   .mk-sheet{max-width:520px}
   .mk-sheet h2{margin:10px 0 8px}
   .mk-sheet p{margin:0 0 12px; color:var(--ink-2); line-height:1.55}
@@ -632,6 +664,7 @@
       <span class="avatar" id="avatar" aria-hidden="true"></span>
       <div class="who-text"><strong id="whoName"></strong><span id="whoClass"></span></div>
       <span class="mk-chip" id="mkChip" hidden>Susulan</span>
+      <button class="btn btn-ghost doc-open" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Studi kasus <b class="doc-count"></b></button>
     </div>
     <div class="progress">
       <div class="segs" id="segs" aria-hidden="true"></div>
@@ -665,6 +698,7 @@
 
   <footer class="bottom">
     <div class="bottom-note" id="bottomNote"><svg><use href="#i-lock"/></svg><span>Setelah lanjut, langkah ini tertutup.</span></div>
+    <button class="btn btn-ghost doc-open doc-mob" type="button" hidden aria-label="Studi kasus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Studi kasus <b class="doc-count"></b></button>
     <button id="matBtn" class="btn btn-ghost mat-btn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Bahan <b id="matCount"></b></button>
     <button id="nextBtn" class="btn btn-primary" type="button"><span id="nextLabel">Lanjut</span><svg id="nextIcon"><use href="#i-arrow"/></svg></button>
   </footer>
@@ -680,6 +714,7 @@
     <div class="break-until" id="breakUntil"></div>
     <div class="break-keep" id="breakKeep"></div>
     <button class="btn btn-primary done-next" type="button" id="hereBtn" hidden>Kerjakan misi ini lagi</button>
+    <button class="btn btn-ghost done-next doc-open" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Studi kasus <b class="doc-count"></b></button>
     <p class="help" id="hereMsg" hidden></p>
   </div>
 </section>
@@ -691,6 +726,7 @@
     <h1>Lembar kerja ditutup guru</h1>
     <p>Kamu tidak bisa mengerjakan untuk sementara. Jawaban yang sudah tersimpan tetap aman. Halaman ini lanjut sendiri bila guru membukanya lagi.</p>
     <p class="done-who" id="closedWho"></p>
+    <button class="btn btn-ghost done-next doc-open" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Studi kasus <b class="doc-count"></b></button>
     <button class="btn btn-ghost done-next" type="button" data-relogin>Masuk dengan kode lain</button>
   </div>
 </section>
@@ -702,10 +738,26 @@
     <h1>Lembar kerja selesai</h1>
     <p>Semua jawabanmu sudah tersimpan. Kamu boleh menutup halaman ini.</p>
     <p class="done-who" id="doneWho"></p>
+    <button class="btn btn-ghost done-next doc-open" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Studi kasus <b class="doc-count"></b></button>
     <button class="btn btn-primary done-next" type="button" data-relogin>Kerjakan lembar kerja lain</button>
     <p class="done-hint">Minta kode lembar kerja berikutnya dari guru.</p>
   </div>
 </section>
+
+<!-- petunjuk ujian (PDF) -->
+<div class="doc-view" id="docView" role="dialog" aria-modal="true" aria-labelledby="dvTitle" hidden>
+  <div class="dv-bar">
+    <button class="btn btn-ghost dv-back" type="button" id="dvBack" hidden aria-label="Kembali ke daftar studi kasus">&larr;</button>
+    <div class="dv-title"><strong id="dvTitle">Studi kasus</strong><span id="dvSub"></span></div>
+    <div class="dv-tools" id="dvTools" hidden>
+      <span class="dv-page" id="dvPage"></span>
+      <button class="btn btn-ghost" type="button" id="dvOut" aria-label="Perkecil">&minus;</button>
+      <button class="btn btn-ghost" type="button" id="dvIn" aria-label="Perbesar">+</button>
+    </div>
+    <button class="btn btn-primary" type="button" id="dvClose">Tutup</button>
+  </div>
+  <div class="dv-body" id="dvBody"></div>
+</div>
 
 <!-- konfirmasi lanjut -->
 <div class="overlay" id="confirm" role="dialog" aria-modal="true" aria-labelledby="cTitle" aria-describedby="cBody">
@@ -985,12 +1037,155 @@
   function logout(msg) {
     store.clear();
     token = null; cur = null; busy = false; syncing = false;
+    if (typeof stopDoc === 'function') { stopDoc(); $('docView').hidden = true; document.body.classList.remove('dv-on'); docs = []; document.querySelectorAll('.doc-open').forEach((b) => (b.hidden = true)); }
     closeConfirm();
     $('lock').classList.remove('on');
     setNet(true);
     setLoginMsg(msg || '');
     show('login');
   }
+
+  /* ---------- petunjuk ujian (PDF) ----------
+     Daftar & alamat file hanya dari server untuk murid yang dipilih guru, selama rentang waktunya.
+     PDF digambar ke <canvas> dengan PDF.js: tidak ada tombol unduh dan teksnya tidak bisa diblok/salin. */
+  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  let docs = [], docTimer = null, docOpen = null;
+  async function refreshDocs() {
+    if (!token) return;
+    try { const r = await rpc('my_docs', { p_token: token }); docs = (r && r.docs) || []; }
+    catch (e) { if (isInvalidSession(e)) return; return; }
+    const n = docs.filter((d) => d.state === 'open').length;
+    document.querySelectorAll('.doc-open').forEach((b) => { b.hidden = !docs.length; b.querySelector('.doc-count').textContent = docs.length > 1 ? docs.length : ''; b.classList.toggle('has-new', docs.some((d) => d.state === 'open' && !d.viewed)); });
+    if (!$('docView').hidden && !docOpen) renderDocList();
+    // guru menutup petunjuk atau mencabut akses saat sedang dibaca: tampilan langsung ditutup
+    if (docOpen && !docs.some((d) => d.id === docOpen.id && d.state === 'open')) {
+      stopDoc(); $('dvTools').hidden = true;
+      $('dvBody').innerHTML = '<div class="dv-empty">Studi kasus ini sudah ditutup guru.</div>';
+    }
+    clearTimeout(docTimer); docTimer = setTimeout(refreshDocs, docOpen ? 20000 : n ? 60000 : 30000);
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.doc-open')) openDocs(); });
+  function openDocs() {
+    $('docView').hidden = false; document.body.classList.add('dv-on');
+    if (docs.length === 1 && docs[0].state === 'open') viewDoc(docs[0].id); else renderDocList();
+  }
+  function closeDocs() { stopDoc(); $('docView').hidden = true; document.body.classList.remove('dv-on'); refreshDocs(); }
+  $('dvClose').onclick = closeDocs;
+  $('dvBack').onclick = () => { stopDoc(); renderDocList(); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('docView').hidden) closeDocs(); });
+  const fmtWhen = (d) => new Date(d).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+  function renderDocList() {
+    stopDoc();
+    $('dvBack').hidden = true; $('dvTools').hidden = true; $('dvTitle').textContent = 'Studi kasus'; $('dvSub').textContent = '';
+    $('dvBody').innerHTML = !docs.length ? '<div class="dv-empty">Belum ada studi kasus untukmu.</div>' :
+      '<div class="dv-list">' + docs.map((d) => '<button type="button" class="dv-item" data-doc="' + d.id + '"' + (d.state === 'open' ? '' : ' disabled') + '>' +
+        '<strong>' + esc(d.title) + '</strong><span>' + (d.state === 'open'
+          ? (d.viewed ? 'Sudah kamu buka' : 'Belum dibuka') + (d.closes_at ? ' · ditutup ' + fmtWhen(d.closes_at) : '')
+          : 'Bisa dibuka mulai ' + fmtWhen(d.opens_at)) + '</span></button>').join('') + '</div>';
+    $('dvBody').querySelectorAll('[data-doc]').forEach((b) => (b.onclick = () => viewDoc(b.dataset.doc)));
+  }
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    return new Promise((ok, no) => {
+      const sc = document.createElement('script'); sc.src = PDFJS + 'pdf.min.js'; sc.crossOrigin = 'anonymous';
+      sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; ok(window.pdfjsLib); };
+      sc.onerror = () => no(new Error('pdfjs')); document.head.appendChild(sc);
+    });
+  }
+  function stopDoc() {
+    if (!docOpen) return;
+    sendProgress(true);
+    clearInterval(docOpen.tick); clearTimeout(docOpen.closeT); if (docOpen.io) docOpen.io.disconnect();
+    try { docOpen.pdf && docOpen.pdf.destroy(); } catch {}
+    docOpen = null;
+  }
+  async function viewDoc(id) {
+    stopDoc();
+    const d = docs.find((x) => x.id === id) || {};
+    $('dvBack').hidden = docs.length < 2; $('dvTools').hidden = true;
+    $('dvTitle').textContent = d.title || 'Studi kasus'; $('dvSub').textContent = '';
+    $('dvBody').innerHTML = '<div class="dv-empty"><span class="spinner"></span> Memuat studi kasus…</div>';
+    let r;
+    try { r = await rpc('open_doc', { p_token: token, p_doc: id }); }
+    catch (e) { if (isInvalidSession(e)) { closeDocs(); logout(sessMsg(e)); return; } $('dvBody').innerHTML = '<div class="dv-empty">Koneksi bermasalah. Coba lagi.</div>'; return; }
+    if (r.error) {
+      $('dvBody').innerHTML = '<div class="dv-empty">' + ({ not_open: 'Studi kasus ini baru bisa dibuka mulai ' + fmtWhen(r.opens_at) + '.', closed: 'Studi kasus ini sudah ditutup guru.', not_allowed: 'Studi kasus ini bukan untukmu.' }[r.error] || 'Studi kasus tidak bisa dibuka.') + '</div>';
+      refreshDocs(); return;
+    }
+    const st = docOpen = { id, page: 1, pages: 0, scale: 1, secs: 0, sentAt: Date.now(), lastPage: 0 };
+    try {
+      const lib = await loadPdfJs();
+      const res = await fetch(r.url, { cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+      if (!res.ok) throw new Error('http ' + res.status);
+      const buf = await res.arrayBuffer();
+      if (docOpen !== st) return;
+      st.pdf = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
+    } catch (e) {
+      if (docOpen !== st) return;
+      docOpen = null;
+      $('dvBody').innerHTML = '<div class="dv-empty">Studi kasus tidak bisa dimuat. Coba muat ulang halaman; bila tetap gagal, beri tahu guru.</div>';
+      return;
+    }
+    if (docOpen !== st) return;
+    st.pages = st.pdf.numPages;
+    $('dvSub').textContent = st.pages + ' halaman' + (r.closes_at ? ' · ditutup ' + fmtWhen(r.closes_at) : '');
+    $('dvTools').hidden = false;
+    // petunjuk ditutup guru saat sedang dibaca: tampilan ditutup tepat waktu
+    if (r.closes_at) { const left = new Date(r.closes_at) - new Date(r.now); if (left < 2147483000) st.closeT = setTimeout(() => { stopDoc(); $('dvBody').innerHTML = '<div class="dv-empty">Waktu membuka studi kasus ini sudah habis.</div>'; $('dvTools').hidden = true; refreshDocs(); }, Math.max(0, left)); }
+    layoutPages(st);
+    clearTimeout(docTimer); docTimer = setTimeout(refreshDocs, 20000);
+    // hitung lama membaca hanya saat tab terlihat
+    st.tick = setInterval(() => { if (!document.hidden) st.secs++; if (Date.now() - st.sentAt > 20000) sendProgress(); }, 1000);
+  }
+  function layoutPages(st) {
+    const body = $('dvBody'); body.innerHTML = '';
+    const wrap = document.createElement('div'); wrap.className = 'dv-pages'; body.appendChild(wrap);
+    if (st.io) st.io.disconnect();
+    const width = Math.min(body.clientWidth - 32, 980) * st.scale;
+    const ratio = { v: 1.414 };
+    st.cvs = [];
+    for (let i = 1; i <= st.pages; i++) {
+      const box = document.createElement('div'); box.className = 'dv-p'; box.dataset.p = i;
+      box.style.width = width + 'px'; box.style.height = width * ratio.v + 'px';
+      box.innerHTML = '<span class="dv-pn">' + i + '</span>';
+      wrap.appendChild(box); st.cvs.push(box);
+    }
+    // ukuran halaman pertama untuk perbandingan tinggi
+    st.pdf.getPage(1).then((pg) => { const vp = pg.getViewport({ scale: 1 }); ratio.v = vp.height / vp.width; st.cvs.forEach((b) => { if (!b.dataset.done) b.style.height = width * ratio.v + 'px'; }); });
+    st.io = new IntersectionObserver((ents) => {
+      ents.forEach((en) => { if (en.isIntersecting) drawPage(st, en.target, width); });
+      // halaman yang paling banyak terlihat = halaman yang sedang dibaca
+      const vis = st.cvs.map((b) => { const r = b.getBoundingClientRect(), h = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)); return [h, +b.dataset.p]; }).sort((a, b) => b[0] - a[0]);
+      if (vis[0] && vis[0][0] > 0 && vis[0][1] !== st.page) { st.page = vis[0][1]; $('dvPage').textContent = st.page + ' / ' + st.pages; if (Math.abs(Date.now() - st.sentAt) > 5000) sendProgress(); }
+    }, { root: body, rootMargin: '200px 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
+    st.cvs.forEach((b) => st.io.observe(b));
+    $('dvPage').textContent = st.page + ' / ' + st.pages;
+  }
+  async function drawPage(st, box, width) {
+    if (box.dataset.done || box.dataset.busy) return;
+    box.dataset.busy = '1';
+    try {
+      const pg = await st.pdf.getPage(+box.dataset.p);
+      const vp0 = pg.getViewport({ scale: 1 }), scale = width / vp0.width, dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const vp = pg.getViewport({ scale: scale * dpr });
+      const c = document.createElement('canvas'); c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+      c.style.width = width + 'px'; c.style.height = (vp.height / dpr) + 'px';
+      await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+      if (docOpen !== st) return;
+      box.style.height = 'auto'; box.innerHTML = ''; box.appendChild(c); box.dataset.done = '1';
+    } catch {} finally { delete box.dataset.busy; }
+  }
+  function zoom(f) { const st = docOpen; if (!st || !st.pdf) return; st.scale = Math.min(2.5, Math.max(0.5, st.scale * f)); const p = st.page; layoutPages(st); const t = st.cvs[p - 1]; if (t) t.scrollIntoView(); }
+  $('dvIn').onclick = () => zoom(1.25); $('dvOut').onclick = () => zoom(0.8);
+  function sendProgress(final) {
+    const st = docOpen; if (!st || !st.pages || !token) return;
+    const secs = st.secs; st.secs = 0; st.sentAt = Date.now();
+    if (!secs && st.lastPage === st.page && !final) return;
+    st.lastPage = st.page;
+    rpc('doc_progress', { p_token: token, p_doc: st.id, p_page: st.page, p_pages: st.pages, p_secs: Math.min(secs, 120) }).catch(() => {});
+  }
+  document.getElementById('docView').addEventListener('contextmenu', (e) => e.preventDefault());
+  setTimeout(refreshDocs, 800);
 
   /* ---------- login ---------- */
   $('peek').addEventListener('click', () => {
@@ -1035,6 +1230,7 @@
       store.set('lk_who', JSON.stringify(who));
       $('fPass').value = ''; $('fCode').value = '';
       await loadState();
+      refreshDocs();
     } catch (e) {
       setLoginMsg('Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.');
     } finally {
